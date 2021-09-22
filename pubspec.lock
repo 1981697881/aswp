@@ -83,6 +83,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.3.0"
+  flutter_pickers:
+    dependency: "direct main"
+    description:
+      name: flutter_pickers
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
   flutter_screenutil:
     dependency: "direct main"
     description:
@@ -206,5 +213,5 @@ packages:
     source: hosted
     version: "2.0.5"
 sdks:
-  dart: ">=2.10.0-110 <=2.11.0-213.1.beta"
+  dart: ">=2.10.0 <=2.11.0-213.1.beta"
   flutter: ">=1.17.0 <2.0.0"

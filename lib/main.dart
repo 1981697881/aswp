@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:aswp/views/login/login_page.dart';
-
 const Color _primaryColor = Colors.blue;
 
 void main(List<String> args) {

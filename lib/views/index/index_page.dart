@@ -32,10 +32,10 @@ class _IndexPageState extends State<IndexPage> {
       children: [
         AppBarTabsItem(
           icon: Icons.favorite,
-          text: "赞和收藏",
+          text: "新增",
           color: Theme.of(context).primaryColor.withOpacity(0.8),
         ),
-        AppBarTabsItem(
+       /* AppBarTabsItem(
           icon: Icons.person,
           text: "新增关注",
           color: Colors.blue.withOpacity(0.9),
@@ -44,7 +44,7 @@ class _IndexPageState extends State<IndexPage> {
           icon: Icons.face,
           text: "评论和@",
           color: Colors.green.withOpacity(0.7),
-        ),
+        ),*/
       ],
     );
   }
@@ -111,7 +111,8 @@ class _IndexPageState extends State<IndexPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: new Text('Startup Name Generator'),
+        title: new Text('主页'),
+        centerTitle: true,
         actions: <Widget>[
           new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),
         ],
@@ -148,7 +149,7 @@ class _IndexPageState extends State<IndexPage> {
                       ),
                     ),
                     child: ListTile(
-                        leading: ClipRRect(
+                       /* leading: ClipRRect(
                           borderRadius: BorderRadius.circular(50.0),
                           child: Image.network(
                             mm.tileAvatar,
@@ -156,7 +157,7 @@ class _IndexPageState extends State<IndexPage> {
                             width: 40.0,
                             height: 40.0,
                           ),
-                        ),
+                        ),*/
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.end,
