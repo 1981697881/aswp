@@ -6,9 +6,12 @@ import 'package:flutter_pickers/pickers.dart';
 import 'package:flutter_pickers/more_pickers/init_data.dart';
 import 'package:flutter_pickers/style/default_style.dart';
 import 'package:flutter_pickers/style/picker_style.dart';
-import 'dart:convert';
+import 'package:flutter_pickers/time_picker/model/date_mode.dart';
+import 'package:flutter_pickers/time_picker/model/pduration.dart';
+import 'package:flutter_pickers/time_picker/model/suffix.dart';
 import 'dart:io';
-import 'package:aswp/views/report/my_app_bar.dart';
+import 'package:flutter_pickers/utils/check.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:aswp/views/report/my_text.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
@@ -21,16 +24,13 @@ class ReportPage extends StatefulWidget {
 }
 
 class _ReportPageState extends State<ReportPage> {
-  String selectSex = '女';
-  String selectEdu;
-  String selectSubject;
-  String selectConstellation;
-  String selectZodiac = '龙';
-  String selectHeight = '165';
-  String selectEthnicity = '汉族';
-
+  String selectSex = 'Go';
+  var selectData = {
+    DateMode.YMD: '2021-9-1',
+  };
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
+  final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
@@ -72,41 +72,59 @@ class _ReportPageState extends State<ReportPage> {
     });
   }
 
-  String username;
-
-  int sex = 1;
-
   // 用户的爱好集合
   List hobby = [
-    {"checked": false, "title": "玩游戏"},
-    {"checked": false, "title": "写代码"},
-    {"checked": true, "title": "打豆豆"}
+    {"title": "物料字码", "value": ""},
+    {"title": "生产车间", "value": ""},
+    {"title": "预测批号", "value": ""},
+    {"title": "需生产数量", "value": ""},
+    {"title": "良品数量", "value": ""},
+    {"title": "良品仓库", "value": ""},
+    {"title": "不合格数量", "value": ""},
+    {"title": "不合格仓库", "value": ""},
   ];
-  String info = "";
-
-  // 姓别选择的回调方法
-  void _sexChange(value) {
-    setState(() {
-      this.sex = value;
-    });
-  }
-
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
-    for (int i = 0; i < this.hobby.length; i++) {
-      tempList.add(Row(
-        children: <Widget>[
-          Text(this.hobby[i]["title"] + '：'),
-          Checkbox(
-            value: this.hobby[i]["checked"],
-            onChanged: (value) {
-              setState(() {
-                this.hobby[i]["checked"] = value;
-              });
-            },
-          )
-        ],
-      ));
+    for (int i = 0; i < 3; i++) {
+      List<Widget> comList = [];
+      for (int j = 0; j < this.hobby.length; j++) {
+        if (j == 5) {
+          comList.add(
+            _item(this.hobby[j]["title"], ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
+                this.hobby[j]["value"]),
+          );
+        } else if (j == 7) {
+          comList.add(
+            _item(this.hobby[j]["title"], ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
+                this.hobby[j]["value"]),
+          );
+        } else {
+          comList.add(
+            Column(children: [
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                  title: Text(this.hobby[j]["title"] + '：'),
+                  trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    MyText(this.hobby[j]["value"],
+                        color: Colors.grey, rightpadding: 18),
+                  ]),
+                ),
+              ),
+              divider,
+            ]),
+          );
+        }
+      }
+      tempList.add(
+        SizedBox(height: 10),
+      );
+      tempList.add(
+        Column(
+          children: comList,
+        ),
+      );
     }
     return tempList;
   }
@@ -128,6 +146,59 @@ class _ReportPageState extends State<ReportPage> {
         ),
         divider,
       ],
+    );
+  }
+
+  Widget _dateItem(title, model) {
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          child: ListTile(
+            title: Text(title),
+            onTap: () {
+              _onDateClickItem(model);
+            },
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              MyText(
+                  PicketUtil.strEmpty(selectData[model])
+                      ? '暂无'
+                      : selectData[model],
+                  color: Colors.grey,
+                  rightpadding: 18),
+              rightIcon
+            ]),
+          ),
+        ),
+        divider,
+      ],
+    );
+  }
+
+  void _onDateClickItem(model) {
+    Pickers.showDatePicker(
+      context,
+      mode: model,
+      suffix: Suffix.normal(),
+
+      // selectDate: PDuration(month: 2),
+      minDate: PDuration(year: 2020, month: 2, day: 10),
+      maxDate: PDuration(second: 22),
+
+      // selectDate: PDuration(hour: 18, minute: 36, second: 36),
+      // minDate: PDuration(hour: 12, minute: 38, second: 3),
+      // maxDate: PDuration(hour: 12, minute: 40, second: 36),
+      onConfirm: (p) {
+        print('longer >>> 返回数据：$p');
+        setState(() {
+          switch (model) {
+            case DateMode.YMD:
+              selectData[model] = '${p.year}-${p.month}-${p.day}';
+              break;
+          }
+        });
+      },
+      // onChanged: (p) => print(p),
     );
   }
 
@@ -159,100 +230,82 @@ class _ReportPageState extends State<ReportPage> {
             centerTitle: true,
           ),
           body: Column(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: ListView(children: <Widget>[
                   Column(
-                    children: <Widget>[
-                      Row(children: <Widget>[
-                        Text("生产单号："),
-                        Expanded(
-                          flex: 1,
-                          child: new TextField(
-                            decoration: InputDecoration(hintText: "请输入用户信息"),
-                            onChanged: (value) {
-                              setState(() {
-                                this.username = value;
-                              });
-                            },
-                          ),
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text('生产单号：'),
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: new Icon(Icons.filter_center_focus),
+                                  tooltip: 'Increase volume by 10%',
+                                  onPressed: () {
+                                    print('点击黄色按钮事件');
+                                  },
+                                ),
+                              ]),
                         ),
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: 'Increase volume by 10%',
-                          onPressed: () {
-                            print('点击黄色按钮事件');
-                          },
-                        ),
-                      ]),
-                      // 单行文本输入框
-                      SizedBox(height: 10),
-                      Row(children: <Widget>[
-                        Text("生产单号："),
-                        Expanded(
-                          flex: 1,
-                          child: new TextField(
-                            decoration: InputDecoration(hintText: "请输入用户信息"),
-                            onChanged: (value) {
-                              setState(() {
-                                this.username = value;
-                              });
-                            },
-                          ),
-                        ),
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: 'Increase volume by 10%',
-                          onPressed: () {},
-                        ),
-                      ]),
-                      // 单行文本输入框
-                      SizedBox(height: 10),
-                      // 单选按钮
-                      Row(children: <Widget>[
-                        Text('男'),
-                        Radio(
-                          value: 1,
-                          onChanged: this._sexChange,
-                          groupValue: this.sex,
-                        ),
-                        SizedBox(width: 20),
-                        Text("女"),
-                        Radio(
-                          value: 2,
-                          onChanged: this._sexChange,
-                          groupValue: this.sex,
-                        )
-                      ]),
-                      SizedBox(height: 10),
-                      // 多选框
-                      Column(
-                        children: this._getHobby(),
                       ),
-                      SizedBox(height: 10),
-                      // 多行文本域
-                      TextField(
-                        maxLines: 4,
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(), hintText: "请输入备注信息"),
-                        onChanged: (value) {
-                          setState(() {
-                            this.info = value;
-                          });
-                        },
-                      ),
+                      divider,
                     ],
                   ),
-                  _item('性别', PickerDataType.sex, selectSex),
-                  _item('自定义数据 (单列)',
-                      ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'], "Dart"),
-                  _item(
-                      '身高',
-                      List.generate(200, (index) => (50 + index).toString()),
-                      "168",
-                      label: 'cm'),
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text('来源单号：'),
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                MyText('',
+                                    color: Colors.grey, rightpadding: 18),
+                              ]),
+                        ),
+                      ),
+                      divider,
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text('客户名称：'),
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                MyText('',
+                                    color: Colors.grey, rightpadding: 18),
+                              ]),
+                        ),
+                      ),
+                      divider,
+                    ],
+                  ),
+                  _dateItem('生产日期：', DateMode.YMD),
+                  _item('生产车间', ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'], selectSex),
                   // _item('Laber', [123, 23,235,3,14545,15,123163,18548,9646,1313], 235, label: 'kg')
-                  SizedBox(height: 80),
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text('生产详细信息：'),
+                        ),
+                      ),
+                      divider,
+                    ],
+                  ),
+                  Column(
+                    children: this._getHobby(),
+                  ),
                 ]),
               ),
               Padding(
@@ -266,10 +319,7 @@ class _ReportPageState extends State<ReportPage> {
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         onPressed: () async {
-                          print(this.sex);
-                          print(this.username);
                           print(this.hobby);
-                          print(this.info);
                         },
                       ),
                     ),
@@ -277,132 +327,6 @@ class _ReportPageState extends State<ReportPage> {
                 ),
               )
             ],
-            /*child: ListView(children: <Widget>[
-              Column(
-                children: <Widget>[
-                  Row(
-                      children:<Widget>[
-                        Text("生产单号："),
-                        Expanded(
-                          flex: 1,
-                          child: new TextField(
-                            decoration: InputDecoration(
-                                hintText: "请输入用户信息"
-                            ),
-                            onChanged: (value){
-                              setState(() {
-                                this.username = value;
-                              });
-                            },
-                          ),
-                        ),
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: 'Increase volume by 10%',
-                          onPressed: () {
-                            print('点击黄色按钮事件');
-                          },
-                        ),
-                      ]
-                  ),
-                  // 单行文本输入框
-                  SizedBox(height:10),
-                  Row(
-                      children:<Widget>[
-                        Text("生产单号："),
-                        Expanded(
-                          flex: 1,
-                          child: new TextField(
-                            decoration: InputDecoration(
-                                hintText: "请输入用户信息"
-                            ),
-                            onChanged: (value){
-                              setState(() {
-                                this.username = value;
-                              });
-                            },
-                          ),
-                        ),
-                        IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
-                          tooltip: 'Increase volume by 10%',
-                          onPressed: () {
-
-                          },
-                        ),
-                      ]
-                  ),
-                  // 单行文本输入框
-                  SizedBox(height:10),
-                  // 单选按钮
-                  Row(
-                      children:<Widget>[
-                        Text('男'),
-                        Radio(
-                          value:1,
-                          onChanged: this._sexChange,
-                          groupValue: this.sex,
-                        ),
-                        SizedBox(width:20),
-                        Text("女"),
-                        Radio(
-                          value:2,
-                          onChanged:this._sexChange,
-                          groupValue:this.sex,
-                        )
-                      ]
-                  ),
-                  SizedBox(height:10),
-                  // 多选框
-                  Column(
-                    children:this._getHobby(),
-                  ),
-                  SizedBox(height:10),
-                  // 多行文本域
-                  TextField(
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "请输入备注信息"
-                    ),
-                    onChanged:(value){
-                      setState(() {
-                        this.info = value;
-                      });
-                    },
-                  ),
-
-                  SizedBox(height:10),
-                  // 登录按钮
-                  Container(
-                      width:double.infinity,
-                      height:40,
-                      child:RaisedButton(
-                          child: Text("登录"),
-                          onPressed:(){
-                            print(this.sex);
-                            print(this.username);
-                            print(this.hobby);
-                            print(this.info);
-                          },
-                          color:Colors.blue,
-                          textColor:Colors.white
-                      )
-                  )
-                ],
-              ),
-              _item('性别', PickerDataType.sex, selectSex),
-              _item(
-                  '自定义数据 (单列)', ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
-                  "Dart"),
-              _item(
-                  '身高', List.generate(200, (index) => (50 + index).toString()),
-                  "168",
-                  label: 'cm'),
-              // _item('Laber', [123, 23,235,3,14545,15,123163,18548,9646,1313], 235, label: 'kg')
-              SizedBox(height: 80),
-
-          ]),*/
           )),
     );
   }
