@@ -1,3 +1,4 @@
+import 'package:aswp/views/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -13,6 +14,7 @@ import 'dart:io';
 import 'package:flutter_pickers/utils/check.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:aswp/views/report/my_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
@@ -220,7 +222,56 @@ class _ReportPageState extends State<ReportPage> {
       },
     );
   }
+  void _pushSaved() {
+    Navigator.of(context).push(
+      new MaterialPageRoute(
+        builder: (context) {
+          return new Scaffold(
+            appBar: new AppBar(
+              title: new Text('系统设置'),
+              centerTitle: true,
+            ),
+            body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.search),
+                title: Text('版本信息'),
 
+              ),
+              Divider(
+                height: 10.0,
+                indent: 0.0,
+                color: Colors.grey,
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('退出登录'),
+                onTap: () async{
+                  print("点击退出登录");
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.clear();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return LoginPage(
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              Divider(
+                height: 10.0,
+                indent: 0.0,
+                color: Colors.grey,
+              ),
+
+            ]),
+          );
+        },
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -228,6 +279,9 @@ class _ReportPageState extends State<ReportPage> {
           appBar: AppBar(
             title: Text("汇报"),
             centerTitle: true,
+            actions: <Widget>[
+              new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),
+            ],
           ),
           body: Column(
             children: <Widget>[

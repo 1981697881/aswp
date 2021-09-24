@@ -4,15 +4,14 @@ import 'package:aswp/views/index/index_model.dart';
 import 'package:english_words/english_words.dart';
 import 'package:aswp/views/login/login_page.dart';
 import 'package:aswp/views/report/report_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 
 class IndexPage extends StatefulWidget {
   IndexPage({
     Key key,
-    @required this.text, // 接收一个text参数
   }) : super(key: key);
-  final String text;
 
   @override
   _IndexPageState createState() => _IndexPageState();
@@ -30,12 +29,12 @@ class _IndexPageState extends State<IndexPage> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        AppBarTabsItem(
+        /* AppBarTabsItem(
           icon: Icons.favorite,
           text: "新增",
           color: Theme.of(context).primaryColor.withOpacity(0.8),
         ),
-       /* AppBarTabsItem(
+        AppBarTabsItem(
           icon: Icons.person,
           text: "新增关注",
           color: Colors.blue.withOpacity(0.9),
@@ -81,8 +80,10 @@ class _IndexPageState extends State<IndexPage> {
               ListTile(
                   leading: Icon(Icons.settings),
                   title: Text('退出登录'),
-                  onTap: () {
+                  onTap: () async{
                     print("点击退出登录");
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    prefs.clear();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -121,7 +122,7 @@ class _IndexPageState extends State<IndexPage> {
         width: double.infinity,
         child: Column(
           children: [
-            Container(
+            /*Container(
               width: double.infinity,
               color: Colors.white,
               margin: EdgeInsets.only(bottom: 10.0),
@@ -131,7 +132,7 @@ class _IndexPageState extends State<IndexPage> {
                 vertical: 20.0,
               ),
               child: buildAppBarTabs(),
-            ),
+            ),*/
             Expanded(
               child: ListView.builder(
                 itemCount: 4,

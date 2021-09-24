@@ -1,13 +1,12 @@
+import 'package:aswp/model/login_entity.dart';
+import 'package:aswp/model/user_login_entity.dart';
+import 'package:aswp/http/api_response.dart';
+import 'package:aswp/views/report/report_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:aswp/views/index/index_page.dart';
 import 'package:aswp/utils/toast_util.dart';
-import 'package:aswp/utils/HttpUtils.dart';
-import 'package:aswp/entity/login_entity.dart';
 import 'package:aswp/server/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class LoginPage extends StatefulWidget {
@@ -113,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
       // 设置图片为圆形
       child: ClipOval(
         child: Image.asset(
-          "assets/images/my_head.jpg",
+          "assets/images/icon.png",
           height: 100,
           width: 100,
           fit: BoxFit.cover,
@@ -210,52 +209,42 @@ class _LoginPageState extends State<LoginPage> {
             //只有输入通过验证，才会执行这里
             _formKey.currentState.save();
             Map<String,dynamic> map = Map();
-            map['userName']=_username;
-            map['acctID']=HttpUtils.ACCT_ID;
-            map['password']=_password;
-            var result = await HttpUtils.request(
-                Api.LOGIN_URL,
-                method: HttpUtils.POST,
-                data: map
-            );
-            print(result);
-          /*  BackBean _backbean = BackBean.fromJson(result);
-            String getmsg = _backbean.msg;
-            int getcode = _backbean.code;
-            print(getmsg);
-            print(getcode);
-            if (getcode == 200) {
-//  print("登录成功");
+            map['username']='admin';
+            map['acctID']=API.ACCT_ID;
+            map['lcid']=API.lcid;
+            map['password']='msd888';
+            ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
+            if (entity.data.loginResultType == 1) {
+                //  print("登录成功");
               SharedPreferences sharedPreferences =
                   await SharedPreferences.getInstance();
-              sharedPreferences.setString('username', _username);
-              sharedPreferences.setString('password', _password);
-              ToastUtil.showInfo(getmsg);
-              Navigator.of(context).push(new MaterialPageRoute(
-                builder: (context) {
-                  return new IndexPage();
-                },
-              ));
+              sharedPreferences.setString('username', 'admin');
+              sharedPreferences.setString('password', 'msd888');
+              Map<String,dynamic> userMap = Map();
+              userMap['FormId']='BD_Empinfo';
+              userMap['FilterString']= "FStaffNumber='$_username' and FPwd='$_password'";
+              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName';
+              Map<String,dynamic> dataMap = Map();
+              dataMap['data']=userMap;
+              String UserEntity = await UserLoginEntity.login(dataMap);
+              sharedPreferences.setString('FStaffNumber', _username);
+              sharedPreferences.setString('FPwd', _password);
+              if(UserEntity.isNotEmpty){
+                ToastUtil.showInfo('登录成功');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ReportPage();
+                    },
+                  ),
+                );
+              }
             } else {
-              ToastUtil.showInfo(getmsg);
+              ToastUtil.showInfo('登录失败');
             }
-            print(result.toString());*/
-            /*  // 打开`TipRoute`，并等待返回结果
-            var result = await Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return IndexPage(
-                    // 路由参数
-                    text: "我是提示xxxx",
-                  );
-                },
-              ),
-            );
-            //输出`TipRoute`路由返回结果
-            print("路由返回值: $result");
             //todo 登录操作
-            print("$_username + $_password");*/
+            print("$_username + $_password");
           }
         },
       ),
