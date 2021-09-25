@@ -84,7 +84,7 @@ class _ReportPageState extends State<ReportPage> {
     selectData[DateMode.YMD] =orderDate[0][3].substring(0,10);
     FSaleOrderNo = orderDate[0][4];
     globalKey.currentState.update();
-    FBillNoKey.currentState.onPressed(orderDate[0][0]);
+    /*FBillNoKey.currentState.onPressed(orderDate[0][0]);*/
     FSaleOrderNoKey.currentState.onPressed(orderDate[0][4]);
     setState(() {
       this._getHobby();
@@ -450,7 +450,8 @@ class _ReportPageState extends State<ReportPage> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          title: TextWidget(FBillNoKey, '生产订单：'),
+                         /* title: TextWidget(FBillNoKey, '生产订单：'),*/
+                          title: Text("生产订单：$FBillNo"),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
@@ -473,7 +474,8 @@ class _ReportPageState extends State<ReportPage> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          title: TextWidget(FSaleOrderNoKey, '来源单号：'),
+                          title: Text("来源单号：$FSaleOrderNo"),
+                          /*title: TextWidget(FSaleOrderNoKey, '来源单号：'),*/
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
