@@ -1,12 +1,15 @@
+import 'dart:convert';
+import 'package:aswp/model/currency_entity.dart';
+import 'package:aswp/utils/refresh_widget.dart';
+import 'package:aswp/utils/text.dart';
+import 'package:aswp/utils/toast_util.dart';
 import 'package:aswp/views/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_pickers/pickers.dart';
 import 'package:flutter_pickers/more_pickers/init_data.dart';
 import 'package:flutter_pickers/style/default_style.dart';
-import 'package:flutter_pickers/style/picker_style.dart';
 import 'package:flutter_pickers/time_picker/model/date_mode.dart';
 import 'package:flutter_pickers/time_picker/model/pduration.dart';
 import 'package:flutter_pickers/time_picker/model/suffix.dart';
@@ -15,7 +18,7 @@ import 'package:flutter_pickers/utils/check.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:aswp/views/report/my_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:intl/intl.dart';
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class ReportPage extends StatefulWidget {
@@ -26,10 +29,23 @@ class ReportPage extends StatefulWidget {
 }
 
 class _ReportPageState extends State<ReportPage> {
-  String selectSex = 'Go';
+  GlobalKey<TextWidgetState> textKey = GlobalKey();
+  GlobalKey<TextWidgetState> FBillNoKey = GlobalKey();
+  GlobalKey<TextWidgetState> FSaleOrderNoKey = GlobalKey();
+  GlobalKey<PartRefreshWidgetState> globalKey=GlobalKey();
+  GlobalKey<PartRefreshWidgetState> FPrdOrgIdKey=GlobalKey();
+
+  var checkItem;
+  String FBillNo = '';
+  String FSaleOrderNo = '';
+  String FName = '';
+  String FNumber = '';
+
+  String FDate = '';
   var selectData = {
-    DateMode.YMD: '2021-9-1',
+    DateMode.YMD: '',
   };
+  List<dynamic> orderDate = [];
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
@@ -59,18 +75,64 @@ class _ReportPageState extends State<ReportPage> {
       _subscription.cancel();
     }
   }
-
-  void _onEvent(Object event) {
+  getOrderList(data) async{
+    String order = await CurrencyEntity.polling(data);
+    orderDate = [];
+    orderDate = jsonDecode(order);
+    FBillNo = orderDate[0][0];
+    FDate = orderDate[0][3].substring(0,10);
+    selectData[DateMode.YMD] =orderDate[0][3].substring(0,10);
+    FSaleOrderNo = orderDate[0][4];
+    globalKey.currentState.update();
+    FBillNoKey.currentState.onPressed(orderDate[0][0]);
+    FSaleOrderNoKey.currentState.onPressed(orderDate[0][4]);
     setState(() {
-      _code = event;
-      print("ChannelPage: $event");
+      this._getHobby();
     });
+  }
+
+  void _onEvent(Object event) async {
+    /*  setState(() {*/
+    _code = event;
+    if (textKey.currentState != null) {
+      textKey.currentState.onPressed(_code);
+      Navigator.pop(context);
+      switch (checkItem) {
+        case 'FBillNo':
+          Map<String, dynamic> userMap = Map();
+          userMap['FormId'] = 'PRD_MO';
+          userMap['FilterString'] = "FBillNo='$_code'";
+          userMap['FieldKeys'] =
+              'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = userMap;
+          await getOrderList(dataMap);
+          break;
+        case 'FPrdOrgId':
+          Map<String, dynamic> userMap = Map();
+          FName = _code.split(',')[1];
+          FNumber = _code.split(',')[0];
+          FPrdOrgIdKey.currentState.update();
+          userMap['FormId'] = 'PRD_MO';
+          userMap['FilterString'] = "FBillNo='$FBillNo' and FPrdOrgId.FNumber='$FNumber'";
+          userMap['FieldKeys'] =
+          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty';
+          Map<String, dynamic> dataMap = Map();
+          dataMap['data'] = userMap;
+          await getOrderList(dataMap);
+          break;
+      }
+      checkItem = '';
+    } else {
+      ToastUtil.showInfo('请点击扫描行扫描图标');
+    }
+    print("ChannelPage: $event");
+    /*});*/
   }
 
   void _onError(Object error) {
     setState(() {
       _code = "扫描异常";
-      print(error);
     });
   }
 
@@ -85,20 +147,58 @@ class _ReportPageState extends State<ReportPage> {
     {"title": "不合格数量", "value": ""},
     {"title": "不合格仓库", "value": ""},
   ];
+
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < orderDate.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby.length; j++) {
+        print(orderDate[i][j]);
         if (j == 5) {
-          comList.add(
+          /*comList.add(
             _item(this.hobby[j]["title"], ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
                 this.hobby[j]["value"]),
+          );*/
+          comList.add(
+            Column(children: [
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                    title: Text(this.hobby[j]["title"] + '：' + orderDate[i][j].toString()),
+                    trailing:
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      IconButton(
+                        icon: new Icon(Icons.filter_center_focus),
+                        tooltip: '点击扫描',
+                        onPressed: () {
+                          print('点击黄色按钮事件');
+                        },
+                      ),
+                    ])),
+              ),
+              divider,
+            ]),
           );
         } else if (j == 7) {
           comList.add(
-            _item(this.hobby[j]["title"], ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
-                this.hobby[j]["value"]),
+            Column(children: [
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                    title: Text(this.hobby[j]["title"] + '：'+orderDate[i][j]),
+                    trailing:
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      IconButton(
+                        icon: new Icon(Icons.filter_center_focus),
+                        tooltip: '点击扫描',
+                        onPressed: () {
+                          print('点击黄色按钮事件');
+                        },
+                      ),
+                    ])),
+              ),
+              divider,
+            ]),
           );
         } else {
           comList.add(
@@ -106,9 +206,10 @@ class _ReportPageState extends State<ReportPage> {
               Container(
                 color: Colors.white,
                 child: ListTile(
-                  title: Text(this.hobby[j]["title"] + '：'),
+                  title: Text(this.hobby[j]["title"] + '：'+orderDate[i][j]),
                   trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+
                     MyText(this.hobby[j]["value"],
                         color: Colors.grey, rightpadding: 18),
                   ]),
@@ -140,8 +241,11 @@ class _ReportPageState extends State<ReportPage> {
             title: Text(title),
             onTap: () => _onClickItem(data, selectData, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(selectData.toString() ?? '暂无',
-                  color: Colors.grey, rightpadding: 18),
+              PartRefreshWidget(globalKey, () {
+                //2、使用 创建一个widget
+                return MyText(selectData.toString() ?? '暂无',
+                    color: Colors.grey, rightpadding: 18);
+              }),
               rightIcon
             ]),
           ),
@@ -162,12 +266,15 @@ class _ReportPageState extends State<ReportPage> {
               _onDateClickItem(model);
             },
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(
-                  PicketUtil.strEmpty(selectData[model])
-                      ? '暂无'
-                      : selectData[model],
-                  color: Colors.grey,
-                  rightpadding: 18),
+              PartRefreshWidget(globalKey, () {
+                //2、使用 创建一个widget
+                return MyText(
+                    PicketUtil.strEmpty(selectData[model])
+                        ? '暂无'
+                        : selectData[model],
+                    color: Colors.grey,
+                    rightpadding: 18);
+              }),
               rightIcon
             ]),
           ),
@@ -187,7 +294,8 @@ class _ReportPageState extends State<ReportPage> {
       minDate: PDuration(year: 2020, month: 2, day: 10),
       maxDate: PDuration(second: 22),
 
-      // selectDate: PDuration(hour: 18, minute: 36, second: 36),
+      selectDate: PDuration.parse(DateTime.parse(FDate)),
+      //selectDate: PDuration(year: 2020, month: 2, day: 10),
       // minDate: PDuration(hour: 12, minute: 38, second: 3),
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
@@ -216,12 +324,13 @@ class _ReportPageState extends State<ReportPage> {
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
           if (data == PickerDataType.sex) {
-            selectSex = p;
+            /* FDate = p;*/
           }
         });
       },
     );
   }
+
   void _pushSaved() {
     Navigator.of(context).push(
       new MaterialPageRoute(
@@ -235,7 +344,6 @@ class _ReportPageState extends State<ReportPage> {
               ListTile(
                 leading: Icon(Icons.search),
                 title: Text('版本信息'),
-
               ),
               Divider(
                 height: 10.0,
@@ -245,16 +353,16 @@ class _ReportPageState extends State<ReportPage> {
               ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('退出登录'),
-                onTap: () async{
+                onTap: () async {
                   print("点击退出登录");
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
                   prefs.clear();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return LoginPage(
-                        );
+                        return LoginPage();
                       },
                     ),
                   );
@@ -265,13 +373,62 @@ class _ReportPageState extends State<ReportPage> {
                 indent: 0.0,
                 color: Colors.grey,
               ),
-
             ]),
           );
         },
       ),
     );
   }
+
+  //调出弹窗 扫码
+  void scanDialog() {
+    showDialog<Widget>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              color: Colors.white,
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Text('扫描',
+                        style: TextStyle(
+                            fontSize: 16, decoration: TextDecoration.none)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: TextWidget(textKey, ''), /*Text(lebal+_code)*/
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 15, bottom: 8),
+                    child: FlatButton(
+                        color: Colors.grey[100],
+                        onPressed: () {
+                          // 关闭 Dialog
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          '取消',
+                        )),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    ).then((val) {
+      print(val);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -280,7 +437,8 @@ class _ReportPageState extends State<ReportPage> {
             title: Text("汇报"),
             centerTitle: true,
             actions: <Widget>[
-              new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),
+              new IconButton(
+                  icon: new Icon(Icons.settings), onPressed: _pushSaved),
             ],
           ),
           body: Column(
@@ -292,15 +450,16 @@ class _ReportPageState extends State<ReportPage> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          title: Text('生产单号：'),
+                          title: TextWidget(FBillNoKey, '生产订单：'),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 IconButton(
                                   icon: new Icon(Icons.filter_center_focus),
-                                  tooltip: 'Increase volume by 10%',
+                                  tooltip: '点击扫描',
                                   onPressed: () {
-                                    print('点击黄色按钮事件');
+                                    checkItem = 'FBillNo';
+                                    scanDialog();
                                   },
                                 ),
                               ]),
@@ -314,7 +473,7 @@ class _ReportPageState extends State<ReportPage> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                          title: Text('来源单号：'),
+                          title: TextWidget(FSaleOrderNoKey, '来源单号：'),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
@@ -344,8 +503,34 @@ class _ReportPageState extends State<ReportPage> {
                     ],
                   ),
                   _dateItem('生产日期：', DateMode.YMD),
-                  _item('生产车间', ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'], selectSex),
+                  /* _item('生产车间', ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'], selectSex),*/
                   // _item('Laber', [123, 23,235,3,14545,15,123163,18548,9646,1313], 235, label: 'kg')
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: PartRefreshWidget(FPrdOrgIdKey, () {
+                            //2、使用 创建一个widget
+                            return Text('生产车间：$FName');
+                          }),
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: new Icon(Icons.filter_center_focus),
+                                  tooltip: '点击扫描',
+                                  onPressed: () {
+                                    checkItem = 'FPrdOrgId';
+                                    scanDialog();
+                                  },
+                                ),
+                              ]),
+                        ),
+                      ),
+                      divider,
+                    ],
+                  ),
                   Column(
                     children: [
                       Container(

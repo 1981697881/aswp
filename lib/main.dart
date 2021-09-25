@@ -12,7 +12,8 @@ import 'package:aswp/utils/toast_util.dart';
 import 'package:aswp/server/api.dart';
 import 'package:aswp/http/api_response.dart';
 
-import 'model/user_login_entity.dart';
+import 'model/currency_entity.dart';
+
 
 const Color _primaryColor = Colors.blue;
 
@@ -140,7 +141,7 @@ class _MyHomePageState extends State {
         userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName';
         Map<String,dynamic> dataMap = Map();
         dataMap['data']=userMap;
-        String UserEntity = await UserLoginEntity.login(dataMap);
+        String UserEntity = await CurrencyEntity.polling(dataMap);
         if(UserEntity.isNotEmpty){
           //  print("登录成功");
           ToastUtil.showInfo('登录成功');

@@ -1,5 +1,5 @@
+import 'package:aswp/model/currency_entity.dart';
 import 'package:aswp/model/login_entity.dart';
-import 'package:aswp/model/user_login_entity.dart';
 import 'package:aswp/http/api_response.dart';
 import 'package:aswp/views/report/report_page.dart';
 import 'package:flutter/material.dart';
@@ -226,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
               userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName';
               Map<String,dynamic> dataMap = Map();
               dataMap['data']=userMap;
-              String UserEntity = await UserLoginEntity.login(dataMap);
+              String UserEntity = await CurrencyEntity.polling(dataMap);
               sharedPreferences.setString('FStaffNumber', _username);
               sharedPreferences.setString('FPwd', _password);
               if(UserEntity.isNotEmpty){
