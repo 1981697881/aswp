@@ -7,6 +7,7 @@ import 'package:aswp/views/login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_pickers/pickers.dart';
 import 'package:flutter_pickers/more_pickers/init_data.dart';
 import 'package:flutter_pickers/style/default_style.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:aswp/views/report/my_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class ReportPage extends StatefulWidget {
@@ -32,8 +34,8 @@ class _ReportPageState extends State<ReportPage> {
   GlobalKey<TextWidgetState> textKey = GlobalKey();
   GlobalKey<TextWidgetState> FBillNoKey = GlobalKey();
   GlobalKey<TextWidgetState> FSaleOrderNoKey = GlobalKey();
-  GlobalKey<PartRefreshWidgetState> globalKey=GlobalKey();
-  GlobalKey<PartRefreshWidgetState> FPrdOrgIdKey=GlobalKey();
+  GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
+  GlobalKey<PartRefreshWidgetState> FPrdOrgIdKey = GlobalKey();
 
   var checkItem;
   String FBillNo = '';
@@ -75,20 +77,95 @@ class _ReportPageState extends State<ReportPage> {
       _subscription.cancel();
     }
   }
-  getOrderList(data) async{
-    String order = await CurrencyEntity.polling(data);
-    orderDate = [];
-    orderDate = jsonDecode(order);
-    FBillNo = orderDate[0][0];
-    FDate = orderDate[0][3].substring(0,10);
-    selectData[DateMode.YMD] =orderDate[0][3].substring(0,10);
-    FSaleOrderNo = orderDate[0][4];
-    globalKey.currentState.update();
-    /*FBillNoKey.currentState.onPressed(orderDate[0][0]);*/
-    FSaleOrderNoKey.currentState.onPressed(orderDate[0][4]);
-    setState(() {
-      this._getHobby();
-    });
+
+  // 用户的爱好集合
+  List hobby = [];
+
+  getOrderList() async {
+    if(FNumber != '' && FBillNo != ''){
+      Map<String, dynamic> userMap = Map();
+      if(FDate!= ''){
+        userMap['FilterString'] = "FBillNo='$FBillNo' and FWorkShopID.FNumber='$FNumber' and FDate='$FDate'";
+      }else{
+        userMap['FilterString'] = "FBillNo='$FBillNo' and FWorkShopID.FNumber='$FNumber'";
+      }
+      userMap['FormId'] = 'PRD_MO';
+      userMap['FieldKeys'] =
+      'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = userMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      orderDate = [];
+      orderDate = jsonDecode(order);
+      FDate = orderDate[0][3].substring(0, 10);
+      selectData[DateMode.YMD] = orderDate[0][3].substring(0, 10);
+      FSaleOrderNo = orderDate[0][4];
+      globalKey.currentState.update();
+      /*FBillNoKey.currentState.onPressed(orderDate[0][0]);
+    FSaleOrderNoKey.currentState.onPressed(orderDate[0][4]);*/
+      hobby = [];
+      orderDate.forEach((value) {
+        List arr = [];
+        arr.add({
+          "title": "物料子码",
+          "name": "FMaterialId",
+          "value": {"label": value[6], "value": value[6]}
+        });
+        arr.add({
+          "title": "生产车间",
+          "name": "FWorkShopID",
+          "value": {"label": value[10], "value": value[9]}
+        });
+        arr.add({
+          "title": "预测批号",
+          "name": "",
+          "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "需生产数量",
+          "name": "FQty",
+          "value": {"label": value[13], "value": value[13]}
+        });
+        arr.add({
+          "title": "良品数量",
+          "name": "goodProductNumber",
+          "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "良品仓库",
+          "name": "goodProductStock",
+          "value": {"label": "主仓", "value": "CK101001"}
+        });
+        arr.add({
+          "title": "不合格数量",
+          "name": "rejectsNumber",
+          "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "不合格仓库",
+          "name": "rejectsStock",
+          "value": {"label": "次品仓", "value": "CK101004"}
+        });
+        hobby.add(arr);
+      });
+      checkItem = '';
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+    }else{
+      EasyLoading.dismiss();
+      _code = '';
+      textKey.currentState.onPressed(_code);
+      if(FNumber == ''){
+        checkItem = 'FPrdOrgId';
+        ToastUtil.showInfo('请扫描生产车间');
+      }else if(FBillNo == ''){
+        checkItem = 'FBillNo';
+        ToastUtil.showInfo('请扫描生产单号');
+      }
+      scanDialog();
+    }
   }
 
   void _onEvent(Object event) async {
@@ -96,33 +173,20 @@ class _ReportPageState extends State<ReportPage> {
     _code = event;
     if (textKey.currentState != null) {
       textKey.currentState.onPressed(_code);
-      Navigator.pop(context);
+      EasyLoading.show(status: 'loading...');
       switch (checkItem) {
         case 'FBillNo':
-          Map<String, dynamic> userMap = Map();
-          userMap['FormId'] = 'PRD_MO';
-          userMap['FilterString'] = "FBillNo='$_code'";
-          userMap['FieldKeys'] =
-              'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = userMap;
-          await getOrderList(dataMap);
+          Navigator.pop(context);
+          FBillNo = _code;
+          await getOrderList();
           break;
         case 'FPrdOrgId':
-          Map<String, dynamic> userMap = Map();
+          Navigator.pop(context);
           FName = _code.split(',')[1];
           FNumber = _code.split(',')[0];
-          FPrdOrgIdKey.currentState.update();
-          userMap['FormId'] = 'PRD_MO';
-          userMap['FilterString'] = "FBillNo='$FBillNo' and FPrdOrgId.FNumber='$FNumber'";
-          userMap['FieldKeys'] =
-          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = userMap;
-          await getOrderList(dataMap);
+          await getOrderList();
           break;
       }
-      checkItem = '';
     } else {
       ToastUtil.showInfo('请点击扫描行扫描图标');
     }
@@ -136,25 +200,12 @@ class _ReportPageState extends State<ReportPage> {
     });
   }
 
-  // 用户的爱好集合
-  List hobby = [
-    {"title": "物料字码", "value": ""},
-    {"title": "生产车间", "value": ""},
-    {"title": "预测批号", "value": ""},
-    {"title": "需生产数量", "value": ""},
-    {"title": "良品数量", "value": ""},
-    {"title": "良品仓库", "value": ""},
-    {"title": "不合格数量", "value": ""},
-    {"title": "不合格仓库", "value": ""},
-  ];
-
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
-    for (int i = 0; i < orderDate.length; i++) {
+    for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
-      for (int j = 0; j < this.hobby.length; j++) {
-        print(orderDate[i][j]);
-        if (j == 5) {
+      for (int j = 0; j < this.hobby[i].length; j++) {
+        if (j >= 4) {
           /*comList.add(
             _item(this.hobby[j]["title"], ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
                 this.hobby[j]["value"]),
@@ -164,35 +215,17 @@ class _ReportPageState extends State<ReportPage> {
               Container(
                 color: Colors.white,
                 child: ListTile(
-                    title: Text(this.hobby[j]["title"] + '：' + orderDate[i][j].toString()),
+                    title: Text(this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
                         Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       IconButton(
                         icon: new Icon(Icons.filter_center_focus),
                         tooltip: '点击扫描',
                         onPressed: () {
-                          print('点击黄色按钮事件');
-                        },
-                      ),
-                    ])),
-              ),
-              divider,
-            ]),
-          );
-        } else if (j == 7) {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                    title: Text(this.hobby[j]["title"] + '：'+orderDate[i][j]),
-                    trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                      IconButton(
-                        icon: new Icon(Icons.filter_center_focus),
-                        tooltip: '点击扫描',
-                        onPressed: () {
-                          print('点击黄色按钮事件');
+                          checkItem = 'FBillNo';
+                          scanDialog();
                         },
                       ),
                     ])),
@@ -206,12 +239,13 @@ class _ReportPageState extends State<ReportPage> {
               Container(
                 color: Colors.white,
                 child: ListTile(
-                  title: Text(this.hobby[j]["title"] + '：'+orderDate[i][j]),
+                  title: Text(this.hobby[i][j]["title"] +
+                      '：' +
+                      this.hobby[i][j]["value"]["label"].toString()),
                   trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-
-                    MyText(this.hobby[j]["value"],
-                        color: Colors.grey, rightpadding: 18),
+                    /* MyText(orderDate[i][j],
+                        color: Colors.grey, rightpadding: 18),*/
                   ]),
                 ),
               ),
@@ -241,11 +275,8 @@ class _ReportPageState extends State<ReportPage> {
             title: Text(title),
             onTap: () => _onClickItem(data, selectData, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              PartRefreshWidget(globalKey, () {
-                //2、使用 创建一个widget
-                return MyText(selectData.toString() ?? '暂无',
-                    color: Colors.grey, rightpadding: 18);
-              }),
+              MyText(selectData.toString() ?? '暂无',
+                  color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
           ),
@@ -300,10 +331,14 @@ class _ReportPageState extends State<ReportPage> {
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
-        setState(() {
+        setState(() async {
           switch (model) {
             case DateMode.YMD:
+              Map<String, dynamic> userMap = Map();
               selectData[model] = '${p.year}-${p.month}-${p.day}';
+              FDate = '${p.year}-${p.month}-${p.day}';
+
+              await getOrderList();
               break;
           }
         });
@@ -431,7 +466,8 @@ class _ReportPageState extends State<ReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return FlutterEasyLoading(
+        child: Container(
       child: Scaffold(
           appBar: AppBar(
             title: Text("汇报"),
@@ -450,7 +486,7 @@ class _ReportPageState extends State<ReportPage> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                         /* title: TextWidget(FBillNoKey, '生产订单：'),*/
+                          /* title: TextWidget(FBillNoKey, '生产订单：'),*/
                           title: Text("生产订单：$FBillNo"),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -569,6 +605,6 @@ class _ReportPageState extends State<ReportPage> {
               )
             ],
           )),
-    );
+    ));
   }
 }
