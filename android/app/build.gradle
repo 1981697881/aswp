@@ -46,12 +46,23 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                // 此处指定生成的apk文件名
+                outputFileName = "aswp.apk"
+            }
+    }
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
+            storeFile file("E:\\Android\\aswp\\android\\app\\pda.jks")
+            storePassword "123456"
+            keyAlias "key0"
+            keyPassword "123456"
+            /*keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
             storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+            storePassword keystoreProperties['storePassword']*/
         }
     }
     buildTypes {
