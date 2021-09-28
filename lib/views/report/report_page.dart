@@ -37,7 +37,7 @@ class _ReportPageState extends State<ReportPage> {
   GlobalKey<TextWidgetState> FSaleOrderNoKey = GlobalKey();
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
   GlobalKey<PartRefreshWidgetState> FPrdOrgIdKey = GlobalKey();
-
+  final _textNumber = TextEditingController();
   var checkItem;
   String FBillNo = '';
   String FSaleOrderNo = '';
@@ -74,6 +74,7 @@ class _ReportPageState extends State<ReportPage> {
 
   @override
   void dispose() {
+    this._textNumber.dispose();
     super.dispose();
 
     /// 取消监听
@@ -97,7 +98,7 @@ class _ReportPageState extends State<ReportPage> {
       }
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
-          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty';
+          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -135,7 +136,7 @@ class _ReportPageState extends State<ReportPage> {
         arr.add({
           "title": "良品数量",
           "name": "goodProductNumber",
-          "value": {"label": "", "value": ""}
+          "value": {"label": "0", "value": "0"}
         });
         arr.add({
           "title": "良品仓库",
@@ -145,7 +146,7 @@ class _ReportPageState extends State<ReportPage> {
         arr.add({
           "title": "不合格数量",
           "name": "rejectsNumber",
-          "value": {"label": "", "value": ""}
+          "value": {"label": "0", "value": "0"}
         });
         arr.add({
           "title": "不合格仓库",
@@ -179,14 +180,15 @@ class _ReportPageState extends State<ReportPage> {
     _code = event;
     if (textKey.currentState != null) {
       textKey.currentState.onPressed(_code);
-      EasyLoading.show(status: 'loading...');
       switch (checkItem) {
         case 'FBillNo':
+          EasyLoading.show(status: 'loading...');
           Navigator.pop(context);
           FBillNo = _code;
           await getOrderList();
           break;
         case 'FPrdOrgId':
+          EasyLoading.show(status: 'loading...');
           Navigator.pop(context);
           FName = _code.split(',')[1];
           FNumber = _code.split(',')[0];
@@ -195,8 +197,8 @@ class _ReportPageState extends State<ReportPage> {
         case 'FNumber':
           Navigator.pop(context);
           setState(() {
-            this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
-            this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+          this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+          this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
           });
           break;
         case 'FStock':
@@ -219,9 +221,6 @@ class _ReportPageState extends State<ReportPage> {
       _code = "扫描异常";
     });
   }
-
-
-
   Widget _item(title, var data, var selectData, {String label}) {
     return Column(
       children: [
@@ -343,7 +342,6 @@ class _ReportPageState extends State<ReportPage> {
                 leading: Icon(Icons.settings),
                 title: Text('退出登录'),
                 onTap: () async {
-                  print("点击退出登录");
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   prefs.clear();
@@ -396,11 +394,13 @@ class _ReportPageState extends State<ReportPage> {
                           checkItem = 'FNumber';
                           this.show = false;
                           checkData = i;
-                          if(this.hobby[i][j]["value"]["label"] != 0){
-                            this._FNumber = this.hobby[i][j]["value"]["label"];
-                          }
                           checkDataChild = j;
                           scanDialog();
+                          if(this.hobby[i][j]["value"]["label"] != 0){
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text: this.hobby[i][j]["value"]["label"],
+                              );
+                          }
                         },
                       ),
                     ])),
@@ -469,8 +469,6 @@ class _ReportPageState extends State<ReportPage> {
   }
   //调出弹窗 扫码
   void scanDialog() {
-    checkData = -1;
-    checkDataChild = -1;
     showDialog<Widget>(
       context: context,
       barrierDismissible: false,
@@ -491,7 +489,7 @@ class _ReportPageState extends State<ReportPage> {
                         style: TextStyle(
                             fontSize: 16, decoration: TextDecoration.none)),
                   ),
-                  if (show)
+                  if (!show)
                     Padding(
                         padding: EdgeInsets.only(top: 8),
                         child: Card(
@@ -499,16 +497,16 @@ class _ReportPageState extends State<ReportPage> {
                           TextField(
                             style: TextStyle(color: Colors.black87),
                             keyboardType: TextInputType.number,
+                            controller: this._textNumber,
                             decoration: InputDecoration(hintText: "输入或者扫描数量"),
                             onChanged: (value) {
                               setState(() {
-                                print(value);
                                 this._FNumber = value;
                               });
                             },
                           ),
                         ]))),
-                  if (!show)
+                  if (show)
                     Padding(
                       padding: EdgeInsets.only(top: 8),
                       child: TextWidget(textKey, ''),
@@ -542,22 +540,90 @@ class _ReportPageState extends State<ReportPage> {
     });
   }
   submitOder() async{
-    print(this.hobby);
     Map<String, dynamic> dataMap = Map();
-    dataMap['formid'] = '';
-    Map<String, dynamic> itemMap = Map();
+    dataMap['formid'] = 'PRD_INSTOCK';
+    Map<String, dynamic> orderMap = Map();
+    orderMap['NeedReturnFields'] = [];
+    orderMap['IsDeleteEntry'] = true;
+    Map<String, dynamic> Model = Map();
+    Model['FID'] = orderDate[0][18];
+    Model['FBillType'] = {
+      "FNUMBER": "SCRKD02_SYS"
+    };
+    Model['FDate'] = DateFormat('yyyy-MM-dd kk:mm:ss').format( DateTime.now());
+    Model['FStockOrgId'] = {
+      "FNumber": orderDate[0][1]
+    };
+    Model['FPrdOrgId'] = {
+      "FNumber": orderDate[0][1]
+    };
+    Model['FOwnerTypeId0'] = 'BD_OwnerOrg';
+    Model['FOwnerId0'] = {
+      "FNumber":  orderDate[0][1]
+    };
+    Model['FIsEntrust'] = false;
+    Model['FCurrId'] = {
+      "FNumber": 'PRE001'
+    };
+    var FEntity = [];
+    var hobbyIndex = 0;
     this.hobby.forEach((element) {
-
+      Map<String, dynamic> FEntityItem = Map();
+      FEntityItem['FEntryID'] = 0;
+      FEntityItem['FIsNew'] = true;
+      FEntityItem['FCheckProduct'] = false;
+      FEntityItem['FInStockType'] = '1';
+      FEntityItem['FProductType'] = '2';
+      FEntityItem['FRealQty'] = element[4]['value']['value'];
+      FEntityItem['FCostRate'] = element[3]['value']['value'];
+      FEntityItem['FOwnerTypeId'] = 'BD_OwnerOrg';
+      FEntityItem['FOwnerId'] = {
+        "FNumber": element[1]['value']['value']
+      };
+      FEntityItem['FMaterialId'] = {
+        "FNumber": element[0]['value']['value']
+      };
+      FEntityItem['FWorkShopID'] = {
+        "FNumber": element[1]['value']['value']
+      };
+      FEntityItem['FUnitId'] = {
+        "FNumber": orderDate[hobbyIndex][11]
+      };
+      FEntityItem['FStockId'] = {
+        "FNumber": element[5]['value']['value']
+      };
+      FEntityItem['FEntity_Link'] = [{
+        "FEntity_Link_FRuleId": "PRD_MO2INSTOCK",
+        "FEntity_Link_FSTableName": "T_PRD_MOENTRY",
+        "FEntity_Link_FSBillId": orderDate[hobbyIndex][18],
+        "FEntity_Link_FSId": orderDate[hobbyIndex][5],
+        "FEntity_Link_FBasePrdRealQtyOld ": (element[3]['value']['value'] -double.parse(element[4]['value']['value'])) <0 ? 0: (element[3]['value']['value'] -double.parse(element[4]['value']['value'])),
+        "FEntity_Link_FBasePrdRealQty":  element[4]['value']['value']
+      }];
+      FEntityItem['FISBACKFLUSH'] = false;
+      FEntityItem['FIsFinished'] = false;
+      FEntityItem['FKeeperTypeId'] = 'BD_KeeperOrg';
+      FEntityItem['FIsOverLegalOrg'] = false;
+      FEntity.add(FEntityItem);
+      hobbyIndex++;
     });
-    dataMap['data'] = '';
+    Model['FEntity'] = FEntity;
+    orderMap['Model'] = Model;
+    dataMap['data'] = orderMap;
+    print(dataMap);
     String order = await SubmitEntity.submit(dataMap);
     var res = jsonDecode(order);
-    if(res){
+    print(res);
+    if(res['Result']['ResponseStatus']['IsSuccess']){
       setState(() {
+        this.hobby = [];
+        this.orderDate = [];
         ToastUtil.showInfo('提交成功');
       });
     }else{
-      ToastUtil.showInfo(res.msg);
+      setState(() {
+        ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
+      });
     }
   }
   @override
@@ -703,7 +769,8 @@ class _ReportPageState extends State<ReportPage> {
                 ),
               )
             ],
-          )),
+          )
+      ),
     ));
   }
 }
