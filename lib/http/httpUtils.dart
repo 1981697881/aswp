@@ -60,6 +60,24 @@ class HttpUtils {
       cancelToken: cancelToken,
     );
   }
+  static Future dblPost(
+      String path1,String path2, {
+        data1,
+        data2,
+        Map<String, dynamic> params,
+        Options options,
+        CancelToken cancelToken,
+      }) async {
+    return await Http().dblPost(
+      path1,
+      path2,
+      data1: data1,
+      data2: data2,
+      params: params,
+      options: options,
+      cancelToken: cancelToken,
+    );
+  }
 
   static Future put(
       String path, {

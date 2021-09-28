@@ -150,6 +150,31 @@ class Http {
         cancelToken: cancelToken ?? _cancelToken);
     return response.data;
   }
+  /// restful dblPost 操作
+  Future dblPost(
+      String path1, String path2, {
+        Map<String, dynamic> params,
+        data1,
+        data2,
+        Options options,
+        CancelToken cancelToken,
+      }) async {
+    Options requestOptions = options ?? Options();
+    Map<String, dynamic> _authorization = getAuthorizationHeader();
+    /* if (_authorization != null) {
+      requestOptions = requestOptions.merge(headers: _authorization);
+    }*/
+    var response = await Future.wait([dio.post(path1,
+        data: data1,
+        queryParameters: params,
+        options: requestOptions,
+        cancelToken: cancelToken ?? _cancelToken), dio.post(path2,
+        data: data2,
+        queryParameters: params,
+        options: requestOptions,
+        cancelToken: cancelToken ?? _cancelToken)]);
+    return response;
+  }
 
   /// restful put 操作
   Future put(

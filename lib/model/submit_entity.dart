@@ -11,7 +11,7 @@ class SubmitEntity {
   static Future<String> submit(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.SUBMIT_URL, data: map);
+      final response = await HttpUtils.dblPost(API.SUBMIT_URL,API.SUBMIT_URL, data1: map,data2: map);
       return response;
     } on DioError catch (e) {
       return e.error;

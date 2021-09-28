@@ -329,7 +329,7 @@ class _ReportPageState extends State<ReportPage> {
               centerTitle: true,
             ),
             body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
-              ListTile(
+             /* ListTile(
                 leading: Icon(Icons.search),
                 title: Text('版本信息'),
               ),
@@ -337,7 +337,7 @@ class _ReportPageState extends State<ReportPage> {
                 height: 10.0,
                 indent: 0.0,
                 color: Colors.grey,
-              ),
+              ),*/
               ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('退出登录'),
@@ -565,17 +565,15 @@ class _ReportPageState extends State<ReportPage> {
     Model['FCurrId'] = {
       "FNumber": 'PRE001'
     };
-    var FEntity = [];
+    var FEntity1 = [];
+    var FEntity2 = [];
     var hobbyIndex = 0;
     this.hobby.forEach((element) {
       Map<String, dynamic> FEntityItem = Map();
       FEntityItem['FEntryID'] = 0;
       FEntityItem['FIsNew'] = true;
       FEntityItem['FCheckProduct'] = false;
-      FEntityItem['FInStockType'] = '1';
       FEntityItem['FProductType'] = '2';
-      FEntityItem['FRealQty'] = element[4]['value']['value'];
-      FEntityItem['FCostRate'] = element[3]['value']['value'];
       FEntityItem['FOwnerTypeId'] = 'BD_OwnerOrg';
       FEntityItem['FOwnerId'] = {
         "FNumber": element[1]['value']['value']
@@ -589,27 +587,51 @@ class _ReportPageState extends State<ReportPage> {
       FEntityItem['FUnitId'] = {
         "FNumber": orderDate[hobbyIndex][11]
       };
-      FEntityItem['FStockId'] = {
-        "FNumber": element[5]['value']['value']
-      };
-      FEntityItem['FEntity_Link'] = [{
-        "FEntity_Link_FRuleId": "PRD_MO2INSTOCK",
-        "FEntity_Link_FSTableName": "T_PRD_MOENTRY",
-        "FEntity_Link_FSBillId": orderDate[hobbyIndex][18],
-        "FEntity_Link_FSId": orderDate[hobbyIndex][5],
-        "FEntity_Link_FBasePrdRealQtyOld ": (element[3]['value']['value'] -double.parse(element[4]['value']['value'])) <0 ? 0: (element[3]['value']['value'] -double.parse(element[4]['value']['value'])),
-        "FEntity_Link_FBasePrdRealQty":  element[4]['value']['value']
-      }];
       FEntityItem['FISBACKFLUSH'] = false;
       FEntityItem['FIsFinished'] = false;
       FEntityItem['FKeeperTypeId'] = 'BD_KeeperOrg';
       FEntityItem['FIsOverLegalOrg'] = false;
-      FEntity.add(FEntityItem);
+      if(){
+        FEntityItem['FInStockType'] = '1';
+        FEntityItem['FRealQty'] = element[4]['value']['value'];
+        FEntityItem['FCostRate'] = element[3]['value']['value'];
+        FEntityItem['FStockId'] = {
+          "FNumber": element[5]['value']['value']
+        };
+        FEntityItem['FEntity_Link'] = [{
+          "FEntity_Link_FRuleId": "PRD_MO2INSTOCK",
+          "FEntity_Link_FSTableName": "T_PRD_MOENTRY",
+          "FEntity_Link_FSBillId": orderDate[hobbyIndex][18],
+          "FEntity_Link_FSId": orderDate[hobbyIndex][5],
+          "FEntity_Link_FBasePrdRealQtyOld ": (element[3]['value']['value'] -double.parse(element[4]['value']['value'])) <0 ? 0: (element[3]['value']['value'] -double.parse(element[4]['value']['value'])),
+          "FEntity_Link_FBasePrdRealQty":  element[4]['value']['value']
+        }];
+        FEntity1.add(FEntityItem);
+      }else{
+        FEntityItem['FInStockType'] = '2';
+        FEntityItem['FRealQty'] = element[4]['value']['value'];
+        FEntityItem['FCostRate'] = element[3]['value']['value'];
+        FEntityItem['FStockId'] = {
+          "FNumber": element[5]['value']['value']
+        };
+        FEntityItem['FEntity_Link'] = [{
+          "FEntity_Link_FRuleId": "PRD_MO2INSTOCK",
+          "FEntity_Link_FSTableName": "T_PRD_MOENTRY",
+          "FEntity_Link_FSBillId": orderDate[hobbyIndex][18],
+          "FEntity_Link_FSId": orderDate[hobbyIndex][5],
+          "FEntity_Link_FBasePrdRealQtyOld ": (element[3]['value']['value'] -double.parse(element[4]['value']['value'])) <0 ? 0: (element[3]['value']['value'] -double.parse(element[4]['value']['value'])),
+          "FEntity_Link_FBasePrdRealQty":  element[4]['value']['value']
+        }];
+        FEntity2.add(FEntityItem);
+      }
       hobbyIndex++;
     });
     Model['FEntity'] = FEntity;
     orderMap['Model'] = Model;
     dataMap['data'] = orderMap;
+
+
+
     print(dataMap);
     String order = await SubmitEntity.submit(dataMap);
     var res = jsonDecode(order);
