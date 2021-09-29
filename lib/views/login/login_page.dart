@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:aswp/model/currency_entity.dart';
 import 'package:aswp/model/login_entity.dart';
 import 'package:aswp/http/api_response.dart';
@@ -223,13 +225,17 @@ class _LoginPageState extends State<LoginPage> {
               Map<String,dynamic> userMap = Map();
               userMap['FormId']='BD_Empinfo';
               userMap['FilterString']= "FStaffNumber='$_username' and FPwd='$_password'";
-              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName';
+              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName';
               Map<String,dynamic> dataMap = Map();
               dataMap['data']=userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);
               sharedPreferences.setString('FStaffNumber', _username);
               sharedPreferences.setString('FPwd', _password);
-              if(UserEntity.isNotEmpty){
+              var resUser = jsonDecode(UserEntity);
+              print(resUser.length);
+              if(resUser.length > 0){
+                sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
+                sharedPreferences.setString('FWorkShopName', resUser[0][3]);
                 ToastUtil.showInfo('登录成功');
                 Navigator.pushReplacement(
                   context,
@@ -239,6 +245,8 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                 );
+              }else {
+                ToastUtil.showInfo('用户名或密码错误');
               }
             } else {
               ToastUtil.showInfo('登录失败');

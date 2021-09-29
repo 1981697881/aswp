@@ -182,7 +182,7 @@ class _MyHomePageState extends State {
     // TODO: implement build
     return Container(
       child: Image.network(
-          "http://pic1.win4000.com/mobile/2019-05-31/5cf0dd648a143.jpg"),
+          "https://i.postimg.cc/L41zLTVq/20210930004538.png"),
       /* child:Image.network("https://i.postimg.cc/J4rL1ZpB/splash.png"),*/
     );
   }
