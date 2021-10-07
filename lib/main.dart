@@ -181,9 +181,11 @@ class _MyHomePageState extends State {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-      child: Image.network(
-          "https://i.postimg.cc/L41zLTVq/20210930004538.png"),
-      /* child:Image.network("https://i.postimg.cc/J4rL1ZpB/splash.png"),*/
-    );
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("assets/images/splash.png"),
+                fit: BoxFit.fill)));
+    /* child: Image.network("https://i.postimg.cc/nh1TyksR/12133.png"),
+       child:Image.network("https://i.postimg.cc/J4rL1ZpB/splash.png"),*/
   }
 }

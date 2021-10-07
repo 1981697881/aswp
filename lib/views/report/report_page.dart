@@ -64,13 +64,13 @@ class _ReportPageState extends State<ReportPage> {
   @override
   void initState(){
     super.initState();
-    getWorkShop();
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    getWorkShop();
   }
   void getWorkShop() async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -99,10 +99,10 @@ class _ReportPageState extends State<ReportPage> {
       Map<String, dynamic> userMap = Map();
       if (FDate != '') {
         userMap['FilterString'] =
-            "FBillNo='$FBillNo' and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber' and FDate='$FDate'";
+            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus = 3 and FWorkShopID.FNumber='$FNumber' and FDate='$FDate'";
       } else {
         userMap['FilterString'] =
-            "FBillNo='$FBillNo' and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
+            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus = 3 and FWorkShopID.FNumber='$FNumber'";
       }
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
@@ -294,8 +294,7 @@ class _ReportPageState extends State<ReportPage> {
       // selectDate: PDuration(month: 2),
       minDate: PDuration(year: 2020, month: 2, day: 10),
       maxDate: PDuration(second: 22),
-      selectDate: PDuration.parse(DateTime.parse(FDate)),
-      //selectDate: PDuration(year: 2020, month: 2, day: 10),
+      selectDate: (FDate == ''  || FDate == null ? PDuration(year: 2021, month: 2, day: 10):PDuration.parse(DateTime.parse(FDate))),
       // minDate: PDuration(hour: 12, minute: 38, second: 3),
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
@@ -306,7 +305,6 @@ class _ReportPageState extends State<ReportPage> {
               Map<String, dynamic> userMap = Map();
               selectData[model] = '${p.year}-${p.month}-${p.day}';
               FDate = '${p.year}-${p.month}-${p.day}';
-
               await getOrderList();
               break;
           }
