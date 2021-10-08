@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:aswp/model/login_entity.dart';
@@ -138,21 +139,36 @@ class _MyHomePageState extends State {
         Map<String,dynamic> userMap = Map();
         userMap['FormId']='BD_Empinfo';
         userMap['FilterString']= "FStaffNumber='$username' and FPwd='$password'";
-        userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName';
+        userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus';
         Map<String,dynamic> dataMap = Map();
         dataMap['data']=userMap;
         String UserEntity = await CurrencyEntity.polling(dataMap);
         if(UserEntity.isNotEmpty){
-          //  print("登录成功");
-          ToastUtil.showInfo('登录成功');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return ReportPage();
-              },
-            ),
-          );
+          var resUser = jsonDecode(UserEntity);
+          if(resUser[0][4] == 'A'){
+            sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
+            sharedPreferences.setString('FWorkShopName', resUser[0][3]);
+            //  print("登录成功");
+            ToastUtil.showInfo('登录成功');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return ReportPage();
+                },
+              ),
+            );
+          }else{
+            ToastUtil.showInfo('改账号无登录权限');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return LoginPage();
+                },
+              ),
+            );
+          }
         }
       } else {
         ToastUtil.showInfo('登录失败，重新登录');

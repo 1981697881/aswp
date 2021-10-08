@@ -225,26 +225,30 @@ class _LoginPageState extends State<LoginPage> {
               Map<String,dynamic> userMap = Map();
               userMap['FormId']='BD_Empinfo';
               userMap['FilterString']= "FStaffNumber='$_username' and FPwd='$_password'";
-              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName';
+              userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus';
               Map<String,dynamic> dataMap = Map();
               dataMap['data']=userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);
+              print(UserEntity);
               sharedPreferences.setString('FStaffNumber', _username);
               sharedPreferences.setString('FPwd', _password);
               var resUser = jsonDecode(UserEntity);
-              print(resUser.length);
               if(resUser.length > 0){
-                sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
-                sharedPreferences.setString('FWorkShopName', resUser[0][3]);
-                ToastUtil.showInfo('登录成功');
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return ReportPage();
-                    },
-                  ),
-                );
+                if(resUser[0][4] == 'A'){
+                  sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
+                  sharedPreferences.setString('FWorkShopName', resUser[0][3]);
+                  ToastUtil.showInfo('登录成功');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ReportPage();
+                      },
+                    ),
+                  );
+                }else{
+                  ToastUtil.showInfo('改账号无登录权限');
+                }
               }else {
                 ToastUtil.showInfo('用户名或密码错误');
               }

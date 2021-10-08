@@ -54,4 +54,13 @@ class SubmitEntity {
       return e.error;
     }
   }
+  static Future<String> alterStatus(
+      Map<String, dynamic> map) async {
+    try {
+      final response = await HttpUtils.post(API.STATUS_URL, data: map);
+      return response;
+    } on DioError catch (e) {
+      return e.error;
+    }
+  }
 }

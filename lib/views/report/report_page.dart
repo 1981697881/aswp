@@ -75,9 +75,13 @@ class _ReportPageState extends State<ReportPage> {
   void getWorkShop() async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      FName = sharedPreferences.getString('FWorkShopName');
-      FNumber = sharedPreferences.getString('FWorkShopNumber');
-      isScanWork = true;
+      if(sharedPreferences.getString('FWorkShopName')!=null){
+        FName = sharedPreferences.getString('FWorkShopName');
+        FNumber = sharedPreferences.getString('FWorkShopNumber');
+        isScanWork = true;
+      }else{
+        isScanWork = false;
+      }
     });
   }
   @override
@@ -93,20 +97,19 @@ class _ReportPageState extends State<ReportPage> {
 
   // 用户的爱好集合
   List hobby = [];
-
   getOrderList() async {
     if (FNumber != '' && FBillNo != '') {
       Map<String, dynamic> userMap = Map();
       if (FDate != '') {
         userMap['FilterString'] =
-            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus = 3 and FWorkShopID.FNumber='$FNumber' and FDate='$FDate'";
+            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (3,4) and FWorkShopID.FNumber='$FNumber' and FDate='$FDate'";
       } else {
         userMap['FilterString'] =
-            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus = 3 and FWorkShopID.FNumber='$FNumber'";
+            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (3,4) and FWorkShopID.FNumber='$FNumber'";
       }
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
-          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID';
+          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -856,7 +859,36 @@ class _ReportPageState extends State<ReportPage> {
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         onPressed: () async {
-                          submitOder();
+                          if(this.hobby.length>0){
+                            Map<String, dynamic> dataMap = Map();
+                            var numbers = [];
+                            dataMap['formid'] = 'PRD_MO';
+                            dataMap['opNumber'] = 'toStart';
+                            var hobbyIndex = 0;
+                            this.hobby.forEach((list) {
+                              Map<String, dynamic> entityMap = Map();
+                              entityMap['Id'] = orderDate[hobbyIndex][18];
+                              entityMap['EntryIds'] = orderDate[hobbyIndex][5];
+                              numbers.add(entityMap);
+                               hobbyIndex++;
+                            });
+                            dataMap['data'] = {'PkEntryIds':numbers};
+                            var status = await SubmitEntity.alterStatus(dataMap);
+                            print(status);
+                            if(status != null){
+                              var res = jsonDecode(status);
+                              print(res);
+                              if(res != null){
+                                if(res['Result']['ResponseStatus']['IsSuccess']){
+                                  submitOder();
+                                }else{
+                                  ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                                }
+                              }
+                            }
+                          }else{
+                            ToastUtil.showInfo('无提交数据');
+                          }
                         },
                       ),
                     ),
