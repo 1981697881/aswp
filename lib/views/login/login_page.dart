@@ -211,17 +211,17 @@ class _LoginPageState extends State<LoginPage> {
             //只有输入通过验证，才会执行这里
             _formKey.currentState.save();
             Map<String,dynamic> map = Map();
-            map['username']='admin';
+            map['username']='Kingdee1';
             map['acctID']=API.ACCT_ID;
             map['lcid']=API.lcid;
-            map['password']='msd888';
+            map['password']='kingdee@2022';
             ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
             if (entity.data.loginResultType == 1) {
                 //  print("登录成功");
               SharedPreferences sharedPreferences =
                   await SharedPreferences.getInstance();
-              sharedPreferences.setString('username', 'admin');
-              sharedPreferences.setString('password', 'msd888');
+              sharedPreferences.setString('username', 'Kingdee1');
+              sharedPreferences.setString('password', 'kingdee@2022');
               Map<String,dynamic> userMap = Map();
               userMap['FormId']='BD_Empinfo';
               userMap['FilterString']= "FStaffNumber='$_username' and FPwd='$_password'";
@@ -229,12 +229,12 @@ class _LoginPageState extends State<LoginPage> {
               Map<String,dynamic> dataMap = Map();
               dataMap['data']=userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);
-              print(UserEntity);
               sharedPreferences.setString('FStaffNumber', _username);
               sharedPreferences.setString('FPwd', _password);
               var resUser = jsonDecode(UserEntity);
+              print(resUser);
               if(resUser.length > 0){
-                if(resUser[0][4] == 'A'){
+                if(resUser[0].length>=4 && resUser[0][4] == 'A'){
                   sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
                   sharedPreferences.setString('FWorkShopName', resUser[0][3]);
                   ToastUtil.showInfo('登录成功');
@@ -247,7 +247,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                 }else{
-                  ToastUtil.showInfo('改账号无登录权限');
+                  if(!resUser[0][0]['Result']['ResponseStatus']['IsSuccess']){
+                    ToastUtil.showInfo(resUser[0][0]['Result']['ResponseStatus']['Errors'][0]['Message']);
+                  }else{
+                    ToastUtil.showInfo('改账号无登录权限');
+                  }
                 }
               }else {
                 ToastUtil.showInfo('用户名或密码错误');

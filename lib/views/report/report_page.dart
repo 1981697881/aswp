@@ -102,10 +102,10 @@ class _ReportPageState extends State<ReportPage> {
       Map<String, dynamic> userMap = Map();
       if (FDate != '') {
         userMap['FilterString'] =
-            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (3,4) and FWorkShopID.FNumber='$FNumber' and FDate='$FDate'";
+            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (4) and FWorkShopID.FNumber='$FNumber' and FDate='$FDate'";
       } else {
         userMap['FilterString'] =
-            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (3,4) and FWorkShopID.FNumber='$FNumber'";
+            "FBillNo='$FBillNo' and FNoStockInQty>0 and FStatus in (4) and FWorkShopID.FNumber='$FNumber'";
       }
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
@@ -148,7 +148,7 @@ class _ReportPageState extends State<ReportPage> {
           arr.add({
             "title": "良品数量",
             "name": "goodProductNumber",
-            "value": {"label": "0", "value": "0"}
+            "value": {"label": value[13], "value": value[13]}
           });
           arr.add({
             "title": "良品仓库",
@@ -618,7 +618,7 @@ class _ReportPageState extends State<ReportPage> {
         "formid": "PRD_INSTOCK",
         "data": orderMap
       };
-      print(jsonEncode(dataMap));
+     /* print(jsonEncode(dataMap));*/
       //返回保存参数
       return dataMap;
     }else{
@@ -632,22 +632,42 @@ class _ReportPageState extends State<ReportPage> {
     //分两次读取良品，不良品数据
     for(var i = 0;i<2;i++){
       var hobbyIndex = 0;
+
       this.hobby.forEach((element) {
         if(i == 0){
-          if(double.parse(element[4]['value']['value']) > 0){
-            if(EntryIds1 == ''){
-              EntryIds1 = orderDate[hobbyIndex][5].toString();
-            }else{
-              EntryIds1 = EntryIds1 + ','+ orderDate[hobbyIndex][5].toString();
+          if(element[4]['value']['value'] is String){
+            if(double.parse(element[4]['value']['value']) > 0){
+              if(EntryIds1 == ''){
+                EntryIds1 = orderDate[hobbyIndex][5].toString();
+              }else{
+                EntryIds1 = EntryIds1 + ','+ orderDate[hobbyIndex][5].toString();
+              }
             }
-
+          }else{
+            if(element[4]['value']['value'] > 0){
+              if(EntryIds1 == ''){
+                EntryIds1 = orderDate[hobbyIndex][5].toString();
+              }else{
+                EntryIds1 = EntryIds1 + ','+ orderDate[hobbyIndex][5].toString();
+              }
+            }
           }
         }else{
-          if(double.parse(element[6]['value']['value']) > 0){
-            if(EntryIds2 == ''){
-              EntryIds2 =orderDate[hobbyIndex][5].toString();
-            }else{
-              EntryIds2 = EntryIds2 + ','+ orderDate[hobbyIndex][5].toString();
+          if(element[6]['value']['value'] is String){
+            if(double.parse(element[6]['value']['value']) > 0){
+              if(EntryIds2 == ''){
+                EntryIds2 =orderDate[hobbyIndex][5].toString();
+              }else{
+                EntryIds2 = EntryIds2 + ','+ orderDate[hobbyIndex][5].toString();
+              }
+            }
+          }else{
+            if(element[6]['value']['value'] > 0){
+              if(EntryIds2 == ''){
+                EntryIds2 =orderDate[hobbyIndex][5].toString();
+              }else{
+                EntryIds2 = EntryIds2 + ','+ orderDate[hobbyIndex][5].toString();
+              }
             }
           }
         }
@@ -664,7 +684,6 @@ class _ReportPageState extends State<ReportPage> {
         if(EntryIds1!='' && checkList.indexOf(EntryIds1)==-1){
           checkList.add(EntryIds1);
           var resCheck = await this.pushDown(EntryIds1,'defective');
-          print(resCheck);
           if(resCheck != false){
             var subData = await SubmitEntity.submit(resCheck);
             print(subData);
@@ -849,7 +868,7 @@ class _ReportPageState extends State<ReportPage> {
                 ]),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 28.0),
+                padding: const EdgeInsets.only(top: 0),
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -860,7 +879,8 @@ class _ReportPageState extends State<ReportPage> {
                         textColor: Colors.white,
                         onPressed: () async {
                           if(this.hobby.length>0){
-                            Map<String, dynamic> dataMap = Map();
+                            submitOder();
+                           /* Map<String, dynamic> dataMap = Map();
                             var numbers = [];
                             dataMap['formid'] = 'PRD_MO';
                             dataMap['opNumber'] = 'toStart';
@@ -885,7 +905,7 @@ class _ReportPageState extends State<ReportPage> {
                                   ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
                                 }
                               }
-                            }
+                            }*/
                           }else{
                             ToastUtil.showInfo('无提交数据');
                           }

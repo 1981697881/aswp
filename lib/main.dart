@@ -20,7 +20,7 @@ const Color _primaryColor = Colors.blue;
 
 void main(List<String> args) {
   HttpUtils.init(
-    baseUrl: "http://192.168.31.211/K3Cloud/",
+    baseUrl: "http://120.25.26.68/K3Cloud/",
   );
   runApp(MyApp());
   if (Platform.isAndroid) {
