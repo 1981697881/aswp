@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:aswp/model/login_entity.dart';
+import 'package:aswp/views/production/list_page.dart';
 import 'package:aswp/views/report/report_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:aswp/views/login/login_page.dart';
 import 'package:aswp/views/index/index_page.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'http/httpUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aswp/utils/toast_util.dart';
@@ -18,9 +20,13 @@ import 'model/currency_entity.dart';
 
 const Color _primaryColor = Colors.blue;
 
-void main(List<String> args) {
+void main(List<String> args) async{
   HttpUtils.init(
     baseUrl: "http://120.25.26.68/K3Cloud/",
+  );
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug: true
   );
   runApp(MyApp());
   if (Platform.isAndroid) {
@@ -154,7 +160,7 @@ class _MyHomePageState extends State {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return ReportPage();
+                  return ListPage();
                 },
               ),
             );

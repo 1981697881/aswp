@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:aswp/model/currency_entity.dart';
 import 'package:aswp/model/login_entity.dart';
 import 'package:aswp/http/api_response.dart';
+import 'package:aswp/views/production/list_page.dart';
 import 'package:aswp/views/report/report_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -242,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) {
-                        return ReportPage();
+                        return ListPage();
                       },
                     ),
                   );

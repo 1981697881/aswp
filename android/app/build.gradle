@@ -45,6 +45,7 @@ android {
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
     android.applicationVariants.all {
         variant ->

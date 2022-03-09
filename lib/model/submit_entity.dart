@@ -63,4 +63,13 @@ class SubmitEntity {
       return e.error;
     }
   }
+  static Future<String> audit(
+      Map<String, dynamic> map) async {
+    try {
+      final response = await HttpUtils.post(API.AUDIT_URL, data: map);
+      return response;
+    } on DioError catch (e) {
+      return e.error;
+    }
+  }
 }
