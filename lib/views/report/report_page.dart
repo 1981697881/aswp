@@ -564,7 +564,32 @@ class _ReportPageState extends State<ReportPage> {
       print(val);
     });
   }
-
+  //审核
+  auditOrder(Map<String, dynamic> auditMap) async {
+    await SubmitEntity.submit(auditMap);
+    var subData = await SubmitEntity.audit(auditMap);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          setState(() {
+            this.hobby = [];
+            this.orderDate = [];
+            this.FBillNo = '';
+            this.FSaleOrderNo = '';
+            ToastUtil.showInfo('提交成功');
+          });
+          //提交清空页面
+        } else {
+          setState(() {
+            ToastUtil.showInfo(
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
   pushDown(val,isGood) async{
     //下推
     Map<String, dynamic> pushMap = Map();
@@ -693,20 +718,21 @@ class _ReportPageState extends State<ReportPage> {
           checkList.add(EntryIds1);
           var resCheck = await this.pushDown(EntryIds1,'defective');
           if(resCheck != false){
-            var subData = await SubmitEntity.submit(resCheck);
+            var subData = await SubmitEntity.save(resCheck);
             print(subData);
             if(subData != null){
               var res = jsonDecode(subData);
               if(res != null){
                 if(res['Result']['ResponseStatus']['IsSuccess']){
                   //提交清空页面
-                  setState(() {
-                    this.hobby = [];
-                    this.orderDate = [];
-                    this.FBillNo = '';
-                    this.FSaleOrderNo = '';
-                    ToastUtil.showInfo('提交成功');
-                  });
+                  Map<String, dynamic> auditMap = Map();
+                  auditMap = {
+                    "formid": "PRD_INSTOCK",
+                    "data": {
+                      'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+                    }
+                  };
+                  auditOrder(auditMap);
                 }else{
                   setState(() {
                     ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
@@ -722,22 +748,21 @@ class _ReportPageState extends State<ReportPage> {
           var resCheck = await this.pushDown(EntryIds2,'nonDefective');
           print(resCheck);
           if(resCheck != false){
-            var subData = await SubmitEntity.submit(resCheck);
+            var subData = await SubmitEntity.save(resCheck);
             print(subData);
             if(subData != null){
               var res = jsonDecode(subData);
               if(res != null){
                 if(res['Result']['ResponseStatus']['IsSuccess']){
-                  var auditRes = await SubmitEntity.audit(resCheck);
-
                   //提交清空页面
-                  setState(() {
-                    this.hobby = [];
-                    this.orderDate = [];
-                    this.FBillNo = '';
-                    this.FSaleOrderNo = '';
-                    ToastUtil.showInfo('提交成功');
-                  });
+                  Map<String, dynamic> auditMap = Map();
+                  auditMap = {
+                    "formid": "PRD_INSTOCK",
+                    "data": {
+                      'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+                    }
+                  };
+                  auditOrder(auditMap);
                 }else{
                   setState(() {
                     ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
@@ -757,7 +782,7 @@ class _ReportPageState extends State<ReportPage> {
     return FlutterEasyLoading(
       child: Scaffold(
           appBar: AppBar(
-            title: Text("汇报"),
+            title: Text("入库"),
             centerTitle: true,
             leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
               Navigator.of(context).pop("refresh");

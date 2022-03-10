@@ -17,6 +17,16 @@ class SubmitEntity {
       return e.error;
     }
   }
+  static Future<String> save(
+      Map<String, dynamic> map) async {
+    try {
+      final response = await HttpUtils.post(API.SAVE_URL, data: map);
+      return response;
+    } on DioError catch (e) {
+      print(e);
+      return e.error;
+    }
+  }
   static Future<String> submit(
     Map<String, dynamic> map) async {
     try {

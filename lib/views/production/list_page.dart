@@ -8,6 +8,8 @@ import 'package:aswp/model/version_entity.dart';
 import 'package:aswp/utils/toast_util.dart';
 import 'package:aswp/views/login/login_page.dart';
 import 'package:aswp/views/production/picking_detail.dart';
+import 'package:aswp/views/production/replenishment_detail.dart';
+import 'package:aswp/views/production/return_detail.dart';
 import 'package:aswp/views/report/report_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -45,6 +47,9 @@ class _ListPageState extends State<ListPage> {
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+  //生产车间
+  String FName = '';
+  String FNumber = '';
 
   //自动更新字段
   String serviceVersionCode = '';
@@ -68,8 +73,10 @@ class _ListPageState extends State<ListPage> {
     FlutterDownloader.registerCallback(_downLoadCallback);
     afterFirstLayout(context);
     this._initState();
+
   }
-  _initState(){
+  _initState() {
+    this.getWorkShop();
     setState(() {
       /// 开启监听
       if (_subscription == null) {
@@ -232,6 +239,16 @@ class _ListPageState extends State<ListPage> {
   // 集合
   List hobby = [];
 
+  void getWorkShop() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      if (sharedPreferences.getString('FWorkShopName') != null) {
+        FName = sharedPreferences.getString('FWorkShopName');
+        FNumber = sharedPreferences.getString('FWorkShopNumber');
+      }
+    });
+  }
+
   getOrderList() async {
     setState(() {
       hobby = [];
@@ -246,12 +263,11 @@ class _ListPageState extends State<ListPage> {
       "FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }*/
     if (this.keyWord != '') {
-      userMap['FilterString'] = "fBillNo='$keyWord' and FNoStockInQty>0";
+      userMap['FilterString'] = "fBillNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
     }
-
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FProdOrder';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FProdOrder,FTreeEntity_FSeq';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -306,9 +322,9 @@ class _ListPageState extends State<ListPage> {
         });
         arr.add({
           "title": "生产序号",
-          "name": "FBaseQty",
+          "name": "FProdOrder",
           "isHide": false,
-          "value": {"label": value[17], "value": value[17]}
+          "value": {"label": value[18], "value": value[18]}
         });
         arr.add({
           "title": "计划开工日期",
@@ -321,6 +337,24 @@ class _ListPageState extends State<ListPage> {
           "name": "FBaseQty",
           "isHide": true,
           "value": {"label": value[16], "value": value[16]}
+        });
+        arr.add({
+          "title": "行号",
+          "name": "FSeq",
+          "isHide": true,
+          "value": {"label": value[19], "value": value[19]}
+        });
+        arr.add({
+          "title": "分录内码",
+          "name": "FEntryId",
+          "isHide": true,
+          "value": {"label": value[4], "value": value[4]}
+        });
+        arr.add({
+          "title": "FID",
+          "name": "FID",
+          "isHide": true,
+          "value": {"label": value[17], "value": value[17]}
         });
         hobby.add(arr);
       });
@@ -402,12 +436,17 @@ class _ListPageState extends State<ListPage> {
                                 onTap: () async {
                                   if (this.hobby.length > 0) {
                                     Navigator.pop(context);
+                                    print(this.hobby[i][11]);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) {
-                                          return ReportPage(
-                                              FBillNo: this.hobby[i][0]['value']
+                                          return PickingDetail(
+                                              FBillNo: this.hobby[i][0]['value'],
+                                              FSeq: this.hobby[i][10]['value'],
+                                              FEntryId: this.hobby[i][11]['value'],
+                                              FID: this.hobby[i][12]['value'],
+                                              FProdOrder: this.hobby[i][7]['value'],
                                             // 路由参数
                                           );
                                         },
@@ -429,8 +468,9 @@ class _ListPageState extends State<ListPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) {
-                                          return ReportPage(
-                                              FBillNo: this.hobby[i][0]['value']
+                                          return ReplenishmentDetail(
+                                            FBillNo: this.hobby[i][0]['value'],
+                                            FSeq: this.hobby[i][10]['value'],
                                             // 路由参数
                                           );
                                         },
@@ -452,8 +492,9 @@ class _ListPageState extends State<ListPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) {
-                                          return ReportPage(
-                                              FBillNo: this.hobby[i][0]['value']
+                                          return ReturnDetail(
+                                            FBillNo: this.hobby[i][0]['value'],
+                                            FSeq: this.hobby[i][10]['value'],
                                             // 路由参数
                                           );
                                         },

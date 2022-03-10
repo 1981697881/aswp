@@ -7,7 +7,7 @@ class ToastUtil{
         msg: str,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
-        timeInSecForIos: 3,
+        timeInSecForIos: 5,
         backgroundColor: Colors.black,
         textColor: Colors.white,
         fontSize: 16.0
