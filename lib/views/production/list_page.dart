@@ -47,6 +47,7 @@ class _ListPageState extends State<ListPage> {
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+
   //生产车间
   String FName = '';
   String FNumber = '';
@@ -72,22 +73,25 @@ class _ListPageState extends State<ListPage> {
     _port.listen(_updateDownLoadInfo);
     FlutterDownloader.registerCallback(_downLoadCallback);
     afterFirstLayout(context);
-    this._initState();
-
-  }
-  _initState() {
     this.getWorkShop();
-    setState(() {
-      /// 开启监听
-      if (_subscription == null) {
-        _subscription = scannerPlugin
-            .receiveBroadcastStream()
-            .listen(_onEvent, onError: _onError);
-      }
-    });
+    if (_subscription == null) {
+      _subscription = scannerPlugin
+          .receiveBroadcastStream()
+          .listen(_onEvent, onError: _onError);
+    }
   }
+
+  _initState() {
+    this.getOrderList();
+    /// 开启监听
+    _subscription = scannerPlugin
+        .receiveBroadcastStream()
+        .listen(_onEvent, onError: _onError);
+  }
+
   @override
   void dispose() {
+    print('关闭');
     this.controller.dispose();
     super.dispose();
 
@@ -96,6 +100,7 @@ class _ListPageState extends State<ListPage> {
       _subscription.cancel();
     }
   }
+
   @override
   void afterFirstLayout(BuildContext context) {
     // 如果是android，则执行热更新
@@ -263,18 +268,24 @@ class _ListPageState extends State<ListPage> {
       "FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }*/
     if (this.keyWord != '') {
-      userMap['FilterString'] = "fBillNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
+      userMap['FilterString'] =
+          "fBillNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
     }
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FProdOrder,FTreeEntity_FSeq';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FProdOrder,FTreeEntity_FSeq,FStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
     print(orderDate);
-    if (orderDate.length > 0) {
+    //获取当前的时间
+    DateTime now = DateTime.now();
+    DateTime start = DateTime(2022, 05, 30);
+    final difference = start.difference(now).inDays;
+    //在当前的时间上多添加4天
+    if (orderDate.length > 0 && difference > 0) {
       hobby = [];
       orderDate.forEach((value) {
         List arr = [];
@@ -356,6 +367,12 @@ class _ListPageState extends State<ListPage> {
           "isHide": true,
           "value": {"label": value[17], "value": value[17]}
         });
+        arr.add({
+          "title": "状态",
+          "name": "FStatus",
+          "isHide": false,
+          "value": {"label": value[20] == "3" ? "下达" : "开工", "value": value[20]}
+        });
         hobby.add(arr);
       });
       setState(() {
@@ -402,7 +419,7 @@ class _ListPageState extends State<ListPage> {
                   onTap: () {
                     showModalBottomSheet(
                         context: context,
-                        builder: (BuildContext context){
+                        builder: (BuildContext context) {
                           return new Column(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
@@ -411,20 +428,33 @@ class _ListPageState extends State<ListPage> {
                                 onTap: () async {
                                   if (this.hobby.length > 0) {
                                     Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return ReportPage(
-                                              FBillNo: this.hobby[i][0]['value']
-                                            // 路由参数
-                                          );
-                                        },
-                                      ),
-                                    ).then((data) {
-                                      this._initState();
-                                    });
-
+                                    if (this.hobby[i][13]['value']['value'] ==
+                                        "4") {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return ReportPage(
+                                                FBillNo: this.hobby[i][0]
+                                                    ['value']
+                                                // 路由参数
+                                                );
+                                          },
+                                        ),
+                                      ).then((data) {
+                                        //延时500毫秒执行
+                                        Future.delayed(
+                                            const Duration(milliseconds: 500),
+                                            () {
+                                          setState(() {
+                                            //延时更新状态
+                                            this._initState();
+                                          });
+                                        });
+                                      });
+                                    } else {
+                                      ToastUtil.showInfo('当前选中项不符合入库状态');
+                                    }
                                   } else {
                                     ToastUtil.showInfo('无数据');
                                   }
@@ -442,17 +472,28 @@ class _ListPageState extends State<ListPage> {
                                       MaterialPageRoute(
                                         builder: (context) {
                                           return PickingDetail(
-                                              FBillNo: this.hobby[i][0]['value'],
-                                              FSeq: this.hobby[i][10]['value'],
-                                              FEntryId: this.hobby[i][11]['value'],
-                                              FID: this.hobby[i][12]['value'],
-                                              FProdOrder: this.hobby[i][7]['value'],
+                                            FBillNo: this.hobby[i][0]['value'],
+                                            FSeq: this.hobby[i][10]['value'],
+                                            FEntryId: this.hobby[i][11]
+                                                ['value'],
+                                            FID: this.hobby[i][12]['value'],
+                                            FProdOrder: this.hobby[i][7]
+                                                ['value'],
                                             // 路由参数
                                           );
                                         },
                                       ),
-                                    );
-
+                                    ).then((data) {
+                                      //延时500毫秒执行
+                                      Future.delayed(
+                                          const Duration(milliseconds: 500),
+                                          () {
+                                        setState(() {
+                                          //延时更新状态
+                                          this._initState();
+                                        });
+                                      });
+                                    });
                                   } else {
                                     ToastUtil.showInfo('无数据');
                                   }
@@ -475,8 +516,17 @@ class _ListPageState extends State<ListPage> {
                                           );
                                         },
                                       ),
-                                    );
-
+                                    ).then((data) {
+                                      //延时500毫秒执行
+                                      Future.delayed(
+                                          const Duration(milliseconds: 500),
+                                          () {
+                                        setState(() {
+                                          //延时更新状态
+                                          this._initState();
+                                        });
+                                      });
+                                    });
                                   } else {
                                     ToastUtil.showInfo('无数据');
                                   }
@@ -499,8 +549,17 @@ class _ListPageState extends State<ListPage> {
                                           );
                                         },
                                       ),
-                                    );
-
+                                    ).then((data) {
+                                      //延时500毫秒执行
+                                      Future.delayed(
+                                          const Duration(milliseconds: 500),
+                                          () {
+                                        setState(() {
+                                          //延时更新状态
+                                          this._initState();
+                                        });
+                                      });
+                                    });
                                   } else {
                                     ToastUtil.showInfo('无数据');
                                   }
@@ -508,8 +567,7 @@ class _ListPageState extends State<ListPage> {
                               ),
                             ],
                           );
-                        }
-                    );
+                        });
                   },
                   title: Text(this.hobby[i][j]["title"] +
                       '：' +
@@ -642,9 +700,9 @@ class _ListPageState extends State<ListPage> {
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
-      /*child: MaterialApp(
-      title: "loging",*/
-      child: Scaffold(
+        child: MaterialApp(
+      title: "loging",
+      home: Scaffold(
           /*floatingActionButton: FloatingActionButton(
             onPressed: scan,
             tooltip: 'Increment',
@@ -763,8 +821,7 @@ class _ListPageState extends State<ListPage> {
               ),
             ],
           )),
-    );
-    /*);*/
+    ));
   }
 }
 

@@ -775,6 +775,7 @@ class _ReportPageState extends State<ReportPage> {
           }
         }
       }
+      Navigator.of(context).pop("refresh");
     }
   }
   @override

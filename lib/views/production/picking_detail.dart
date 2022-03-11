@@ -172,10 +172,9 @@ class _PickingDetailState extends State<PickingDetail> {
     DateTime dateTime = DateTime.now();
     FDate =
         "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
-    print(orderDate);
-    FStockOrgId = orderDate[0][1].toString();
-    FPrdOrgId = orderDate[0][1].toString();
     if (orderDate.length > 0) {
+      FStockOrgId = orderDate[0][1].toString();
+      FPrdOrgId = orderDate[0][1].toString();
       hobby = [];
       orderDate.forEach((value) {
         List arr = [];
@@ -522,6 +521,7 @@ class _PickingDetailState extends State<PickingDetail> {
     numbers.add(entityMap);
     dataMap['data'] = {'PkEntryIds': numbers};
     var startRes = await this.alterStatus(dataMap);
+    print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
       //查询生产订单
       Map<String, dynamic> userMap = Map();
@@ -534,8 +534,8 @@ class _PickingDetailState extends State<PickingDetail> {
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);
       var orderRes = jsonDecode(order);
-      print(orderRes);
-      orderRes.forEach((element) async {
+      if(orderRes.length > 0){
+        orderRes.forEach((element) async {
           //查询用料清单
           Map<String, dynamic> materialsMap = Map();
           var FMOEntrySeq = element[4];
@@ -546,11 +546,11 @@ class _PickingDetailState extends State<PickingDetail> {
               FMOEntrySeq.toString();
           materialsMap['FormId'] = 'PRD_PPBOM';
           materialsMap['FieldKeys'] =
-              'FID';
+          'FID';
           Map<String, dynamic> materialsDataMap = Map();
           materialsDataMap['data'] = materialsMap;
           String materialsMapOrder =
-              await CurrencyEntity.polling(materialsDataMap);
+          await CurrencyEntity.polling(materialsDataMap);
           //修改用料清单为审核状态
           Map<String, dynamic> auditDataMap = Map();
           auditDataMap = {
@@ -575,11 +575,19 @@ class _PickingDetailState extends State<PickingDetail> {
             this.orderDate = [];
             this.FBillNo = '';
             ToastUtil.showInfo('提交成功');
+            Navigator.of(context).pop("refresh");
           } else {
             ToastUtil.showInfo(releaseRes['Result']['ResponseStatus']
             ['Errors'][0]['Message']);
           }
-      });
+        });
+      }else{
+        this.hobby = [];
+        this.orderDate = [];
+        this.FBillNo = '';
+        ToastUtil.showInfo('提交成功');
+        Navigator.of(context).pop("refresh");
+      }
     } else {
       ToastUtil.showInfo(
           startRes['Result']['ResponseStatus']['Errors'][0]['Message']);
@@ -595,6 +603,7 @@ class _PickingDetailState extends State<PickingDetail> {
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           //提交清空页面
+
           handlerStatus();
         } else {
           setState(() {
@@ -689,6 +698,7 @@ class _PickingDetailState extends State<PickingDetail> {
     pushMap['Ids'] = orderDate[0][13];
     pushMap['RuleId'] = "PRD_IssueMtrl2PickMtrl";
     pushMap['TargetFormId'] = "PRD_PickMtrl";
+    print(pushMap);
     var downData =
         await SubmitEntity.pushDown({"formid": "PRD_PPBOM", "data": pushMap});
     print(downData);

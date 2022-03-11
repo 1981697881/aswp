@@ -156,9 +156,9 @@ class _ReturnDetailState extends State<ReturnDetail> {
     FDate =
     "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
     print(orderDate);
-    FStockOrgId = orderDate[0][1].toString();
-    FPrdOrgId = orderDate[0][1].toString();
     if (orderDate.length > 0) {
+      FStockOrgId = orderDate[0][1].toString();
+      FPrdOrgId = orderDate[0][1].toString();
       hobby = [];
       orderDate.forEach((value) {
         List arr = [];
@@ -501,6 +501,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
             this.FBillNo = '';
             this.FSaleOrderNo = '';
             ToastUtil.showInfo('提交成功');
+            Navigator.of(context).pop("refresh");
           });
         } else {
           setState(() {
