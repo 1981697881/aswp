@@ -269,7 +269,7 @@ class _ListPageState extends State<ListPage> {
     }*/
     if (this.keyWord != '') {
       userMap['FilterString'] =
-          "fBillNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
+          "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
     }
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =

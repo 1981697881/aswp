@@ -47,6 +47,7 @@ class _ReportPageState extends State<ReportPage> {
   String FDate = '';
   var show = false;
   var isScanWork = false;
+  var isSubmit = false;
   var checkData;
   var checkDataChild;
   var selectData = {
@@ -661,121 +662,128 @@ class _ReportPageState extends State<ReportPage> {
   }
   //保存
   submitOder() async{
-    var EntryIds1 = '';
-    var EntryIds2 = '';
-    //分两次读取良品，不良品数据
-    for(var i = 0;i<2;i++){
-      var hobbyIndex = 0;
-      this.hobby.forEach((element) {
-        if(i == 0){
-          if(element[4]['value']['value'] is String){
-            if(double.parse(element[4]['value']['value']) > 0){
-              if(EntryIds1 == ''){
-                EntryIds1 = orderDate[hobbyIndex][5].toString();
-              }else{
-                EntryIds1 = EntryIds1 + ','+ orderDate[hobbyIndex][5].toString();
-              }
-            }
-          }else{
-            if(element[4]['value']['value'] > 0){
-              if(EntryIds1 == ''){
-                EntryIds1 = orderDate[hobbyIndex][5].toString();
-              }else{
-                EntryIds1 = EntryIds1 + ','+ orderDate[hobbyIndex][5].toString();
-              }
-            }
-          }
-        }else{
-          if(element[6]['value']['value'] is String){
-            if(double.parse(element[6]['value']['value']) > 0){
-              if(EntryIds2 == ''){
-                EntryIds2 =orderDate[hobbyIndex][5].toString();
-              }else{
-                EntryIds2 = EntryIds2 + ','+ orderDate[hobbyIndex][5].toString();
-              }
-            }
-          }else{
-            if(element[6]['value']['value'] > 0){
-              if(EntryIds2 == ''){
-                EntryIds2 =orderDate[hobbyIndex][5].toString();
-              }else{
-                EntryIds2 = EntryIds2 + ','+ orderDate[hobbyIndex][5].toString();
-              }
-            }
-          }
-        }
-        hobbyIndex++;
+    if(this.hobby.length>0){
+      setState(() {
+        this.isSubmit = true;
       });
-    }
-    //判断是否填写数量
-    if(EntryIds1 == '' && EntryIds2 == ''){
-      ToastUtil.showInfo('无提交数据');
-    }else{
-      var checkList = [];
-      //循环下推单据
+      var EntryIds1 = '';
+      var EntryIds2 = '';
+      //分两次读取良品，不良品数据
       for(var i = 0;i<2;i++){
-        if(EntryIds1!='' && checkList.indexOf(EntryIds1)==-1){
-          checkList.add(EntryIds1);
-          var resCheck = await this.pushDown(EntryIds1,'defective');
-          if(resCheck != false){
-            var subData = await SubmitEntity.save(resCheck);
-            print(subData);
-            if(subData != null){
-              var res = jsonDecode(subData);
-              if(res != null){
-                if(res['Result']['ResponseStatus']['IsSuccess']){
-                  //提交清空页面
-                  Map<String, dynamic> auditMap = Map();
-                  auditMap = {
-                    "formid": "PRD_INSTOCK",
-                    "data": {
-                      'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
-                    }
-                  };
-                  auditOrder(auditMap);
+        var hobbyIndex = 0;
+        this.hobby.forEach((element) {
+          if(i == 0){
+            if(element[4]['value']['value'] is String){
+              if(double.parse(element[4]['value']['value']) > 0){
+                if(EntryIds1 == ''){
+                  EntryIds1 = orderDate[hobbyIndex][5].toString();
                 }else{
-                  setState(() {
-                    ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
-                  });
+                  EntryIds1 = EntryIds1 + ','+ orderDate[hobbyIndex][5].toString();
+                }
+              }
+            }else{
+              if(element[4]['value']['value'] > 0){
+                if(EntryIds1 == ''){
+                  EntryIds1 = orderDate[hobbyIndex][5].toString();
+                }else{
+                  EntryIds1 = EntryIds1 + ','+ orderDate[hobbyIndex][5].toString();
                 }
               }
             }
           }else{
-            ToastUtil.showInfo('下推失败');
+            if(element[6]['value']['value'] is String){
+              if(double.parse(element[6]['value']['value']) > 0){
+                if(EntryIds2 == ''){
+                  EntryIds2 =orderDate[hobbyIndex][5].toString();
+                }else{
+                  EntryIds2 = EntryIds2 + ','+ orderDate[hobbyIndex][5].toString();
+                }
+              }
+            }else{
+              if(element[6]['value']['value'] > 0){
+                if(EntryIds2 == ''){
+                  EntryIds2 =orderDate[hobbyIndex][5].toString();
+                }else{
+                  EntryIds2 = EntryIds2 + ','+ orderDate[hobbyIndex][5].toString();
+                }
+              }
+            }
           }
-        }else if(EntryIds2!='' && checkList.indexOf(EntryIds2)==-1){
-          checkList.add(EntryIds2);
-          var resCheck = await this.pushDown(EntryIds2,'nonDefective');
-          print(resCheck);
-          if(resCheck != false){
-            var subData = await SubmitEntity.save(resCheck);
-            print(subData);
-            if(subData != null){
-              var res = jsonDecode(subData);
-              if(res != null){
-                if(res['Result']['ResponseStatus']['IsSuccess']){
-                  //提交清空页面
-                  Map<String, dynamic> auditMap = Map();
-                  auditMap = {
-                    "formid": "PRD_INSTOCK",
-                    "data": {
-                      'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
-                    }
-                  };
-                  auditOrder(auditMap);
-                }else{
-                  setState(() {
-                    ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
-                  });
+          hobbyIndex++;
+        });
+      }
+      //判断是否填写数量
+      if(EntryIds1 == '' && EntryIds2 == ''){
+        ToastUtil.showInfo('无提交数据');
+      }else{
+        var checkList = [];
+        //循环下推单据
+        for(var i = 0;i<2;i++){
+          if(EntryIds1!='' && checkList.indexOf(EntryIds1)==-1){
+            checkList.add(EntryIds1);
+            var resCheck = await this.pushDown(EntryIds1,'defective');
+            if(resCheck != false){
+              var subData = await SubmitEntity.save(resCheck);
+              print(subData);
+              if(subData != null){
+                var res = jsonDecode(subData);
+                if(res != null){
+                  if(res['Result']['ResponseStatus']['IsSuccess']){
+                    //提交清空页面
+                    Map<String, dynamic> auditMap = Map();
+                    auditMap = {
+                      "formid": "PRD_INSTOCK",
+                      "data": {
+                        'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+                      }
+                    };
+                    auditOrder(auditMap);
+                  }else{
+                    setState(() {
+                      ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                    });
+                  }
                 }
               }
+            }else{
+              ToastUtil.showInfo('下推失败');
             }
-          }else{
-            ToastUtil.showInfo('下推失败');
+          }else if(EntryIds2!='' && checkList.indexOf(EntryIds2)==-1){
+            checkList.add(EntryIds2);
+            var resCheck = await this.pushDown(EntryIds2,'nonDefective');
+            print(resCheck);
+            if(resCheck != false){
+              var subData = await SubmitEntity.save(resCheck);
+              print(subData);
+              if(subData != null){
+                var res = jsonDecode(subData);
+                if(res != null){
+                  if(res['Result']['ResponseStatus']['IsSuccess']){
+                    //提交清空页面
+                    Map<String, dynamic> auditMap = Map();
+                    auditMap = {
+                      "formid": "PRD_INSTOCK",
+                      "data": {
+                        'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+                      }
+                    };
+                    auditOrder(auditMap);
+                  }else{
+                    setState(() {
+                      ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                    });
+                  }
+                }
+              }
+            }else{
+              ToastUtil.showInfo('下推失败');
+            }
           }
         }
+        Navigator.of(context).pop("refresh");
       }
-      Navigator.of(context).pop("refresh");
+    }else{
+      ToastUtil.showInfo('无提交数据');
     }
   }
   @override
@@ -911,12 +919,16 @@ class _ReportPageState extends State<ReportPage> {
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         child: Text("保存"),
-                        color: Theme.of(context).primaryColor,
+                        color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () async {
+                        onPressed: () async=> this.isSubmit ? null : submitOder(),
+                        /*onPressed: () async {
                           if(this.hobby.length>0){
+                            setState(() {
+                              this.isSubmit = true;
+                            });
                             submitOder();
-                           /* Map<String, dynamic> dataMap = Map();
+                           *//* Map<String, dynamic> dataMap = Map();
                             var numbers = [];
                             dataMap['formid'] = 'PRD_MO';
                             dataMap['opNumber'] = 'toStart';
@@ -941,11 +953,11 @@ class _ReportPageState extends State<ReportPage> {
                                   ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
                                 }
                               }
-                            }*/
+                            }*//*
                           }else{
                             ToastUtil.showInfo('无提交数据');
                           }
-                        },
+                        },*/
                       ),
                     ),
                   ],
@@ -955,6 +967,5 @@ class _ReportPageState extends State<ReportPage> {
           )
       ),
     );
-
   }
 }

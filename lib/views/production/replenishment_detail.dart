@@ -53,6 +53,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
   var FStockOrgId = '';
   var FPrdOrgId = '';
   var show = false;
+  var isSubmit = false;
   var isScanWork = false;
   var checkData;
   var checkDataChild;
@@ -504,6 +505,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           });
         } else {
           setState(() {
+            this.isSubmit = false;
             ToastUtil.showInfo(
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
@@ -531,6 +533,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           auditOrder(auditMap);
         } else {
           setState(() {
+            this.isSubmit = false;
             ToastUtil.showInfo(
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
@@ -541,77 +544,85 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
 
   //保存
   saveOrder() async {
-    Map<String, dynamic> dataMap = Map();
-    dataMap['formid'] = 'PRD_FeedMtrl';
-    Map<String, dynamic> orderMap = Map();
-    orderMap['NeedReturnFields'] = [];
-    orderMap['IsDeleteEntry'] = false;
-    Map<String, dynamic> Model = Map();
-    Model['FID'] = 0;
-    Model['FBillType'] = {"FNUMBER": "SCBLD01_SYS"};
-    Model['FDate'] = FDate;
-    Model['FStockOrgId'] = {"FNumber": FStockOrgId};
-    Model['FPrdOrgId'] = {"FNumber": FPrdOrgId};
-    Model['FCurrId'] = {"FNumber": 'PRE001'};
-    var FEntity = [];
-    var hobbyIndex = 0;
-    this.hobby.forEach((element) {
-      if (element[5]['value']['value'] != '0' &&
-          element[6]['value']['value'] != '') {
-        Map<String, dynamic> FEntityItem = Map();
-
-        FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
-        FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
-        FEntityItem['FStockId'] = {"FNumber": element[6]['value']['value']};
-        FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-        FEntityItem['FActualQty'] = element[5]['value']['value'];
-        FEntityItem['FMoBillNo'] = fBillNo;
-        FEntityItem['FEntrySrcBillType'] = "PRD_PPBOM";
-        FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
-        FEntityItem['FParentOwnerTypeId'] = "BD_OwnerOrg";
-        FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
-        FEntityItem['FEntrySrcBillNo'] = fBillNo;
-        FEntityItem['FKeeperId'] = {"FNumber": FStockOrgId};
-        FEntityItem['FOwnerId'] = {"FNumber": FStockOrgId};
-        FEntityItem['FParentOwnerId'] = {"FNumber": FStockOrgId};
-
-
-
-        FEntityItem['FEntity_Link'] = [
-          {
-            "FEntity_Link_FRuleId": "PRD_PPBOM2FEEDMTRL",
-            "FEntity_Link_FSTableName": "T_PRD_PPBOMENTRY",
-            "FEntity_Link_FSBillId": orderDate[hobbyIndex][13],
-            "FEntity_Link_FSId": orderDate[hobbyIndex][5],
-            "FEntity_Link_FBaseActualQty": element[5]['value']['value']
-          }
-        ];
-        FEntityItem['FKeeperTypeId'] = 'BD_KeeperOrg';
-        FEntity.add(FEntityItem);
-      }
-      hobbyIndex++;
-    });
-    Model['FEntity'] = FEntity;
-    orderMap['Model'] = Model;
-    dataMap['data'] = orderMap;
-    print(jsonEncode(dataMap));
-    String order = await SubmitEntity.save(dataMap);
-    var res = jsonDecode(order);
-    print(res);
-    if (res['Result']['ResponseStatus']['IsSuccess']) {
-      Map<String, dynamic> submitMap = Map();
-      submitMap = {
-        "formid": "PRD_FeedMtrl",
-        "data": {
-          'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
-        }
-      };
-      submitOrder(submitMap);
-    } else {
+    if (this.hobby.length > 0) {
       setState(() {
-        ToastUtil.showInfo(
-            res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        this.isSubmit = true;
       });
+      Map<String, dynamic> dataMap = Map();
+      dataMap['formid'] = 'PRD_FeedMtrl';
+      Map<String, dynamic> orderMap = Map();
+      orderMap['NeedReturnFields'] = [];
+      orderMap['IsDeleteEntry'] = false;
+      Map<String, dynamic> Model = Map();
+      Model['FID'] = 0;
+      Model['FBillType'] = {"FNUMBER": "SCBLD01_SYS"};
+      Model['FDate'] = FDate;
+      Model['FStockOrgId'] = {"FNumber": FStockOrgId};
+      Model['FPrdOrgId'] = {"FNumber": FPrdOrgId};
+      Model['FCurrId'] = {"FNumber": 'PRE001'};
+      var FEntity = [];
+      var hobbyIndex = 0;
+      this.hobby.forEach((element) {
+        if (element[5]['value']['value'] != '0' &&
+            element[6]['value']['value'] != '') {
+          Map<String, dynamic> FEntityItem = Map();
+
+          FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
+          FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
+          FEntityItem['FStockId'] = {"FNumber": element[6]['value']['value']};
+          FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+          FEntityItem['FActualQty'] = element[5]['value']['value'];
+          FEntityItem['FMoBillNo'] = fBillNo;
+          FEntityItem['FEntrySrcBillType'] = "PRD_PPBOM";
+          FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";
+          FEntityItem['FParentOwnerTypeId'] = "BD_OwnerOrg";
+          FEntityItem['FKeeperTypeId'] = "BD_KeeperOrg";
+          FEntityItem['FEntrySrcBillNo'] = fBillNo;
+          FEntityItem['FKeeperId'] = {"FNumber": FStockOrgId};
+          FEntityItem['FOwnerId'] = {"FNumber": FStockOrgId};
+          FEntityItem['FParentOwnerId'] = {"FNumber": FStockOrgId};
+
+
+
+          FEntityItem['FEntity_Link'] = [
+            {
+              "FEntity_Link_FRuleId": "PRD_PPBOM2FEEDMTRL",
+              "FEntity_Link_FSTableName": "T_PRD_PPBOMENTRY",
+              "FEntity_Link_FSBillId": orderDate[hobbyIndex][13],
+              "FEntity_Link_FSId": orderDate[hobbyIndex][5],
+              "FEntity_Link_FBaseActualQty": element[5]['value']['value']
+            }
+          ];
+          FEntityItem['FKeeperTypeId'] = 'BD_KeeperOrg';
+          FEntity.add(FEntityItem);
+        }
+        hobbyIndex++;
+      });
+      Model['FEntity'] = FEntity;
+      orderMap['Model'] = Model;
+      dataMap['data'] = orderMap;
+      print(jsonEncode(dataMap));
+      String order = await SubmitEntity.save(dataMap);
+      var res = jsonDecode(order);
+      print(res);
+      if (res['Result']['ResponseStatus']['IsSuccess']) {
+        Map<String, dynamic> submitMap = Map();
+        submitMap = {
+          "formid": "PRD_FeedMtrl",
+          "data": {
+            'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+          }
+        };
+        submitOrder(submitMap);
+      } else {
+        setState(() {
+          this.isSubmit = false;
+          ToastUtil.showInfo(
+              res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        });
+      }
+    } else {
+      ToastUtil.showInfo('无提交数据');
     }
   }
 
@@ -666,15 +677,19 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         child: Text("保存"),
-                        color: Theme.of(context).primaryColor,
+                        color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () async {
+                        onPressed: () async=> this.isSubmit ? null : saveOrder(),
+                       /* onPressed: () async {
                           if (this.hobby.length > 0) {
+                            setState(() {
+                              this.isSubmit = true;
+                            });
                             saveOrder();
                           } else {
                             ToastUtil.showInfo('无提交数据');
                           }
-                        },
+                        },*/
                       ),
                     ),
                   ],
