@@ -506,7 +506,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         } else {
           setState(() {
             this.isSubmit = false;
-            ToastUtil.showInfo(
+            ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
         }
@@ -534,7 +534,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         } else {
           setState(() {
             this.isSubmit = false;
-            ToastUtil.showInfo(
+            ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
         }
@@ -617,7 +617,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       } else {
         setState(() {
           this.isSubmit = false;
-          ToastUtil.showInfo(
+          ToastUtil.errorDialog(context,
               res['Result']['ResponseStatus']['Errors'][0]['Message']);
         });
       }

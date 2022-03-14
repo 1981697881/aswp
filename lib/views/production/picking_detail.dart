@@ -30,6 +30,7 @@ class PickingDetail extends StatefulWidget {
   var FEntryId;
   var FID;
   var FProdOrder;
+  var FBarcode;
 
   PickingDetail(
       {Key key,
@@ -37,12 +38,13 @@ class PickingDetail extends StatefulWidget {
       @required this.FSeq,
       @required this.FEntryId,
       @required this.FID,
+      @required this.FBarcode,
       @required this.FProdOrder})
       : super(key: key);
 
   @override
   _PickingDetailState createState() =>
-      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, FProdOrder);
+      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, FProdOrder,FBarcode);
 }
 
 class _PickingDetailState extends State<PickingDetail> {
@@ -89,13 +91,15 @@ class _PickingDetailState extends State<PickingDetail> {
   var fEntryId;
   var fid;
   var fProdOrder;
+  var FBarcode;
 
-  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, fProdOrder) {
+  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, fProdOrder,FBarcode) {
     this.fBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
     this.fEntryId = fEntryId['value'];
     this.fid = fid['value'];
     this.fProdOrder = fProdOrder['value'];
+    this.FBarcode = FBarcode;
     this.getOrderList();
   }
 
@@ -525,22 +529,31 @@ class _PickingDetailState extends State<PickingDetail> {
     print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
       var serialNum = fProdOrder.truncate();
-      var orderRes;
       for(var i = serialNum;i<=4;i++){
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "fBillNo='$fBillNo' and FProdOrder >= " + (serialNum + 1).toString() + " and FProdOrder <" + (serialNum + 2).toString();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum).toString() + " and FProdOrder <" + (serialNum + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
         'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
         Map<String, dynamic> proMoDataMap = Map();
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
-        orderRes = jsonDecode(order);
+        var orderRes = jsonDecode(order);
         if(orderRes.length > 0){
           break;
         }
       }
+      //查询生产订单
+      Map<String, dynamic> userMap = Map();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum+1).toString() + " and FProdOrder <" + (serialNum + 2).toString();
+      userMap['FormId'] = "PRD_MO";
+      userMap['FieldKeys'] =
+      'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
+      Map<String, dynamic> proMoDataMap = Map();
+      proMoDataMap['data'] = userMap;
+      String order = await CurrencyEntity.polling(proMoDataMap);
+      var orderRes = jsonDecode(order);
       if(orderRes.length > 0){
         orderRes.forEach((element) async {
           //查询用料清单
@@ -600,7 +613,7 @@ class _PickingDetailState extends State<PickingDetail> {
     } else {
       setState(() {
         this.isSubmit = false;
-        ToastUtil.showInfo(
+        ToastUtil.errorDialog(context,
             startRes['Result']['ResponseStatus']['Errors'][0]['Message']);
       });
 
@@ -621,7 +634,7 @@ class _PickingDetailState extends State<PickingDetail> {
         } else {
           setState(() {
             this.isSubmit = false;
-            ToastUtil.showInfo(
+            ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
         }
@@ -649,7 +662,7 @@ class _PickingDetailState extends State<PickingDetail> {
         } else {
           setState(() {
             this.isSubmit = false;
-            ToastUtil.showInfo(
+            ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
         }
@@ -702,7 +715,7 @@ class _PickingDetailState extends State<PickingDetail> {
     } else {
       setState(() {
         this.isSubmit = false;
-        ToastUtil.showInfo(
+        ToastUtil.errorDialog(context,
             res['Result']['ResponseStatus']['Errors'][0]['Message']);
       });
     }
@@ -740,7 +753,7 @@ class _PickingDetailState extends State<PickingDetail> {
       } else {
         setState(() {
           this.isSubmit = false;
-          ToastUtil.showInfo(
+          ToastUtil.errorDialog(context,
               res['Result']['ResponseStatus']['Errors'][0]['Message']);
         });
       }

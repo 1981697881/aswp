@@ -507,7 +507,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
         } else {
           setState(() {
             this.isSubmit = false;
-            ToastUtil.showInfo(
+            ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
         }
@@ -535,7 +535,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
         } else {
           setState(() {
             this.isSubmit = false;
-            ToastUtil.showInfo(
+            ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
         }

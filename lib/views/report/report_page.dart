@@ -584,7 +584,7 @@ class _ReportPageState extends State<ReportPage> {
           //提交清空页面
         } else {
           setState(() {
-            ToastUtil.showInfo(
+            ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
           });
         }
@@ -740,7 +740,7 @@ class _ReportPageState extends State<ReportPage> {
                     auditOrder(auditMap);
                   }else{
                     setState(() {
-                      ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                      ToastUtil.errorDialog(context,res['Result']['ResponseStatus']['Errors'][0]['Message']);
                     });
                   }
                 }
@@ -770,7 +770,7 @@ class _ReportPageState extends State<ReportPage> {
                     auditOrder(auditMap);
                   }else{
                     setState(() {
-                      ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
+                      ToastUtil.errorDialog(context,res['Result']['ResponseStatus']['Errors'][0]['Message']);
                     });
                   }
                 }

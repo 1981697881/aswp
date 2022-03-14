@@ -51,6 +51,7 @@ class _ListPageState extends State<ListPage> {
   //生产车间
   String FName = '';
   String FNumber = '';
+  String username = '';
 
   //自动更新字段
   String serviceVersionCode = '';
@@ -83,6 +84,7 @@ class _ListPageState extends State<ListPage> {
 
   _initState() {
     this.getOrderList();
+
     /// 开启监听
     _subscription = scannerPlugin
         .receiveBroadcastStream()
@@ -248,6 +250,7 @@ class _ListPageState extends State<ListPage> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       if (sharedPreferences.getString('FWorkShopName') != null) {
+        username = sharedPreferences.getString('FStaffNumber');
         FName = sharedPreferences.getString('FWorkShopName');
         FNumber = sharedPreferences.getString('FWorkShopNumber');
       }
@@ -473,9 +476,9 @@ class _ListPageState extends State<ListPage> {
                                         builder: (context) {
                                           return PickingDetail(
                                             FBillNo: this.hobby[i][0]['value'],
+                                            FBarcode: _code,
                                             FSeq: this.hobby[i][10]['value'],
-                                            FEntryId: this.hobby[i][11]
-                                                ['value'],
+                                            FEntryId: this.hobby[i][11]['value'],
                                             FID: this.hobby[i][12]['value'],
                                             FProdOrder: this.hobby[i][7]
                                                 ['value'],
@@ -812,6 +815,53 @@ class _ListPageState extends State<ListPage> {
           ),
           body: CustomScrollView(
             slivers: <Widget>[
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: StickyTabBarDelegate(
+                  minHeight: 50, //收起的高度
+                  maxHeight: 50, //展开的最大高度
+                  child: Container(
+                    color: Theme.of(context).primaryColor,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 2.0),
+                      child: Container(
+                        height: 52.0,
+                            child: new Card(
+                              child: new Container(
+                                child: new Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                          width: 50,
+                                          height: 50,
+                                          child: Center(
+                                            child: Text(
+                                              "用户：$username",
+                                            ),
+                                          )),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                          width: 50,
+                                          height: 50,
+                                          child: Center(
+                                            child: Text(
+                                              "车间：$FName",
+                                            ),
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )),
+                    ),
+                  ),
+                ),
+              ),
               SliverFillRemaining(
                 child: ListView(children: <Widget>[
                   Column(
