@@ -25,6 +25,7 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class ReportPage extends StatefulWidget {
   var FBillNo;
+
   ReportPage({Key key, @required this.FBillNo}) : super(key: key);
 
   @override
@@ -66,35 +67,37 @@ class _ReportPageState extends State<ReportPage> {
   _ReportPageState(fBillNo) {
     this.FBillNo = fBillNo['value'];
 
-     this.getWorkShop();
+    this.getWorkShop();
   }
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
+
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-
   }
-  void getWorkShop() async{
+
+  void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      if(sharedPreferences.getString('FWorkShopName')!=null){
+      if (sharedPreferences.getString('FWorkShopName') != null) {
         FName = sharedPreferences.getString('FWorkShopName');
         FNumber = sharedPreferences.getString('FWorkShopNumber');
         isScanWork = true;
         this.getOrderList();
-      }else{
+      } else {
         isScanWork = false;
       }
     });
   }
+
   @override
   void dispose() {
-
     this._textNumber.dispose();
     super.dispose();
 
@@ -106,6 +109,7 @@ class _ReportPageState extends State<ReportPage> {
 
   // 用户的爱好集合
   List hobby = [];
+
   getOrderList() async {
     if (FNumber != '' && FBillNo != '') {
       Map<String, dynamic> userMap = Map();
@@ -118,13 +122,13 @@ class _ReportPageState extends State<ReportPage> {
       }
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
-          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus';
+          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus,FStockId.FNumber,FStockId.FName';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
       orderDate = [];
       orderDate = jsonDecode(order);
-      if(orderDate.length > 0){
+      if (orderDate.length > 0) {
         FDate = orderDate[0][3].substring(0, 10);
         selectData[DateMode.YMD] = orderDate[0][3].substring(0, 10);
         FSaleOrderNo = orderDate[0][4];
@@ -162,7 +166,7 @@ class _ReportPageState extends State<ReportPage> {
           arr.add({
             "title": "良品仓库",
             "name": "goodProductStock",
-            "value": {"label": "主仓", "value": "CK101001"}
+            "value": {"label": value[21], "value": value[20]}
           });
           arr.add({
             "title": "不合格数量",
@@ -172,7 +176,7 @@ class _ReportPageState extends State<ReportPage> {
           arr.add({
             "title": "不合格仓库",
             "name": "rejectsStock",
-            "value": {"label": "次品仓", "value": "CK101004"}
+            "value": {"label": "次品仓", "value": "CK017"}
           });
           hobby.add(arr);
         });
@@ -181,7 +185,7 @@ class _ReportPageState extends State<ReportPage> {
           EasyLoading.dismiss();
           this._getHobby();
         });
-      }else{
+      } else {
         setState(() {
           EasyLoading.dismiss();
           this._getHobby();
@@ -225,15 +229,17 @@ class _ReportPageState extends State<ReportPage> {
         case 'FNumber':
           Navigator.pop(context);
           setState(() {
-          this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
-          this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+            this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
+            this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
           });
           break;
         case 'FStock':
           Navigator.pop(context);
           setState(() {
-            this.hobby[checkData][checkDataChild]["value"]['label'] =  _code.split(',')[1];
-            this.hobby[checkData][checkDataChild]['value']["value"] =  _code.split(',')[0];
+            this.hobby[checkData][checkDataChild]["value"]['label'] =
+                _code.split(',')[1];
+            this.hobby[checkData][checkDataChild]['value']["value"] =
+                _code.split(',')[0];
           });
           break;
       }
@@ -249,6 +255,7 @@ class _ReportPageState extends State<ReportPage> {
       _code = "扫描异常";
     });
   }
+
   Widget _item(title, var data, var selectData, {String label}) {
     return Column(
       children: [
@@ -306,7 +313,9 @@ class _ReportPageState extends State<ReportPage> {
       // selectDate: PDuration(month: 2),
       minDate: PDuration(year: 2020, month: 2, day: 10),
       maxDate: PDuration(second: 22),
-      selectDate: (FDate == ''  || FDate == null ? PDuration(year: 2021, month: 2, day: 10):PDuration.parse(DateTime.parse(FDate))),
+      selectDate: (FDate == '' || FDate == null
+          ? PDuration(year: 2021, month: 2, day: 10)
+          : PDuration.parse(DateTime.parse(FDate))),
       // minDate: PDuration(hour: 12, minute: 38, second: 3),
       // maxDate: PDuration(hour: 12, minute: 40, second: 36),
       onConfirm: (p) {
@@ -355,7 +364,7 @@ class _ReportPageState extends State<ReportPage> {
               centerTitle: true,
             ),
             body: new ListView(padding: EdgeInsets.all(10), children: <Widget>[
-             /* ListTile(
+              /* ListTile(
                 leading: Icon(Icons.search),
                 title: Text('版本信息'),
               ),
@@ -392,6 +401,7 @@ class _ReportPageState extends State<ReportPage> {
       ),
     );
   }
+
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -411,21 +421,25 @@ class _ReportPageState extends State<ReportPage> {
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
-                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       IconButton(
                         icon: new Icon(Icons.filter_center_focus),
                         tooltip: '点击扫描',
                         onPressed: () {
-                          this._FNumber = 0;
+                          this._textNumber.text =
+                              this.hobby[i][j]["value"]["label"].toString();
+                          this._FNumber =
+                              this.hobby[i][j]["value"]["label"].toString();
                           checkItem = 'FNumber';
                           this.show = false;
                           checkData = i;
                           checkDataChild = j;
                           scanDialog();
-                          if(this.hobby[i][j]["value"]["label"] != 0){
-                              this._textNumber.value = _textNumber.value.copyWith(
-                                text: this.hobby[i][j]["value"]["label"],
-                              );
+                          print(this.hobby[i][j]["value"]["label"]);
+                          if (this.hobby[i][j]["value"]["label"] != 0) {
+                            this._textNumber.value = _textNumber.value.copyWith(
+                              text: this.hobby[i][j]["value"]["label"].toString(),
+                            );
                           }
                         },
                       ),
@@ -444,7 +458,7 @@ class _ReportPageState extends State<ReportPage> {
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
-                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       IconButton(
                         icon: new Icon(Icons.filter_center_focus),
                         tooltip: '点击扫描',
@@ -471,7 +485,7 @@ class _ReportPageState extends State<ReportPage> {
                       '：' +
                       this.hobby[i][j]["value"]["label"].toString()),
                   trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                     /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                   ]),
@@ -493,6 +507,7 @@ class _ReportPageState extends State<ReportPage> {
     }
     return tempList;
   }
+
   //调出弹窗 扫码
   void scanDialog() {
     showDialog<Widget>(
@@ -544,10 +559,12 @@ class _ReportPageState extends State<ReportPage> {
                         onPressed: () {
                           // 关闭 Dialog
                           Navigator.pop(context);
-                          if(checkItem == 'FNumber'){
+                          if (checkItem == 'FNumber') {
                             setState(() {
-                              this.hobby[checkData][checkDataChild]["value"]["label"] = _FNumber;
-                              this.hobby[checkData][checkDataChild]['value']["value"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]["value"]
+                                  ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                                  ["value"] = _FNumber;
                             });
                           }
                         },
@@ -565,6 +582,56 @@ class _ReportPageState extends State<ReportPage> {
       print(val);
     });
   }
+  //删除
+  deleteOrder(Map<String, dynamic> map) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
+  //反审核
+  unAuditOrder(Map<String, dynamic> map) async {
+    var subData = await SubmitEntity.unAudit(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          //提交清空页面
+          Map<String, dynamic> deleteMap = Map();
+          deleteMap = {
+            "formid": "PRD_INSTOCK",
+            "data": {
+              'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            }
+          };
+          deleteOrder(deleteMap);
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
   //审核
   auditOrder(Map<String, dynamic> auditMap) async {
     await SubmitEntity.submit(auditMap);
@@ -575,23 +642,21 @@ class _ReportPageState extends State<ReportPage> {
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           setState(() {
-            this.hobby = [];
-            this.orderDate = [];
-            this.FBillNo = '';
-            this.FSaleOrderNo = '';
             ToastUtil.showInfo('提交成功');
           });
           //提交清空页面
         } else {
-          setState(() {
+          unAuditOrder(auditMap);
+          /*setState(() {
             ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
-          });
+          });*/
         }
       }
     }
   }
-  pushDown(val,isGood) async{
+
+  pushDown(val,type) async {
     //下推
     Map<String, dynamic> pushMap = Map();
     pushMap['EntryIds'] = val;
@@ -599,19 +664,20 @@ class _ReportPageState extends State<ReportPage> {
     pushMap['TargetFormId'] = "PRD_INSTOCK";
     pushMap['IsEnableDefaultRule'] = "false";
     pushMap['IsDraftWhenSaveFail'] = "false";
-    var downData = await SubmitEntity.pushDown({"formid": "PRD_MO","data": pushMap});
+    var downData =
+        await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
     print(downData);
     var res = jsonDecode(downData);
     //判断成功
-    if(res['Result']['ResponseStatus']['IsSuccess']){
+    if (res['Result']['ResponseStatus']['IsSuccess']) {
       //查询入库单
-      var entitysNumber = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
+      var entitysNumber =
+          res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
       Map<String, dynamic> inOrderMap = Map();
       inOrderMap['FormId'] = 'PRD_INSTOCK';
-      inOrderMap['FilterString'] =
-      "FBillNo='$entitysNumber'";
+      inOrderMap['FilterString'] = "FBillNo='$entitysNumber'";
       inOrderMap['FieldKeys'] =
-      'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
+          'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber,FMoBillNo';
       String order = await CurrencyEntity.polling({'data': inOrderMap});
       print(order);
       var resData = jsonDecode(order);
@@ -619,7 +685,11 @@ class _ReportPageState extends State<ReportPage> {
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = inOrderMap;
       Map<String, dynamic> orderMap = Map();
-      orderMap['NeedUpDataFields'] = ['FStockStatusId','FRealQty','FInStockType'];
+      orderMap['NeedUpDataFields'] = [
+        'FStockStatusId',
+        'FRealQty',
+        'FInStockType'
+      ];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
       Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
@@ -627,42 +697,47 @@ class _ReportPageState extends State<ReportPage> {
       var FEntity = [];
       resData.forEach((entity) {
         this.hobby.forEach((element) {
-          if(entity[1].toString() == element[0]['value']['value'].toString()){
+          if (entity[1].toString() == element[0]['value']['value'].toString()) {
             // ignore: non_constant_identifier_names
-            Map<String, dynamic> FEntityItem = Map();
-            FEntityItem['FEntryID'] = entity[0];
-            FEntityItem['FStockStatusId'] = {
-              "FNumber": "KCZT01_SYS"
-            };
-            //判断良品，不良品
-            if(isGood == "defective"){
+            //判断不良品还是良品
+            if(type =="defective"){
+              Map<String, dynamic> FEntityItem = Map();
+              FEntityItem['FEntryID'] = entity[0];
+              FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
               FEntityItem['FInStockType'] = '1';
               FEntityItem['FRealQty'] = element[4]['value']['value'];
+              FEntityItem['FStockId'] = {"FNumber": element[5]['value']['value']};
               FEntity.add(FEntityItem);
-            }else if(isGood == "nonDefective"){
+            }else{
+              Map<String, dynamic> FEntityItem = Map();
               FEntityItem['FInStockType'] = '2';
+              FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
+              FEntityItem['FEntryID'] = entity[0];
               FEntityItem['FRealQty'] = element[6]['value']['value'];
+              FEntityItem['FStockId'] = {
+                "FNumber": element[7]['value']['value']
+              };
               FEntity.add(FEntityItem);
             }
           }
         });
       });
       Model['FEntity'] = FEntity;
+      Model['FStockOrgId'] = {"FNumber": orderDate[0][1]};
+      Model['FPrdOrgId'] = {"FNumber": orderDate[0][1]};
       orderMap['Model'] = Model;
-      dataMap = {
-        "formid": "PRD_INSTOCK",
-        "data": orderMap
-      };
-     /* print(jsonEncode(dataMap));*/
+      dataMap = {"formid": "PRD_INSTOCK", "data": orderMap};
+      print(jsonEncode(dataMap));
       //返回保存参数
       return dataMap;
-    }else{
+    } else {
       return false;
     }
   }
+
   //保存
-  submitOder() async{
-    if(this.hobby.length>0){
+  submitOder() async {
+    if (this.hobby.length > 0) {
       setState(() {
         this.isSubmit = true;
       });
@@ -719,7 +794,7 @@ class _ReportPageState extends State<ReportPage> {
         var checkList = [];
         //循环下推单据
         for(var i = 0;i<2;i++){
-          if(EntryIds1!='' && checkList.indexOf(EntryIds1)==-1){
+          if(EntryIds1!='' && i == 0){
             checkList.add(EntryIds1);
             var resCheck = await this.pushDown(EntryIds1,'defective');
             if(resCheck != false){
@@ -737,7 +812,7 @@ class _ReportPageState extends State<ReportPage> {
                         'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
                       }
                     };
-                    auditOrder(auditMap);
+                     await auditOrder(auditMap);
                   }else{
                     setState(() {
                       ToastUtil.errorDialog(context,res['Result']['ResponseStatus']['Errors'][0]['Message']);
@@ -748,7 +823,7 @@ class _ReportPageState extends State<ReportPage> {
             }else{
               ToastUtil.showInfo('下推失败');
             }
-          }else if(EntryIds2!='' && checkList.indexOf(EntryIds2)==-1){
+          }else if(EntryIds2!='' && i == 1){
             checkList.add(EntryIds2);
             var resCheck = await this.pushDown(EntryIds2,'nonDefective');
             print(resCheck);
@@ -767,7 +842,7 @@ class _ReportPageState extends State<ReportPage> {
                         'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
                       }
                     };
-                    auditOrder(auditMap);
+                    await auditOrder(auditMap);
                   }else{
                     setState(() {
                       ToastUtil.errorDialog(context,res['Result']['ResponseStatus']['Errors'][0]['Message']);
@@ -780,9 +855,15 @@ class _ReportPageState extends State<ReportPage> {
             }
           }
         }
+        setState(() {
+          this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          this.FSaleOrderNo = '';
+        });
         Navigator.of(context).pop("refresh");
       }
-    }else{
+    } else {
       ToastUtil.showInfo('无提交数据');
     }
   }
@@ -793,9 +874,11 @@ class _ReportPageState extends State<ReportPage> {
           appBar: AppBar(
             title: Text("入库"),
             centerTitle: true,
-            leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-              Navigator.of(context).pop("refresh");
-            }),
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop("refresh");
+                }),
             /*actions: <Widget>[
               new IconButton(
                   icon: new Icon(Icons.settings), onPressed: _pushSaved),
@@ -877,18 +960,19 @@ class _ReportPageState extends State<ReportPage> {
                             //2、使用 创建一个widget
                             return Text('生产车间：$FName');
                           }),
-                          trailing:  Row(
+                          trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                if(!isScanWork) IconButton(
-                                  icon: new Icon(Icons.filter_center_focus),
-                                  tooltip: '点击扫描',
-                                  onPressed: () {
-                                    checkItem = 'FPrdOrgId';
-                                    this.show = true;
-                                    scanDialog();
-                                  },
-                                ),
+                                if (!isScanWork)
+                                  IconButton(
+                                    icon: new Icon(Icons.filter_center_focus),
+                                    tooltip: '点击扫描',
+                                    onPressed: () {
+                                      checkItem = 'FPrdOrgId';
+                                      this.show = true;
+                                      scanDialog();
+                                    },
+                                  ),
                               ]),
                         ),
                       ),
@@ -919,16 +1003,19 @@ class _ReportPageState extends State<ReportPage> {
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         child: Text("保存"),
-                        color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
+                        color: this.isSubmit
+                            ? Colors.grey
+                            : Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () async=> this.isSubmit ? null : submitOder(),
+                        onPressed: () async =>
+                            this.isSubmit ? null : submitOder(),
                         /*onPressed: () async {
                           if(this.hobby.length>0){
                             setState(() {
                               this.isSubmit = true;
                             });
                             submitOder();
-                           *//* Map<String, dynamic> dataMap = Map();
+                           */ /* Map<String, dynamic> dataMap = Map();
                             var numbers = [];
                             dataMap['formid'] = 'PRD_MO';
                             dataMap['opNumber'] = 'toStart';
@@ -953,7 +1040,7 @@ class _ReportPageState extends State<ReportPage> {
                                   ToastUtil.showInfo(res['Result']['ResponseStatus']['Errors'][0]['Message']);
                                 }
                               }
-                            }*//*
+                            }*/ /*
                           }else{
                             ToastUtil.showInfo('无提交数据');
                           }
@@ -964,8 +1051,7 @@ class _ReportPageState extends State<ReportPage> {
                 ),
               )
             ],
-          )
-      ),
+          )),
     );
   }
 }

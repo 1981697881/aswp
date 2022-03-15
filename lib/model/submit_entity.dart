@@ -81,5 +81,21 @@ class SubmitEntity {
     } on DioError catch (e) {
       return e.error;
     }
+  }static Future<String> unAudit(
+      Map<String, dynamic> map) async {
+    try {
+      final response = await HttpUtils.post(API.UNAUDIT_URL, data: map);
+      return response;
+    } on DioError catch (e) {
+      return e.error;
+    }
+  }static Future<String> delete(
+      Map<String, dynamic> map) async {
+    try {
+      final response = await HttpUtils.post(API.DELETE_URL, data: map);
+      return response;
+    } on DioError catch (e) {
+      return e.error;
+    }
   }
 }

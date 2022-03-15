@@ -29,7 +29,7 @@ class PickingDetail extends StatefulWidget {
   var FSeq;
   var FEntryId;
   var FID;
-  var FProdOrder;
+  var f_wk_xh;
   var FBarcode;
 
   PickingDetail(
@@ -39,12 +39,12 @@ class PickingDetail extends StatefulWidget {
       @required this.FEntryId,
       @required this.FID,
       @required this.FBarcode,
-      @required this.FProdOrder})
+      @required this.f_wk_xh})
       : super(key: key);
 
   @override
   _PickingDetailState createState() =>
-      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, FProdOrder,FBarcode);
+      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, f_wk_xh,FBarcode);
 }
 
 class _PickingDetailState extends State<PickingDetail> {
@@ -90,15 +90,15 @@ class _PickingDetailState extends State<PickingDetail> {
   var fBillNo;
   var fEntryId;
   var fid;
-  var fProdOrder;
+  var f_wk_xh;
   var FBarcode;
 
-  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, fProdOrder,FBarcode) {
+  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, f_wk_xh,FBarcode) {
     this.fBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
     this.fEntryId = fEntryId['value'];
     this.fid = fid['value'];
-    this.fProdOrder = fProdOrder['value'];
+    this.f_wk_xh = f_wk_xh['value'];
     this.FBarcode = FBarcode;
     this.getOrderList();
   }
@@ -528,14 +528,14 @@ class _PickingDetailState extends State<PickingDetail> {
     var startRes = await this.alterStatus(dataMap);
     print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
-      var serialNum = fProdOrder.truncate();
+      var serialNum = f_wk_xh.truncate();
       for(var i = serialNum;i<=4;i++){
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum).toString() + " and FProdOrder <" + (serialNum + 1).toString();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum).toString() + " and f_wk_xh <" + (serialNum + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
-        'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
+        'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
         Map<String, dynamic> proMoDataMap = Map();
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
@@ -546,10 +546,10 @@ class _PickingDetailState extends State<PickingDetail> {
       }
       //查询生产订单
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum+1).toString() + " and FProdOrder <" + (serialNum + 2).toString();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum+1).toString() + " and f_wk_xh <" + (serialNum + 2).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
-      'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
+      'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
       Map<String, dynamic> proMoDataMap = Map();
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);
@@ -619,7 +619,56 @@ class _PickingDetailState extends State<PickingDetail> {
 
     }
   }
-
+  //删除
+  deleteOrder(Map<String, dynamic> map) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
+  //反审核
+  unAuditOrder(Map<String, dynamic> map) async {
+    var subData = await SubmitEntity.unAudit(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          //提交清空页面
+          Map<String, dynamic> deleteMap = Map();
+          deleteMap = {
+            "formid": "PRD_PickMtrl",
+            "data": {
+              'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            }
+          };
+          deleteOrder(deleteMap);
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
   //审核
   auditOrder(Map<String, dynamic> auditMap) async {
     var subData = await SubmitEntity.audit(auditMap);
@@ -629,14 +678,14 @@ class _PickingDetailState extends State<PickingDetail> {
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           //提交清空页面
-
           handlerStatus();
         } else {
-          setState(() {
+          unAuditOrder(auditMap);
+          /*setState(() {
             this.isSubmit = false;
             ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
-          });
+          });*/
         }
       }
     }

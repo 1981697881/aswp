@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:aswp/http/api_response.dart';
 import 'package:aswp/model/currency_entity.dart';
+import 'package:aswp/model/submit_entity.dart';
 import 'package:aswp/model/version_entity.dart';
 import 'package:aswp/utils/toast_util.dart';
 import 'package:aswp/views/login/login_page.dart';
@@ -276,7 +277,7 @@ class _ListPageState extends State<ListPage> {
     }
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FProdOrder,FTreeEntity_FSeq,FStatus';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,f_wk_xh,FTreeEntity_FSeq,FStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -336,7 +337,7 @@ class _ListPageState extends State<ListPage> {
         });
         arr.add({
           "title": "生产序号",
-          "name": "FProdOrder",
+          "name": "f_wk_xh",
           "isHide": false,
           "value": {"label": value[18], "value": value[18]}
         });
@@ -376,8 +377,15 @@ class _ListPageState extends State<ListPage> {
           "isHide": false,
           "value": {"label": value[20] == "3" ? "下达" : "开工", "value": value[20]}
         });
+        arr.add({
+          "title": "checked",
+          "name": "checked",
+          "isHide": true,
+          "value": false
+        });
         hobby.add(arr);
       });
+      print(hobby);
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -408,6 +416,8 @@ class _ListPageState extends State<ListPage> {
     });
   }
 
+  bool estState = false;
+
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -426,6 +436,26 @@ class _ListPageState extends State<ListPage> {
                           return new Column(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
+                              new ListTile(
+                                title: new Center(child: new Text("一键入库")),
+                                onTap: () async {
+                                  var number= 0;
+                                  this.hobby.forEach((element) {
+                                    if(element[14]["value"]){
+                                      Map<String, dynamic> pushMap = Map();
+                                      pushMap['Ids'] = this.hobby[i][11]['value'];
+                                      pushMap['RuleId'] = "PRD_MO2INSTOCK";
+                                      pushMap['TargetFormId'] = "PRD_INSTOCK";
+                                      this.pushDown(pushMap, "PRD_INSTOCK");
+                                      number++;
+                                    }
+                                  });
+                                  if (number == 0) {
+                                    ToastUtil.showInfo('无领料数据');
+                                  }
+                                },
+                              ),
+                              divider,
                               new ListTile(
                                 title: new Center(child: new Text("入库")),
                                 onTap: () async {
@@ -465,6 +495,26 @@ class _ListPageState extends State<ListPage> {
                               ),
                               divider,
                               new ListTile(
+                                title: new Center(child: new Text("一键领料")),
+                                onTap: () async {
+                                  var  number= 0;
+                                  this.hobby.forEach((element) {
+                                    if(element[14]["value"]){
+                                      Map<String, dynamic> pushMap = Map();
+                                      pushMap['Ids'] = this.hobby[i][11]['value'];
+                                      pushMap['RuleId'] = "PRD_IssueMtrl2PickMtrl";
+                                      pushMap['TargetFormId'] = "PRD_PickMtrl";
+                                      this.pushDown(pushMap, "PRD_PickMtrl");
+                                      number++;
+                                    }
+                                  });
+                                  if (number == 0) {
+                                    ToastUtil.showInfo('无领料数据');
+                                  }
+                                },
+                              ),
+                              divider,
+                              new ListTile(
                                 title: new Center(child: new Text("领料")),
                                 onTap: () async {
                                   if (this.hobby.length > 0) {
@@ -478,10 +528,10 @@ class _ListPageState extends State<ListPage> {
                                             FBillNo: this.hobby[i][0]['value'],
                                             FBarcode: _code,
                                             FSeq: this.hobby[i][10]['value'],
-                                            FEntryId: this.hobby[i][11]['value'],
-                                            FID: this.hobby[i][12]['value'],
-                                            FProdOrder: this.hobby[i][7]
+                                            FEntryId: this.hobby[i][11]
                                                 ['value'],
+                                            FID: this.hobby[i][12]['value'],
+                                            f_wk_xh: this.hobby[i][7]['value'],
                                             // 路由参数
                                           );
                                         },
@@ -575,11 +625,20 @@ class _ListPageState extends State<ListPage> {
                   title: Text(this.hobby[i][j]["title"] +
                       '：' +
                       this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
-                        color: Colors.grey, rightpadding: 18),*/
-                  ]),
+                  trailing: j == 0
+                      ? Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                          Checkbox(
+                            value: this.hobby[i][14]["value"],
+                            activeColor: Colors.red,
+                            checkColor: Colors.yellow,
+                            onChanged: (bool value) {
+                              setState(() {
+                                this.hobby[i][14]["value"] = value;
+                              });
+                            },
+                          ),
+                        ])
+                      : null,
                 ),
               ),
               divider,
@@ -698,6 +757,55 @@ class _ListPageState extends State<ListPage> {
         },
       ),
     );
+  }
+
+  //审核
+  auditOrder(Map<String, dynamic> auditMap) async {
+    var subData = await SubmitEntity.audit(auditMap);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          //提交清空页面
+          setState(() {
+            ToastUtil.errorDialog(context,
+               '提交成功');
+          });
+        } else {
+          setState(() {
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
+
+  pushDown(Map<String, dynamic> map,formid) async {
+    //下推
+    Map<String, dynamic> pushMap = Map();
+    print(pushMap);
+    var downData =
+        await SubmitEntity.pushDown({"formid": formid, "data": map});
+    print(downData);
+    var res = jsonDecode(downData);
+    //判断成功
+    if (res['Result']['ResponseStatus']['IsSuccess']) {
+      Map<String, dynamic> auditMap = Map();
+      auditMap = {
+        "formid": formid,
+        "data": {
+          'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+        }
+      };
+      auditOrder(auditMap);
+    } else {
+      setState(() {
+        ToastUtil.errorDialog(
+            context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+      });
+    }
   }
 
   @override
@@ -825,39 +933,39 @@ class _ListPageState extends State<ListPage> {
                     child: Padding(
                       padding: EdgeInsets.only(top: 2.0),
                       child: Container(
-                        height: 52.0,
-                            child: new Card(
-                              child: new Container(
-                                child: new Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                          width: 50,
-                                          height: 50,
-                                          child: Center(
-                                            child: Text(
-                                              "用户：$username",
-                                            ),
-                                          )),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                          width: 50,
-                                          height: 50,
-                                          child: Center(
-                                            child: Text(
-                                              "车间：$FName",
-                                            ),
-                                          )),
-                                    ),
-                                  ],
-                                ),
+                          height: 52.0,
+                          child: new Card(
+                            child: new Container(
+                              child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                        width: 50,
+                                        height: 50,
+                                        child: Center(
+                                          child: Text(
+                                            "用户：$username",
+                                          ),
+                                        )),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                        width: 50,
+                                        height: 50,
+                                        child: Center(
+                                          child: Text(
+                                            "车间：$FName",
+                                          ),
+                                        )),
+                                  ),
+                                ],
                               ),
-                            )),
+                            ),
+                          )),
                     ),
                   ),
                 ),
