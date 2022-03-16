@@ -186,9 +186,9 @@ class _IndexPageState extends State<IndexPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return ReportPage(
+                                /*return ReportPage(
                                     // 路由参数
-                                    );
+                                    );*/
                               },
                             ),
                           );

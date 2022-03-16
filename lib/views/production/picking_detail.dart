@@ -762,11 +762,19 @@ class _PickingDetailState extends State<PickingDetail> {
       };
       submitOrder(submitMap);
     } else {
-      setState(() {
+      Map<String, dynamic> deleteMap = Map();
+      deleteMap = {
+        "formid": "PRD_PickMtrl",
+        "data": {
+          'Ids': collarOrderDate[0][0]
+        }
+      };
+      deleteOrder(deleteMap);
+     /* setState(() {
         this.isSubmit = false;
         ToastUtil.errorDialog(context,
             res['Result']['ResponseStatus']['Errors'][0]['Message']);
-      });
+      });*/
     }
   }
 
@@ -800,6 +808,7 @@ class _PickingDetailState extends State<PickingDetail> {
         collarOrderDate = resData;
         saveOrder();
       } else {
+
         setState(() {
           this.isSubmit = false;
           ToastUtil.errorDialog(context,

@@ -122,7 +122,7 @@ class _ReportPageState extends State<ReportPage> {
       }
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
-          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus,FStockId.FNumber,FStockId.FName';
+          'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FSaleOrderNo,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FStatus,FStockId.FNumber,FStockId.FName,FRequestOrgId.FNumber';
       Map<String, dynamic> dataMap = Map();
       dataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(dataMap);
@@ -695,43 +695,48 @@ class _ReportPageState extends State<ReportPage> {
       Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
       // ignore: non_constant_identifier_names
       var FEntity = [];
-      resData.forEach((entity) {
-        this.hobby.forEach((element) {
-          if (entity[1].toString() == element[0]['value']['value'].toString()) {
+      for(int entity = 0; entity<resData.length;entity++){
+      /*resData.forEach((entity) {*/
+        for(int element = 0; element<this.hobby.length;element++){
+        /*this.hobby.forEach((element) {*/
+          if (resData[entity][1].toString() == this.hobby[element][0]['value']['value'].toString()) {
             // ignore: non_constant_identifier_names
             //判断不良品还是良品
             if(type =="defective"){
               Map<String, dynamic> FEntityItem = Map();
-              FEntityItem['FEntryID'] = entity[0];
+              FEntityItem['FEntryID'] = resData[entity][0];
               FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
               FEntityItem['FInStockType'] = '1';
-              FEntityItem['FRealQty'] = element[4]['value']['value'];
-              FEntityItem['FStockId'] = {"FNumber": element[5]['value']['value']};
+              FEntityItem['FRealQty'] = this.hobby[element][4]['value']['value'];
+              FEntityItem['FStockId'] = {"FNumber": this.hobby[element][5]['value']['value']};
               FEntity.add(FEntityItem);
             }else{
               Map<String, dynamic> FEntityItem = Map();
               FEntityItem['FInStockType'] = '2';
               FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
-              FEntityItem['FEntryID'] = entity[0];
-              FEntityItem['FRealQty'] = element[6]['value']['value'];
+              FEntityItem['FEntryID'] = resData[entity][0];
+              FEntityItem['FRealQty'] = this.hobby[element][6]['value']['value'];
               FEntityItem['FStockId'] = {
-                "FNumber": element[7]['value']['value']
+                "FNumber": this.hobby[element][7]['value']['value']
               };
               FEntity.add(FEntityItem);
             }
           }
-        });
-      });
+        }/*);*/
+      }/*);*/
       Model['FEntity'] = FEntity;
-      Model['FStockOrgId'] = {"FNumber": orderDate[0][1]};
-      Model['FPrdOrgId'] = {"FNumber": orderDate[0][1]};
+      Model['FStockOrgId'] = {"FNumber": orderDate[0][22]};
+      Model['FPrdOrgId'] = {"FNumber": orderDate[0][22]};
       orderMap['Model'] = Model;
-      dataMap = {"formid": "PRD_INSTOCK", "data": orderMap};
+
+      dataMap = {"formid": "PRD_INSTOCK", "data": orderMap,"isBool": true};
       print(jsonEncode(dataMap));
       //返回保存参数
       return dataMap;
     } else {
-      return false;
+      Map<String, dynamic> errorMap = Map();
+      errorMap = {"msg": res['Result']['ResponseStatus']['Errors'][0]['Message'],"isBool": false};
+      return errorMap;
     }
   }
 
@@ -797,7 +802,8 @@ class _ReportPageState extends State<ReportPage> {
           if(EntryIds1!='' && i == 0){
             checkList.add(EntryIds1);
             var resCheck = await this.pushDown(EntryIds1,'defective');
-            if(resCheck != false){
+            print(resCheck['data']["Model"]["FID"]);
+            if(resCheck['isBool'] != false){
               var subData = await SubmitEntity.save(resCheck);
               print(subData);
               if(subData != null){
@@ -819,15 +825,26 @@ class _ReportPageState extends State<ReportPage> {
                     });
                   }
                 }
+              }else{
+                Map<String, dynamic> deleteMap = Map();
+                deleteMap = {
+                  "formid": "PRD_INSTOCK",
+                  "data": {
+                    'Ids': resCheck['data']["Model"]["FID"]
+                  }
+                };
+                deleteOrder(deleteMap);
               }
             }else{
-              ToastUtil.showInfo('下推失败');
+              setState(() {
+                ToastUtil.errorDialog(context,resCheck['msg']);
+              });
+              break;
             }
           }else if(EntryIds2!='' && i == 1){
             checkList.add(EntryIds2);
             var resCheck = await this.pushDown(EntryIds2,'nonDefective');
-            print(resCheck);
-            if(resCheck != false){
+            if(resCheck['isBool'] != false){
               var subData = await SubmitEntity.save(resCheck);
               print(subData);
               if(subData != null){
@@ -849,9 +866,21 @@ class _ReportPageState extends State<ReportPage> {
                     });
                   }
                 }
+              }else{
+                Map<String, dynamic> deleteMap = Map();
+                deleteMap = {
+                  "formid": "PRD_INSTOCK",
+                  "data": {
+                    'Ids': resCheck['data']["Model"]["FID"]
+                  }
+                };
+                deleteOrder(deleteMap);
               }
             }else{
-              ToastUtil.showInfo('下推失败');
+              setState(() {
+                ToastUtil.errorDialog(context,resCheck['msg']);
+              });
+              break;
             }
           }
         }

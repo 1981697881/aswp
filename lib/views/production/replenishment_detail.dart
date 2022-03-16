@@ -485,7 +485,57 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       print(val);
     });
   }
-
+  //删除
+  deleteOrder(Map<String, dynamic> map) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          this.FSaleOrderNo = '';
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
+  //反审核
+  unAuditOrder(Map<String, dynamic> map) async {
+    var subData = await SubmitEntity.unAudit(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          //提交清空页面
+          Map<String, dynamic> deleteMap = Map();
+          deleteMap = {
+            "formid": "PRD_PickMtrl",
+            "data": {
+              'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            }
+          };
+          deleteOrder(deleteMap);
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
+      }
+    }
+  }
   //审核
   auditOrder(Map<String, dynamic> auditMap) async {
     var subData = await SubmitEntity.audit(auditMap);
@@ -504,11 +554,12 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
             Navigator.of(context).pop("refresh");
           });
         } else {
-          setState(() {
+          unAuditOrder(auditMap);
+         /* setState(() {
             this.isSubmit = false;
             ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
-          });
+          });*/
         }
       }
     }
