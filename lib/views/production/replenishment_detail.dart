@@ -486,19 +486,24 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     });
   }
   //删除
-  deleteOrder(Map<String, dynamic> map) async {
+  deleteOrder(Map<String, dynamic> map,title) async {
     var subData = await SubmitEntity.delete(map);
     print(subData);
     if (subData != null) {
       var res = jsonDecode(subData);
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
-          this.hobby = [];
+         /* this.hobby = [];
           this.orderDate = [];
           this.FBillNo = '';
           this.FSaleOrderNo = '';
           ToastUtil.showInfo('提交成功');
-          Navigator.of(context).pop("refresh");
+          Navigator.of(context).pop("refresh");*/
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                title);
+          });
         } else {
           setState(() {
             this.isSubmit = false;
@@ -510,7 +515,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
     }
   }
   //反审核
-  unAuditOrder(Map<String, dynamic> map) async {
+  unAuditOrder(Map<String, dynamic> map,title) async {
     var subData = await SubmitEntity.unAudit(map);
     print(subData);
     if (subData != null) {
@@ -525,7 +530,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          deleteOrder(deleteMap);
+          deleteOrder(deleteMap,title);
         } else {
           setState(() {
             this.isSubmit = false;
@@ -554,7 +559,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
             Navigator.of(context).pop("refresh");
           });
         } else {
-          unAuditOrder(auditMap);
+          unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
          /* setState(() {
             this.isSubmit = false;
             ToastUtil.errorDialog(context,

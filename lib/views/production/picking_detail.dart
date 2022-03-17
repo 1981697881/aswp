@@ -620,18 +620,23 @@ class _PickingDetailState extends State<PickingDetail> {
     }
   }
   //删除
-  deleteOrder(Map<String, dynamic> map) async {
+  deleteOrder(Map<String, dynamic> map,title) async {
     var subData = await SubmitEntity.delete(map);
     print(subData);
     if (subData != null) {
       var res = jsonDecode(subData);
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
-          this.hobby = [];
+         /* this.hobby = [];
           this.orderDate = [];
           this.FBillNo = '';
           ToastUtil.showInfo('提交成功');
-          Navigator.of(context).pop("refresh");
+          Navigator.of(context).pop("refresh");*/
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context,
+                title);
+          });
         } else {
           setState(() {
             this.isSubmit = false;
@@ -643,7 +648,7 @@ class _PickingDetailState extends State<PickingDetail> {
     }
   }
   //反审核
-  unAuditOrder(Map<String, dynamic> map) async {
+  unAuditOrder(Map<String, dynamic> map,title) async {
     var subData = await SubmitEntity.unAudit(map);
     print(subData);
     if (subData != null) {
@@ -658,7 +663,7 @@ class _PickingDetailState extends State<PickingDetail> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          deleteOrder(deleteMap);
+          deleteOrder(deleteMap,title);
         } else {
           setState(() {
             this.isSubmit = false;
@@ -680,7 +685,7 @@ class _PickingDetailState extends State<PickingDetail> {
           //提交清空页面
           handlerStatus();
         } else {
-          unAuditOrder(auditMap);
+          unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
           /*setState(() {
             this.isSubmit = false;
             ToastUtil.errorDialog(context,
@@ -769,7 +774,7 @@ class _PickingDetailState extends State<PickingDetail> {
           'Ids': collarOrderDate[0][0]
         }
       };
-      deleteOrder(deleteMap);
+      deleteOrder(deleteMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
      /* setState(() {
         this.isSubmit = false;
         ToastUtil.errorDialog(context,

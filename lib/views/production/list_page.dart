@@ -914,7 +914,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
   //删除
-  deleteOrder(Map<String, dynamic> map) async {
+  deleteOrder(Map<String, dynamic> map,title) async {
     var subData = await SubmitEntity.delete(map);
     print(subData);
     if (subData != null) {
@@ -932,7 +932,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
   //反审核
-  unAuditOrder(Map<String, dynamic> map) async {
+  unAuditOrder(Map<String, dynamic> map,title) async {
     var subData = await SubmitEntity.unAudit(map);
     if (subData != null) {
       var res = jsonDecode(subData);
@@ -945,7 +945,7 @@ class _ListPageState extends State<ListPage> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          deleteOrder(deleteMap);
+          deleteOrder(deleteMap,title);
         } else {
           /*setState(() {
             ToastUtil.errorDialog(context,
@@ -974,7 +974,7 @@ class _ListPageState extends State<ListPage> {
             return title.toString() + ':成功';
           }
         } else {
-          await unAuditOrder(auditMap);
+          await unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message'].toString());
           return res['Result']['ResponseStatus']['Errors'][0]['Message'].toString();
         }
       }
