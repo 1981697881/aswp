@@ -588,11 +588,12 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           };
           auditOrder(auditMap);
         } else {
-          setState(() {
+          deleteOrder(submitMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          /*setState(() {
             this.isSubmit = false;
             ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
-          });
+          });*/
         }
       }
     }
@@ -637,9 +638,6 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
           FEntityItem['FKeeperId'] = {"FNumber": FStockOrgId};
           FEntityItem['FOwnerId'] = {"FNumber": FStockOrgId};
           FEntityItem['FParentOwnerId'] = {"FNumber": FStockOrgId};
-
-
-
           FEntityItem['FEntity_Link'] = [
             {
               "FEntity_Link_FRuleId": "PRD_PPBOM2FEEDMTRL",

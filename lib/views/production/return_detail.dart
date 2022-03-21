@@ -589,11 +589,12 @@ class _ReturnDetailState extends State<ReturnDetail> {
           };
           auditOrder(auditMap);
         } else {
-          setState(() {
+          deleteOrder(submitMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          /*setState(() {
             this.isSubmit = false;
             ToastUtil.errorDialog(context,
                 res['Result']['ResponseStatus']['Errors'][0]['Message']);
-          });
+          });*/
         }
       }
     }

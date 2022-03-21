@@ -740,11 +740,14 @@ class _PickingDetailState extends State<PickingDetail> {
         Map<String, dynamic> FEntityItem = Map();
         FEntityItem['FActualQty'] = element[5]['value']['value'];
         FEntityItem['FEntryID'] = collarOrderDate[hobbyIndex][1];
-        FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
-        FEntityItem['FStockId'] = {
+       /* FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};*/
+       /* FEntityItem['FStockId'] = {
           "FNumber": fBillNo.substring(0, 2) == "FO"
               ? 'XBC001'
               : collarOrderDate[hobbyIndex][2]
+        };*/
+        FEntityItem['FStockId'] = {
+          "FNumber": collarOrderDate[hobbyIndex][2]
         };
         FEntity.add(FEntityItem);
       }

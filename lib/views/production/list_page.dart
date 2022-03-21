@@ -273,12 +273,12 @@ class _ListPageState extends State<ListPage> {
     }*/
     if (this.keyWord != '') {
       userMap['FilterString'] =
-          "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
+          "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber' and FDate <= '2022-05-30'";
+      userMap['FormId'] = 'PRD_MO';
+      userMap['FieldKeys'] =
+      'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,f_wk_xh,FTreeEntity_FSeq,FStatus';
     }
-    userMap['FormId'] = 'PRD_MO';
-    userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,f_wk_xh,FTreeEntity_FSeq,FStatus';
-    Map<String, dynamic> dataMap = Map();
+     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
@@ -288,8 +288,7 @@ class _ListPageState extends State<ListPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(2022, 05, 30);
     final difference = start.difference(now).inDays;
-    //在当前的时间上多添加4天
-    if (orderDate.length > 0 && difference > 0) {
+    if (orderDate.length > 0) {
       hobby = [];
       orderDate.forEach((value) {
         List arr = [];
@@ -431,6 +430,7 @@ class _ListPageState extends State<ListPage> {
                 child: ListTile(
                   onTap: () {
                     showModalBottomSheet(
+                        isScrollControlled: true,
                         context: context,
                         builder: (BuildContext context) {
                           return new Column(
@@ -938,14 +938,14 @@ class _ListPageState extends State<ListPage> {
       var res = jsonDecode(subData);
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
-          //提交清空页面
+          /*//提交清空页面
           Map<String, dynamic> deleteMap = Map();
           deleteMap = {
             "data": {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
-          };
-          deleteOrder(deleteMap,title);
+          };*/
+          deleteOrder(map,title);
         } else {
           /*setState(() {
             ToastUtil.errorDialog(context,
