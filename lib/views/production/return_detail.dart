@@ -654,6 +654,11 @@ class _ReturnDetailState extends State<ReturnDetail> {
         }
         hobbyIndex++;
       });
+      if(FEntity.length==0){
+        this.isSubmit = false;
+        ToastUtil.showInfo('请输入数量和录入仓库');
+        return;
+      }
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;

@@ -753,6 +753,7 @@ class _PickingDetailState extends State<PickingDetail> {
       }
       hobbyIndex++;
     });
+
     Model['FEntity'] = FEntity;
     orderMap['Model'] = Model;
     dataMap['data'] = orderMap;
@@ -816,7 +817,6 @@ class _PickingDetailState extends State<PickingDetail> {
         collarOrderDate = resData;
         saveOrder();
       } else {
-
         setState(() {
           this.isSubmit = false;
           ToastUtil.errorDialog(context,

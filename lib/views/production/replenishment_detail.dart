@@ -37,11 +37,8 @@ class ReplenishmentDetail extends StatefulWidget {
 }
 
 class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
-  GlobalKey<TextWidgetState> textKey = GlobalKey();
-  GlobalKey<TextWidgetState> FBillNoKey = GlobalKey();
-  GlobalKey<TextWidgetState> FSaleOrderNoKey = GlobalKey();
+
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
-  GlobalKey<PartRefreshWidgetState> FPrdOrgIdKey = GlobalKey();
 
   final _textNumber = TextEditingController();
   var checkItem;
@@ -623,7 +620,6 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         if (element[5]['value']['value'] != '0' &&
             element[6]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
-
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
           FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FStockId'] = {"FNumber": element[6]['value']['value']};
@@ -652,6 +648,11 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         }
         hobbyIndex++;
       });
+      if(FEntity.length==0){
+        this.isSubmit = false;
+        ToastUtil.showInfo('请输入数量和录入仓库');
+        return;
+      }
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;

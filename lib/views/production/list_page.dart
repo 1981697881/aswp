@@ -45,7 +45,7 @@ class _ListPageState extends State<ListPage> {
   final scanIcon = Icon(Icons.filter_center_focus);
 
   static const scannerPlugin =
-      const EventChannel('com.shinow.pda_scanner/plugin');
+  const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
 
@@ -147,7 +147,7 @@ class _ListPageState extends State<ListPage> {
               ],
             ),
             content:
-                new Text(buildUpdateDescription + "（" + buildVersion + ")"),
+            new Text(buildUpdateDescription + "（" + buildVersion + ")"),
             actions: <Widget>[
               new FlatButton(
                 child: new Text('下次再说'),
@@ -195,10 +195,10 @@ class _ListPageState extends State<ListPage> {
   }
 
   /// 下载进度回调函数
-  static void _downLoadCallback(
-      String id, DownloadTaskStatus status, int progress) {
+  static void _downLoadCallback(String id, DownloadTaskStatus status,
+      int progress) {
     final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port');
+    IsolateNameServer.lookupPortByName('downloader_send_port');
     send.send([id, status, progress]);
   }
 
@@ -273,12 +273,12 @@ class _ListPageState extends State<ListPage> {
     }*/
     if (this.keyWord != '') {
       userMap['FilterString'] =
-          "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber' and FDate <= '2022-05-30'";
+      "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber' and FDate <= '2022-05-30'";
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
       'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,f_wk_xh,FTreeEntity_FSeq,FStatus';
     }
-     Map<String, dynamic> dataMap = Map();
+    Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
@@ -287,94 +287,139 @@ class _ListPageState extends State<ListPage> {
     //获取当前的时间
     DateTime now = DateTime.now();
     DateTime start = DateTime(2022, 05, 30);
-    final difference = start.difference(now).inDays;
+    final difference = start
+        .difference(now)
+        .inDays;
     if (orderDate.length > 0) {
       hobby = [];
-      orderDate.forEach((value) {
+      for (var value = 0; value < orderDate.length; value++) {
+        /* orderDate.forEach((value) async {*/
+        Map<String, dynamic> instockMap = Map();
+        instockMap['FilterString'] =
+        "FMoBillNo='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
+        instockMap['FormId'] = 'PRD_INSTOCK';
+        instockMap['FieldKeys'] = 'FID,FDocumentStatus';
+        Map<String, dynamic> dataMap1 = Map();
+        dataMap1['data'] = instockMap;
+        String order1 = await CurrencyEntity.polling(dataMap1);
+        Map<String, dynamic> pickmtrlMap = Map();
+        pickmtrlMap['FilterString'] =
+        "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
+        pickmtrlMap['FormId'] = 'PRD_PickMtrl';
+        pickmtrlMap['FieldKeys'] = 'FID,FDocumentStatus';
+        Map<String, dynamic> dataMap2 = Map();
+        dataMap2['data'] = pickmtrlMap;
+        String order2 = await CurrencyEntity.polling(dataMap2);
+        print(order1);
+        print(order2);
         List arr = [];
         arr.add({
           "title": "单据编号",
           "name": "FBillNo",
           "isHide": false,
-          "value": {"label": value[0], "value": value[0]}
+          "value": {"label": orderDate[value][0], "value": orderDate[value][0]}
         });
         arr.add({
           "title": "生产组织",
           "name": "FPrdOrgId",
           "isHide": true,
-          "value": {"label": value[2], "value": value[1]}
+          "value": {"label": orderDate[value][2], "value": orderDate[value][1]}
         });
         arr.add({
           "title": "单据日期",
           "name": "FDate",
           "isHide": false,
-          "value": {"label": value[3], "value": value[3]}
+          "value": {"label": orderDate[value][3], "value": orderDate[value][3]}
         });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[5], "value": value[4]}
+          "value": {"label": orderDate[value][5], "value": orderDate[value][4]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": false,
-          "value": {"label": value[6], "value": value[6]}
+          "value": {"label": orderDate[value][6], "value": orderDate[value][6]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
-          "value": {"label": value[11], "value": value[10]}
+          "value": {
+            "label": orderDate[value][11],
+            "value": orderDate[value][10]
+          }
         });
         arr.add({
           "title": "数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {
+            "label": orderDate[value][12],
+            "value": orderDate[value][12]
+          }
         });
         arr.add({
           "title": "生产序号",
           "name": "f_wk_xh",
           "isHide": false,
-          "value": {"label": value[18], "value": value[18]}
+          "value": {
+            "label": orderDate[value][18],
+            "value": orderDate[value][18]
+          }
         });
         arr.add({
           "title": "计划开工日期",
           "name": "FBaseQty",
           "isHide": true,
-          "value": {"label": value[13], "value": value[13]}
+          "value": {
+            "label": orderDate[value][13],
+            "value": orderDate[value][13]
+          }
         });
         arr.add({
           "title": "未入库数量",
           "name": "FBaseQty",
           "isHide": true,
-          "value": {"label": value[16], "value": value[16]}
+          "value": {
+            "label": orderDate[value][16],
+            "value": orderDate[value][16]
+          }
         });
         arr.add({
           "title": "行号",
           "name": "FSeq",
           "isHide": true,
-          "value": {"label": value[19], "value": value[19]}
+          "value": {
+            "label": orderDate[value][19],
+            "value": orderDate[value][19]
+          }
         });
         arr.add({
           "title": "分录内码",
           "name": "FEntryId",
           "isHide": true,
-          "value": {"label": value[4], "value": value[4]}
+          "value": {"label": orderDate[value][4], "value": orderDate[value][4]}
         });
         arr.add({
           "title": "FID",
           "name": "FID",
           "isHide": true,
-          "value": {"label": value[17], "value": value[17]}
+          "value": {
+            "label": orderDate[value][17],
+            "value": orderDate[value][17]
+          }
         });
         arr.add({
           "title": "状态",
           "name": "FStatus",
           "isHide": false,
-          "value": {"label": value[20] == "3" ? "下达" : "开工", "value": value[20]}
+          "value": {
+            "label": orderDate[value][20] == "3" ? "下达" : "开工",
+            "value": orderDate[value][20]
+          }
         });
         arr.add({
           "title": "checked",
@@ -382,8 +427,33 @@ class _ListPageState extends State<ListPage> {
           "isHide": true,
           "value": false
         });
+        var order1Date = jsonDecode(order1);
+        var order2Date = jsonDecode(order2);
+        if (order1Date.length > 0) {
+          arr.add({
+            "title": "入库单状态",
+            "name": "PRD_INSTOCK",
+            "isHide": false,
+            "value": {
+              "label": order1Date[0][1] == "A" ? "创建" : "审核中",
+              "value": order1Date[0][0]
+            }
+          });
+        }
+        if (order2Date.length > 0) {
+          arr.add({
+            "title": "领料单状态",
+            "name": "PRD_PickMtrl",
+            "isHide": false,
+            "value": {
+              "label": order2Date[0][1] == "A" ? "创建" : "审核中",
+              "value": order2Date[0][0]
+            }
+          });
+        }
         hobby.add(arr);
-      });
+      }
+      /*)*/;
       print(hobby);
       setState(() {
         EasyLoading.dismiss();
@@ -394,7 +464,7 @@ class _ListPageState extends State<ListPage> {
         EasyLoading.dismiss();
         this._getHobby();
       });
-      ToastUtil.showInfo('无数据');
+      ToastUtil.showInfo('单据未下达或已入库');
     }
   }
 
@@ -423,278 +493,348 @@ class _ListPageState extends State<ListPage> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  onTap: () {
-                    showModalBottomSheet(
-                        isScrollControlled: true,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return new Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              new ListTile(
-                                title: new Center(child: new Text("一键入库")),
-                                onTap: () async {
-                                  var number = 0;
-                                  var str = '';
-                                  for (int i = 0; i < this.hobby.length; i++) {
-                                    if (this.hobby[i][14]["value"] &&
-                                        this.hobby[i][13]['value']['value'] == "4") {
-                                      Map<String, dynamic> pushMap = Map();
-                                      pushMap['EntryIds'] =
-                                      this.hobby[i][11]['value']['value'];
-                                      pushMap['RuleId'] = "PRD_MO2INSTOCK";
-                                      pushMap['TargetFormId'] = "PRD_INSTOCK";
-                                      var res = await this.pushDown(
-                                          pushMap,
-                                          "PRD_MO",
-                                          "PRD_INSTOCK",
-                                          this.hobby[i][3]['value']['label']);
-                                      str = str + number.toString() +
-                                          ':' +
-                                          res.toString();
-                                      number++;
+          if (j == 15) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        new MaterialButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          child: new Text('审核'),
+                          onPressed: () {
+                            Map<String, dynamic> auditMap = Map();
+                            auditMap = {
+                              "formid": this.hobby[i][j]["name"],
+                              "data": {
+                                'Ids': this.hobby[i][j]["value"]["value"]
+                              }
+                            };
+                            auditOrder(auditMap, '审核', this.hobby[i][j]["name"]);
+                          },
+                        ),
+                        new MaterialButton(
+                          color: Colors.red,
+                          textColor: Colors.white,
+                          child: new Text('删除'),
+                          onPressed: () {
+                            Map<String, dynamic> deleteMap = Map();
+                            deleteMap = {
+                              "formid": this.hobby[i][j]["name"],
+                              "data": {
+                                'Ids': this.hobby[i][j]["value"]["value"]
+                              }
+                            };
+                            deleteOrder(deleteMap, '删除',type:1);
+                          },
+                        )
+                      ])
+                  ),
+                ),
+                divider,
+              ]),
+            );
+          } else {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                    onTap: () {
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return new Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                new ListTile(
+                                  title: new Center(child: new Text("一键入库")),
+                                  onTap: () async {
+                                    var number = 0;
+                                    var str = '';
+                                    for (int i = 0; i <
+                                        this.hobby.length; i++) {
+                                      if (this.hobby[i][14]["value"] &&
+                                          this.hobby[i][13]['value']['value'] ==
+                                              "4") {
+                                        Map<String, dynamic> pushMap = Map();
+                                        pushMap['EntryIds'] =
+                                        this.hobby[i][11]['value']['value'];
+                                        pushMap['RuleId'] = "PRD_MO2INSTOCK";
+                                        pushMap['TargetFormId'] = "PRD_INSTOCK";
+                                        var res = await this.pushDown(
+                                            pushMap,
+                                            "PRD_MO",
+                                            "PRD_INSTOCK",
+                                            this.hobby[i][3]['value']['label']);
+                                        str = str + number.toString() +
+                                            ':' +
+                                            res.toString();
+                                        number++;
+                                      }
                                     }
-                                  }
-                                  /*this.hobby.forEach((element) {*/
+                                    /*this.hobby.forEach((element) {*/
 
-                                  /*});*/
-                                  if (number == 0) {
-                                    Navigator.pop(context);
-                                    ToastUtil.showInfo('无选中或无符合数据');
-                                  } else {
-                                    Navigator.pop(context);
-                                    setState(() {
-                                      ToastUtil.errorDialog(context, str+"入库");
-                                      this.getOrderList();
-                                    });
-                                  }
-                                },
-                              ),
-                              divider,
-                              new ListTile(
-                                title: new Center(child: new Text("入库")),
-                                onTap: () async {
-                                  if (this.hobby.length > 0) {
-                                    Navigator.pop(context);
-                                    if (this.hobby[i][13]['value']['value'] ==
-                                        "4") {
+                                    /*});*/
+                                    if (number == 0) {
+                                      Navigator.pop(context);
+                                      ToastUtil.showInfo('无选中或无符合数据');
+                                    } else {
+                                      Navigator.pop(context);
+                                      setState(() {
+                                        ToastUtil.errorDialog(
+                                            context, str + "入库");
+                                        this.getOrderList();
+                                      });
+                                    }
+                                  },
+                                ),
+                                divider,
+                                new ListTile(
+                                  title: new Center(child: new Text("入库")),
+                                  onTap: () async {
+                                    if (this.hobby.length > 0) {
+                                      Navigator.pop(context);
+                                      if (this.hobby[i][13]['value']['value'] ==
+                                          "4") {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) {
+                                              return ReportPage(
+                                                  FBillNo: this.hobby[i][0]
+                                                  ['value']
+                                                // 路由参数
+                                              );
+                                            },
+                                          ),
+                                        ).then((data) {
+                                          //延时500毫秒执行
+                                          Future.delayed(
+                                              const Duration(milliseconds: 500),
+                                                  () {
+                                                setState(() {
+                                                  //延时更新状态
+                                                  this._initState();
+                                                });
+                                              });
+                                        });
+                                      } else {
+                                        ToastUtil.showInfo('当前选中项不符合入库状态');
+                                      }
+                                    } else {
+                                      ToastUtil.showInfo('无数据');
+                                    }
+                                  },
+                                ),
+                                divider,
+                                new ListTile(
+                                  title: new Center(child: new Text("一键领料")),
+                                  onTap: () async {
+                                    var number = 0;
+                                    var str = "";
+                                    for (int i = 0; i <
+                                        this.hobby.length; i++) {
+                                      if (this.hobby[i][14]["value"]) {
+                                        Map<String, dynamic> ppbomMap = Map();
+                                        var fMOBillNO = this
+                                            .hobby[i][0]['value']['value'];
+                                        var fMOEntrySeq = this
+                                            .hobby[i][10]['value']['value'];
+                                        ppbomMap['FilterString'] =
+                                        "FNoPickedQty>0 and FMOBillNO='$fMOBillNO' and FMOEntrySeq = '$fMOEntrySeq'";
+                                        ppbomMap['FormId'] = 'PRD_PPBOM';
+                                        ppbomMap['FieldKeys'] = 'FID';
+                                        Map<String, dynamic> dataMap = Map();
+                                        dataMap['data'] = ppbomMap;
+                                        String order = await CurrencyEntity
+                                            .polling(dataMap);
+                                        var resOrder = jsonDecode(order);
+                                        print(resOrder);
+                                        //判断成功
+                                        if (resOrder.length > 0) {
+                                          number++;
+                                          Map<String, dynamic> pushMap = Map();
+                                          pushMap['Ids'] = resOrder[0][0];
+                                          pushMap['RuleId'] =
+                                          "PRD_IssueMtrl2PickMtrl";
+                                          pushMap['TargetFormId'] =
+                                          "PRD_PickMtrl";
+                                          var res = await this.pushDown(
+                                              pushMap,
+                                              "PRD_PPBOM", "PRD_PickMtrl",
+                                              this
+                                                  .hobby[i][3]['value']['label'],
+                                              id: this
+                                                  .hobby[i][12]['value']['value']
+                                                  .toString(),
+                                              entryIds: this.hobby[i][11]
+                                              ['value']['value'].toString(),
+                                              fWkXh: this
+                                                  .hobby[i][7]['value']['value']);
+                                          str = str + ',' + number.toString() +
+                                              ':' +
+                                              res.toString();
+                                        }
+                                      }
+                                    };
+                                    if (number == 0) {
+                                      Navigator.pop(context);
+                                      ToastUtil.showInfo('无领料数据');
+                                    } else {
+                                      Navigator.pop(context);
+                                      setState(() {
+                                        ToastUtil.errorDialog(
+                                            context, str + "领料");
+                                        this.getOrderList();
+                                      });
+                                    }
+                                  },
+                                ),
+                                divider,
+                                new ListTile(
+                                  title: new Center(child: new Text("领料")),
+                                  onTap: () async {
+                                    if (this.hobby.length > 0) {
+                                      Navigator.pop(context);
+                                      print(this.hobby[i][11]);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) {
-                                            return ReportPage(
-                                                FBillNo: this.hobby[i][0]
-                                                    ['value']
-                                                // 路由参数
-                                                );
+                                            return PickingDetail(
+                                              FBillNo: this
+                                                  .hobby[i][0]['value'],
+                                              FBarcode: _code,
+                                              FSeq: this.hobby[i][10]['value'],
+                                              FEntryId: this.hobby[i][11]
+                                              ['value'],
+                                              FID: this.hobby[i][12]['value'],
+                                              f_wk_xh: this
+                                                  .hobby[i][7]['value'],
+                                              // 路由参数
+                                            );
                                           },
                                         ),
                                       ).then((data) {
                                         //延时500毫秒执行
                                         Future.delayed(
                                             const Duration(milliseconds: 500),
-                                            () {
-                                          setState(() {
-                                            //延时更新状态
-                                            this._initState();
-                                          });
-                                        });
+                                                () {
+                                              setState(() {
+                                                //延时更新状态
+                                                this._initState();
+                                              });
+                                            });
                                       });
                                     } else {
-                                      ToastUtil.showInfo('当前选中项不符合入库状态');
+                                      ToastUtil.showInfo('无数据');
                                     }
-                                  } else {
-                                    ToastUtil.showInfo('无数据');
-                                  }
-                                },
-                              ),
-                              divider,
-                              new ListTile(
-                                title: new Center(child: new Text("一键领料")),
-                                onTap: () async {
-                                  var number = 0;
-                                  var str = "";
-                                  for (int i = 0; i < this.hobby.length; i++) {
-                                    if (this.hobby[i][14]["value"]) {
-                                      Map<String, dynamic> ppbomMap = Map();
-                                      var fMOBillNO = this.hobby[i][0]['value']['value'];
-                                      var fMOEntrySeq= this.hobby[i][10]['value']['value'];
-                                      ppbomMap['FilterString'] =
-                                      "FNoPickedQty>0 and FMOBillNO='$fMOBillNO' and FMOEntrySeq = '$fMOEntrySeq'";
-                                      ppbomMap['FormId'] = 'PRD_PPBOM';
-                                      ppbomMap['FieldKeys'] = 'FID';
-                                      Map<String, dynamic> dataMap = Map();
-                                      dataMap['data'] = ppbomMap;
-                                      String order = await CurrencyEntity.polling(dataMap);
-                                      var resOrder = jsonDecode(order);
-                                      print(resOrder);
-                                      //判断成功
-                                      if (resOrder.length>0) {
-                                        number++;
-                                        Map<String, dynamic> pushMap = Map();
-                                        pushMap['Ids'] = resOrder[0][0];
-                                        pushMap['RuleId'] =
-                                        "PRD_IssueMtrl2PickMtrl";
-                                        pushMap['TargetFormId'] = "PRD_PickMtrl";
-                                        var res = await this.pushDown(
-                                            pushMap,
-                                            "PRD_PPBOM","PRD_PickMtrl",
-                                            this.hobby[i][3]['value']['label'],id:this.hobby[i][12]['value']['value'].toString(),entryIds: this.hobby[i][11]
-                          ['value']['value'].toString(),fWkXh: this.hobby[i][7]['value']['value']);
-                                        str = str+','+number.toString() +
-                                            ':' +
-                                            res.toString();
-                                      }
+                                  },
+                                ),
+                                divider,
+                                new ListTile(
+                                  title: new Center(child: new Text("补料")),
+                                  onTap: () async {
+                                    if (this.hobby.length > 0) {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return ReplenishmentDetail(
+                                              FBillNo: this
+                                                  .hobby[i][0]['value'],
+                                              FSeq: this.hobby[i][10]['value'],
+                                              // 路由参数
+                                            );
+                                          },
+                                        ),
+                                      ).then((data) {
+                                        //延时500毫秒执行
+                                        Future.delayed(
+                                            const Duration(milliseconds: 500),
+                                                () {
+                                              setState(() {
+                                                //延时更新状态
+                                                this._initState();
+                                              });
+                                            });
+                                      });
+                                    } else {
+                                      ToastUtil.showInfo('无数据');
                                     }
-                                  };
-                                  if (number == 0) {
-                                    Navigator.pop(context);
-                                    ToastUtil.showInfo('无领料数据');
-                                  } else {
-                                    Navigator.pop(context);
-                                    setState(() {
-                                      ToastUtil.errorDialog(context, str+"领料");
-                                      this.getOrderList();
-                                    });
-                                  }
-                                },
-                              ),
-                              divider,
-                              new ListTile(
-                                title: new Center(child: new Text("领料")),
-                                onTap: () async {
-                                  if (this.hobby.length > 0) {
-                                    Navigator.pop(context);
-                                    print(this.hobby[i][11]);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return PickingDetail(
-                                            FBillNo: this.hobby[i][0]['value'],
-                                            FBarcode: _code,
-                                            FSeq: this.hobby[i][10]['value'],
-                                            FEntryId: this.hobby[i][11]
-                                                ['value'],
-                                            FID: this.hobby[i][12]['value'],
-                                            f_wk_xh: this.hobby[i][7]['value'],
-                                            // 路由参数
-                                          );
-                                        },
-                                      ),
-                                    ).then((data) {
-                                      //延时500毫秒执行
-                                      Future.delayed(
-                                          const Duration(milliseconds: 500),
-                                          () {
-                                        setState(() {
-                                          //延时更新状态
-                                          this._initState();
-                                        });
+                                  },
+                                ),
+                                divider,
+                                new ListTile(
+                                  title: new Center(child: new Text("退料")),
+                                  onTap: () async {
+                                    if (this.hobby.length > 0) {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return ReturnDetail(
+                                              FBillNo: this
+                                                  .hobby[i][0]['value'],
+                                              FSeq: this.hobby[i][10]['value'],
+                                              // 路由参数
+                                            );
+                                          },
+                                        ),
+                                      ).then((data) {
+                                        //延时500毫秒执行
+                                        Future.delayed(
+                                            const Duration(milliseconds: 500),
+                                                () {
+                                              setState(() {
+                                                //延时更新状态
+                                                this._initState();
+                                              });
+                                            });
                                       });
-                                    });
-                                  } else {
-                                    ToastUtil.showInfo('无数据');
-                                  }
-                                },
-                              ),
-                              divider,
-                              new ListTile(
-                                title: new Center(child: new Text("补料")),
-                                onTap: () async {
-                                  if (this.hobby.length > 0) {
-                                    Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return ReplenishmentDetail(
-                                            FBillNo: this.hobby[i][0]['value'],
-                                            FSeq: this.hobby[i][10]['value'],
-                                            // 路由参数
-                                          );
-                                        },
-                                      ),
-                                    ).then((data) {
-                                      //延时500毫秒执行
-                                      Future.delayed(
-                                          const Duration(milliseconds: 500),
-                                          () {
-                                        setState(() {
-                                          //延时更新状态
-                                          this._initState();
-                                        });
-                                      });
-                                    });
-                                  } else {
-                                    ToastUtil.showInfo('无数据');
-                                  }
-                                },
-                              ),
-                              divider,
-                              new ListTile(
-                                title: new Center(child: new Text("退料")),
-                                onTap: () async {
-                                  if (this.hobby.length > 0) {
-                                    Navigator.pop(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return ReturnDetail(
-                                            FBillNo: this.hobby[i][0]['value'],
-                                            FSeq: this.hobby[i][10]['value'],
-                                            // 路由参数
-                                          );
-                                        },
-                                      ),
-                                    ).then((data) {
-                                      //延时500毫秒执行
-                                      Future.delayed(
-                                          const Duration(milliseconds: 500),
-                                          () {
-                                        setState(() {
-                                          //延时更新状态
-                                          this._initState();
-                                        });
-                                      });
-                                    });
-                                  } else {
-                                    ToastUtil.showInfo('无数据');
-                                  }
-                                },
-                              ),
-                            ],
-                          );
-                        });
-                  },
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing: j == 0
-                      ? Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                          Checkbox(
-                            value: this.hobby[i][14]["value"],
-                            activeColor: Colors.red,
-                            checkColor: Colors.yellow,
-                            onChanged: (bool value) {
-                              setState(() {
-                                this.hobby[i][14]["value"] = value;
-                              });
-                            },
-                          ),
-                        ])
-                      : null,
+                                    } else {
+                                      ToastUtil.showInfo('无数据');
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          });
+                    },
+                    title: Text(this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString()),
+                    trailing: j == 0
+                        ? Row(
+                        mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      Checkbox(
+                        value: this.hobby[i][14]["value"],
+                        activeColor: Colors.red,
+                        checkColor: Colors.yellow,
+                        onChanged: (bool value) {
+                          setState(() {
+                            this.hobby[i][14]["value"] = value;
+                          });
+                        },
+                      ),
+                    ])
+                        : null,
+                  ),
                 ),
-              ),
-              divider,
-            ]),
-          );
+                divider,
+              ]),
+            );
+          }
         }
       }
       tempList.add(
@@ -734,7 +874,7 @@ class _ListPageState extends State<ListPage> {
     print(DateTimeRange(start: start, end: end));
     //显示时间选择器
     DateTimeRange selectTimeRange = await showDateRangePicker(
-        //语言环境
+      //语言环境
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
@@ -786,7 +926,7 @@ class _ListPageState extends State<ListPage> {
                 onTap: () async {
                   print("点击退出登录");
                   SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
+                  await SharedPreferences.getInstance();
                   prefs.clear();
                   Navigator.pushReplacement(
                     context,
@@ -809,6 +949,7 @@ class _ListPageState extends State<ListPage> {
       ),
     );
   }
+
   //修改状态
   alterStatus(dataMap) async {
     var status = await SubmitEntity.alterStatus(dataMap);
@@ -821,8 +962,9 @@ class _ListPageState extends State<ListPage> {
       }
     }
   }
+
   // 领料后操作
-  handlerStatus(title,id,entryIds,fWkXh) async {
+  handlerStatus(title, id, entryIds, fWkXh) async {
     //修改为开工状态
     Map<String, dynamic> dataMap = Map();
     var numbers = [];
@@ -838,10 +980,12 @@ class _ListPageState extends State<ListPage> {
     print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
       var serialNum = fWkXh.truncate();
-      for(var i = serialNum;i<=4;i++){
+      for (var i = serialNum; i <= 4; i++) {
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$_code' and f_wk_xh >= " + (serialNum).toString() + " and f_wk_xh <" + (serialNum + 1).toString();
+        userMap['FilterString'] =
+            "FSaleOrderNo='$_code' and f_wk_xh >= " + (serialNum).toString() +
+                " and f_wk_xh <" + (serialNum + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
         'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
@@ -849,13 +993,15 @@ class _ListPageState extends State<ListPage> {
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
         var orderRes = jsonDecode(order);
-        if(orderRes.length > 0){
+        if (orderRes.length > 0) {
           break;
         }
       }
       //查询生产订单
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSaleOrderNo='$_code' and f_wk_xh >= " + (serialNum+1).toString() + " and f_wk_xh <" + (serialNum + 2).toString();
+      userMap['FilterString'] =
+          "FSaleOrderNo='$_code' and f_wk_xh >= " + (serialNum + 1).toString() +
+              " and f_wk_xh <" + (serialNum + 2).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
       'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
@@ -863,9 +1009,9 @@ class _ListPageState extends State<ListPage> {
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);
       var orderRes = jsonDecode(order);
-      if(orderRes.length > 0){
+      if (orderRes.length > 0) {
         for (int i = 0; i < orderRes.length; i++) {
-       /* orderRes.forEach((element) async {*/
+          /* orderRes.forEach((element) async {*/
           //查询用料清单
           Map<String, dynamic> materialsMap = Map();
           var FMOEntrySeq = orderRes[i][4];
@@ -903,36 +1049,45 @@ class _ListPageState extends State<ListPage> {
           if (releaseRes['Result']['ResponseStatus']['IsSuccess']) {
             return title.toString() + ':成功';
           } else {
-            return releaseRes['Result']['ResponseStatus']['Errors'][0]['Message'].toString();
+            return releaseRes['Result']['ResponseStatus']['Errors'][0]['Message']
+                .toString();
           }
         };
-      }else{
+      } else {
         return title.toString() + ':成功';
       }
     } else {
-      return startRes['Result']['ResponseStatus']['Errors'][0]['Message'].toString();
+      return startRes['Result']['ResponseStatus']['Errors'][0]['Message']
+          .toString();
     }
   }
+
   //删除
-  deleteOrder(Map<String, dynamic> map,title) async {
+  deleteOrder(Map<String, dynamic> map, title,{var type}) async {
     var subData = await SubmitEntity.delete(map);
     print(subData);
     if (subData != null) {
       var res = jsonDecode(subData);
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
-
+          if(type == 1){
+            ToastUtil.showInfo('删除成功');
+            this.getOrderList();
+          }
         } else {
-          /*setState(() {
-            ToastUtil.errorDialog(context,
-                res['Result']['ResponseStatus']['Errors'][0]['Message']);
-          });*/
+          if(type == 1){
+            setState(() {
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
         }
       }
     }
   }
+
   //反审核
-  unAuditOrder(Map<String, dynamic> map,title) async {
+  unAuditOrder(Map<String, dynamic> map, title,{var type}) async {
     var subData = await SubmitEntity.unAudit(map);
     if (subData != null) {
       var res = jsonDecode(subData);
@@ -945,7 +1100,7 @@ class _ListPageState extends State<ListPage> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };*/
-          deleteOrder(map,title);
+          deleteOrder(map, title,type:type);
         } else {
           /*setState(() {
             ToastUtil.errorDialog(context,
@@ -955,8 +1110,10 @@ class _ListPageState extends State<ListPage> {
       }
     }
   }
+
   //审核 id,entryIds,fWkXh
-  auditOrder(Map<String, dynamic> auditMap, title,type, {String id,String entryIds,double fWkXh}) async {
+  auditOrder(Map<String, dynamic> auditMap, title, type,
+      {String id, String entryIds, double fWkXh,var dType = 0}) async {
     await SubmitEntity.submit(auditMap);
     var subData = await SubmitEntity.audit(auditMap);
     if (subData != null) {
@@ -968,20 +1125,27 @@ class _ListPageState extends State<ListPage> {
             ToastUtil.errorDialog(context,
                '提交成功');
           });*/
-          if(type == "PRD_PickMtrl"){
-            return await handlerStatus(title,id,entryIds,fWkXh);
-          }else{
+          if (type == "PRD_PickMtrl") {
+            return await handlerStatus(title, id, entryIds, fWkXh);
+          } else {
+            if(dType == 1){
+              this.getOrderList();
+            }
             return title.toString() + ':成功';
           }
         } else {
-          await unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message'].toString());
-          return res['Result']['ResponseStatus']['Errors'][0]['Message'].toString();
+          await unAuditOrder(auditMap,
+              res['Result']['ResponseStatus']['Errors'][0]['Message']
+                  .toString(),type: dType);
+          return res['Result']['ResponseStatus']['Errors'][0]['Message']
+              .toString();
         }
       }
     }
   }
 
-  pushDown(Map<String, dynamic> map, formid,pFormid, title,{String id,String entryIds,double fWkXh}) async {
+  pushDown(Map<String, dynamic> map, formid, pFormid, title,
+      {String id, String entryIds, double fWkXh}) async {
     //下推
     Map<String, dynamic> pushMap = Map();
     var downData = await SubmitEntity.pushDown({"formid": formid, "data": map});
@@ -996,12 +1160,12 @@ class _ListPageState extends State<ListPage> {
           'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
         }
       };
-      if(pFormid == "PRD_PickMtrl"){
-        return await auditOrder(auditMap, title,pFormid,id:id,entryIds:entryIds,fWkXh:fWkXh);
-      }else{
-        return await auditOrder(auditMap, title,pFormid);
+      if (pFormid == "PRD_PickMtrl") {
+        return await auditOrder(
+            auditMap, title, pFormid, id: id, entryIds: entryIds, fWkXh: fWkXh);
+      } else {
+        return await auditOrder(auditMap, title, pFormid);
       }
-
     } else {
       return res['Result']['ResponseStatus']['Errors'][0]['Message'].toString();
       /*setState(() {
@@ -1015,14 +1179,14 @@ class _ListPageState extends State<ListPage> {
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
         child: MaterialApp(
-      title: "loging",
-      home: Scaffold(
-          /*floatingActionButton: FloatingActionButton(
+          title: "loging",
+          home: Scaffold(
+            /*floatingActionButton: FloatingActionButton(
             onPressed: scan,
             tooltip: 'Increment',
             child:Text("入库"),
           ),*/
-          /*floatingActionButton: Row(
+            /*floatingActionButton: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
@@ -1109,80 +1273,82 @@ class _ListPageState extends State<ListPage> {
               ),
             ],
           ),*/
-          //浮动按钮的位置
-          floatingActionButtonLocation:
+            //浮动按钮的位置
+              floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
-          appBar: AppBar(
-            /* leading: IconButton(
+              appBar: AppBar(
+                /* leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("生产订单"),
-            centerTitle: true,
-            actions: <Widget>[
-              new IconButton(
-                  icon: new Icon(Icons.settings), onPressed: _pushSaved),
-            ],
-          ),
-          body: CustomScrollView(
-            slivers: <Widget>[
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: StickyTabBarDelegate(
-                  minHeight: 50, //收起的高度
-                  maxHeight: 50, //展开的最大高度
-                  child: Container(
-                    color: Theme.of(context).primaryColor,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 2.0),
+                title: Text("生产订单"),
+                centerTitle: true,
+                actions: <Widget>[
+                  new IconButton(
+                      icon: new Icon(Icons.settings), onPressed: _pushSaved),
+                ],
+              ),
+              body: CustomScrollView(
+                slivers: <Widget>[
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: StickyTabBarDelegate(
+                      minHeight: 50, //收起的高度
+                      maxHeight: 50, //展开的最大高度
                       child: Container(
-                          height: 52.0,
-                          child: new Card(
-                            child: new Container(
-                              child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        child: Center(
-                                          child: Text(
-                                            "用户：$username",
-                                          ),
-                                        )),
+                        color: Theme
+                            .of(context)
+                            .primaryColor,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 2.0),
+                          child: Container(
+                              height: 52.0,
+                              child: new Card(
+                                child: new Container(
+                                  child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: <Widget>[
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                            width: 50,
+                                            height: 50,
+                                            child: Center(
+                                              child: Text(
+                                                "用户：$username",
+                                              ),
+                                            )),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                            width: 50,
+                                            height: 50,
+                                            child: Center(
+                                              child: Text(
+                                                "车间：$FName",
+                                              ),
+                                            )),
+                                      ),
+                                    ],
                                   ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        child: Center(
-                                          child: Text(
-                                            "车间：$FName",
-                                          ),
-                                        )),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )),
+                                ),
+                              )),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              SliverFillRemaining(
-                child: ListView(children: <Widget>[
-                  Column(
-                    children: this._getHobby(),
+                  SliverFillRemaining(
+                    child: ListView(children: <Widget>[
+                      Column(
+                        children: this._getHobby(),
+                      ),
+                    ]),
                   ),
-                ]),
-              ),
-            ],
-          )),
-    ));
+                ],
+              )),
+        ));
   }
 }
 
@@ -1191,14 +1357,13 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double minHeight;
   final double maxHeight;
 
-  StickyTabBarDelegate(
-      {@required this.minHeight,
-      @required this.maxHeight,
-      @required this.child});
+  StickyTabBarDelegate({@required this.minHeight,
+    @required this.maxHeight,
+    @required this.child});
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset,
+      bool overlapsContent) {
     return this.child;
   }
 

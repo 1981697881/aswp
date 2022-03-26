@@ -52,7 +52,7 @@ class _ReportPageState extends State<ReportPage> {
   var checkData;
   var checkDataChild;
   var selectData = {
-    DateMode.YMD: '',
+    DateMode.YMDHMS: '',
   };
   List<dynamic> orderDate = [];
   final divider = Divider(height: 1, indent: 20);
@@ -130,7 +130,7 @@ class _ReportPageState extends State<ReportPage> {
       orderDate = jsonDecode(order);
       if (orderDate.length > 0) {
         FDate = orderDate[0][3].substring(0, 10);
-        selectData[DateMode.YMD] = orderDate[0][3].substring(0, 10);
+        selectData[DateMode.YMDHMS] = orderDate[0][3].substring(0, 10);
         FSaleOrderNo = orderDate[0][4];
         globalKey.currentState.update();
         /*FBillNoKey.currentState.onPressed(orderDate[0][0]);
@@ -322,7 +322,7 @@ class _ReportPageState extends State<ReportPage> {
         print('longer >>> 返回数据：$p');
         setState(() async {
           switch (model) {
-            case DateMode.YMD:
+            case DateMode.YMDHMS:
               Map<String, dynamic> userMap = Map();
               selectData[model] = '${p.year}-${p.month}-${p.day}';
               FDate = '${p.year}-${p.month}-${p.day}';
@@ -642,23 +642,32 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   //审核
-  auditOrder(Map<String, dynamic> auditMap,index) async {
+  auditOrder(Map<String, dynamic> auditMap,index, bool type) async {
     await SubmitEntity.submit(auditMap);
     var subData = await SubmitEntity.audit(auditMap);
-    print(subData);
-    if (subData != null) {
       var res = jsonDecode(subData);
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
-          if(index == 1){
-            setState(() {
-              this.hobby = [];
-              this.orderDate = [];
-              this.FBillNo = '';
-              this.FSaleOrderNo = '';
-            });
-            ToastUtil.showInfo('提交成功');
-            Navigator.of(context).pop("refresh");
+          if(type){
+            if(index == 1){
+              setState(() {
+                this.hobby = [];
+                this.orderDate = [];
+                this.FBillNo = '';
+                this.FSaleOrderNo = '';
+              });
+              ToastUtil.showInfo('提交成功');
+              Navigator.of(context).pop("refresh");
+            }
+          }else{
+              setState(() {
+                this.hobby = [];
+                this.orderDate = [];
+                this.FBillNo = '';
+                this.FSaleOrderNo = '';
+              });
+              ToastUtil.showInfo('提交成功');
+              Navigator.of(context).pop("refresh");
           }
           //提交清空页面
         } else {
@@ -669,7 +678,6 @@ class _ReportPageState extends State<ReportPage> {
           });*/
         }
       }
-    }
   }
 
   pushDown(val, type) async {
@@ -747,8 +755,8 @@ class _ReportPageState extends State<ReportPage> {
       }
       /*);*/
       Model['FEntity'] = FEntity;
-      Model['FStockOrgId'] = {"FNumber": orderDate[0][22]};
-      Model['FPrdOrgId'] = {"FNumber": orderDate[0][22]};
+     /* Model['FStockOrgId'] = {"FNumber": orderDate[0][22]};
+      Model['FPrdOrgId'] = {"FNumber": orderDate[0][22]};*/
       orderMap['Model'] = Model;
       dataMap = {"formid": "PRD_INSTOCK", "data": orderMap, "isBool": true};
       print(jsonEncode(dataMap));
@@ -845,7 +853,7 @@ class _ReportPageState extends State<ReportPage> {
                             [0]['Id']
                       }
                     };
-                    await auditOrder(auditMap,i);
+                    await auditOrder(auditMap,i,EntryIds2 != '');
                   } else {
                     Map<String, dynamic> deleteMap = Map();
                     deleteMap = {
@@ -881,7 +889,7 @@ class _ReportPageState extends State<ReportPage> {
                           [0]['Id']
                     }
                   };
-                  await auditOrder(auditMap,i);
+                  await auditOrder(auditMap,i,EntryIds1 != '');
                 } else {
                   Map<String, dynamic> deleteMap = Map();
                   deleteMap = {
@@ -989,7 +997,7 @@ class _ReportPageState extends State<ReportPage> {
                       divider,
                     ],
                   ),
-                  _dateItem('生产日期：', DateMode.YMD),
+                  _dateItem('生产日期：', DateMode.YMDHMS),
                   /* _item('生产车间', ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'], selectSex),*/
                   // _item('Laber', [123, 23,235,3,14545,15,123163,18548,9646,1313], 235, label: 'kg')
                   Column(
