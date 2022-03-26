@@ -493,7 +493,7 @@ class _ListPageState extends State<ListPage> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 15) {
+          if (j == 15 || j == 16 ) {
             comList.add(
               Column(children: [
                 Container(
@@ -516,7 +516,7 @@ class _ListPageState extends State<ListPage> {
                                 'Ids': this.hobby[i][j]["value"]["value"]
                               }
                             };
-                            auditOrder(auditMap, '审核', this.hobby[i][j]["name"]);
+                            auditOrder(auditMap, '审核', this.hobby[i][j]["name"],dType: 1);
                           },
                         ),
                         new MaterialButton(
@@ -1126,10 +1126,15 @@ class _ListPageState extends State<ListPage> {
                '提交成功');
           });*/
           if (type == "PRD_PickMtrl") {
+            if(dType == 1){
+              this.getOrderList();
+              ToastUtil.showInfo('审核成功');
+            }
             return await handlerStatus(title, id, entryIds, fWkXh);
           } else {
             if(dType == 1){
               this.getOrderList();
+              ToastUtil.showInfo('审核成功');
             }
             return title.toString() + ':成功';
           }
