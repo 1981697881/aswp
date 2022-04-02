@@ -532,7 +532,7 @@ class _PickingDetailState extends State<PickingDetail> {
       for(var i = serialNum;i<=4;i++){
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum).toString() + " and f_wk_xh <" + (serialNum + 1).toString();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (i).toString() + " and f_wk_xh <" + (i + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
         'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
@@ -540,6 +540,7 @@ class _PickingDetailState extends State<PickingDetail> {
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
         var orderRes = jsonDecode(order);
+        //判断同级
         if(orderRes.length > 0){
           break;
         }
@@ -683,7 +684,12 @@ class _PickingDetailState extends State<PickingDetail> {
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           //提交清空页面
-          handlerStatus();
+         /* handlerStatus();*/
+          this.hobby = [];
+          this.orderDate = [];
+          this.FBillNo = '';
+          ToastUtil.showInfo('提交成功');
+          Navigator.of(context).pop("refresh");
         } else {
           unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
           /*setState(() {

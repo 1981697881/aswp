@@ -25,11 +25,21 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class ReportPage extends StatefulWidget {
   var FBillNo;
+  var FSeq;
+  var FEntryId;
+  var FID;
+  var f_wk_xh;
+  var FBarcode;
 
-  ReportPage({Key key, @required this.FBillNo}) : super(key: key);
+  ReportPage({Key key,  @required this.FBillNo,
+    @required this.FSeq,
+    @required this.FEntryId,
+    @required this.FID,
+    @required this.FBarcode,
+    @required this.f_wk_xh}) : super(key: key);
 
   @override
-  _ReportPageState createState() => _ReportPageState(FBillNo);
+  _ReportPageState createState() => _ReportPageState(FBillNo, FSeq, FEntryId, FID, f_wk_xh,FBarcode);
 }
 
 class _ReportPageState extends State<ReportPage> {
@@ -63,10 +73,19 @@ class _ReportPageState extends State<ReportPage> {
   StreamSubscription _subscription;
   var _code;
   var _FNumber;
-
-  _ReportPageState(fBillNo) {
+  var FSeq;
+  var fBillNo;
+  var fEntryId;
+  var fid;
+  var f_wk_xh;
+  var FBarcode;
+  _ReportPageState(fBillNo, FSeq, fEntryId, fid, f_wk_xh,FBarcode) {
     this.FBillNo = fBillNo['value'];
-
+    this.FSeq = FSeq['value'];
+    this.fEntryId = fEntryId['value'];
+    this.fid = fid['value'];
+    this.f_wk_xh = f_wk_xh['value'];
+    this.FBarcode = FBarcode;
     this.getWorkShop();
   }
 
@@ -640,7 +659,125 @@ class _ReportPageState extends State<ReportPage> {
       }
     }
   }
+  //修改状态
+  alterStatus(dataMap) async {
+    var status = await SubmitEntity.alterStatus(dataMap);
+    print(status);
+    if (status != null) {
+      var res = jsonDecode(status);
+      print(res);
+      if (res != null) {
+        return res;
+      }
+    }
+  }
+  // 入库后操作
+  handlerStatus() async {
+    //修改为开工状态
+    Map<String, dynamic> dataMap = Map();
+    var numbers = [];
+    dataMap['formid'] = 'PRD_MO';
+    dataMap['opNumber'] = 'toStart';
+    Map<String, dynamic> entityMap = Map();
+    entityMap['Id'] = fid;
+    entityMap['EntryIds'] = fEntryId;
+    numbers.add(entityMap);
+    dataMap['data'] = {'PkEntryIds': numbers};
+    var startRes = await this.alterStatus(dataMap);
+    print(startRes);
+    if (startRes['Result']['ResponseStatus']['IsSuccess']) {
+      var serialNum = f_wk_xh.truncate();
+      for(var i = serialNum;i<=4;i++){
+        //查询生产订单
+        Map<String, dynamic> userMap = Map();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (i).toString() + " and f_wk_xh <" + (i + 1).toString();
+        userMap['FormId'] = "PRD_MO";
+        userMap['FieldKeys'] =
+        'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+        Map<String, dynamic> proMoDataMap = Map();
+        proMoDataMap['data'] = userMap;
+        String order = await CurrencyEntity.polling(proMoDataMap);
+        var orderRes = jsonDecode(order);
+        //判断同级
+        if(orderRes.length > 0){
+          break;
+        }
+      }
+      //查询生产订单
+      Map<String, dynamic> userMap = Map();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum+1).toString() + " and f_wk_xh <" + (serialNum + 2).toString();
+      userMap['FormId'] = "PRD_MO";
+      userMap['FieldKeys'] =
+      'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+      Map<String, dynamic> proMoDataMap = Map();
+      proMoDataMap['data'] = userMap;
+      String order = await CurrencyEntity.polling(proMoDataMap);
+      var orderRes = jsonDecode(order);
+      if(orderRes.length > 0){
+        orderRes.forEach((element) async {
+          //查询用料清单
+          Map<String, dynamic> materialsMap = Map();
+          var FMOEntrySeq = element[4];
+          var FMOBillNo = element[0];
+          materialsMap['FilterString'] = "FMOBillNO=" +
+              FMOBillNo.toString() +
+              " and FMOEntrySeq = " +
+              FMOEntrySeq.toString();
+          materialsMap['FormId'] = 'PRD_PPBOM';
+          materialsMap['FieldKeys'] =
+          'FID';
+          Map<String, dynamic> materialsDataMap = Map();
+          materialsDataMap['data'] = materialsMap;
+          String materialsMapOrder =
+          await CurrencyEntity.polling(materialsDataMap);
+          //修改用料清单为审核状态
+          Map<String, dynamic> auditDataMap = Map();
+          auditDataMap = {
+            "formid": "PRD_PPBOM",
+            "data": {'Ids': materialsMapOrder[0][0]}
+          };
+          await SubmitEntity.submit(auditDataMap);
+          var auditRes = await SubmitEntity.audit(auditDataMap);
+          //修改为下达状态
+          Map<String, dynamic> releaseDataMap = Map();
+          var releaseNumbers = [];
+          releaseDataMap['formid'] = 'PRD_MO';
+          releaseDataMap['opNumber'] = 'ToRelease';
+          Map<String, dynamic> releaseEntityMap = Map();
+          releaseEntityMap['Id'] = element[2];
+          releaseEntityMap['EntryIds'] = element[1];
+          releaseNumbers.add(releaseEntityMap);
+          releaseDataMap['data'] = {'PkEntryIds': releaseNumbers};
+          var releaseRes = await this.alterStatus(releaseDataMap);
+          if (releaseRes['Result']['ResponseStatus']['IsSuccess']) {
+            this.hobby = [];
+            this.orderDate = [];
+            this.FBillNo = '';
+            ToastUtil.showInfo('提交成功');
+            Navigator.of(context).pop("refresh");
+          } else {
+            setState(() {
+              ToastUtil.showInfo(releaseRes['Result']['ResponseStatus']
+              ['Errors'][0]['Message']);
+            });
+          }
+        });
+      }else{
+        this.hobby = [];
+        this.orderDate = [];
+        this.FBillNo = '';
+        ToastUtil.showInfo('提交成功');
+        Navigator.of(context).pop("refresh");
+      }
+    } else {
+      setState(() {
+        this.isSubmit = false;
+        ToastUtil.errorDialog(context,
+            startRes['Result']['ResponseStatus']['Errors'][0]['Message']);
+      });
 
+    }
+  }
   //审核
   auditOrder(Map<String, dynamic> auditMap,index, bool type) async {
     await SubmitEntity.submit(auditMap);
@@ -650,24 +787,26 @@ class _ReportPageState extends State<ReportPage> {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           if(type){
             if(index == 1){
-              setState(() {
+             this.handlerStatus();
+              /*setState(() {
                 this.hobby = [];
                 this.orderDate = [];
                 this.FBillNo = '';
                 this.FSaleOrderNo = '';
               });
               ToastUtil.showInfo('提交成功');
-              Navigator.of(context).pop("refresh");
+              Navigator.of(context).pop("refresh");*/
             }
           }else{
-              setState(() {
+            this.handlerStatus();
+              /*setState(() {
                 this.hobby = [];
                 this.orderDate = [];
                 this.FBillNo = '';
                 this.FSaleOrderNo = '';
               });
               ToastUtil.showInfo('提交成功');
-              Navigator.of(context).pop("refresh");
+              Navigator.of(context).pop("refresh");*/
           }
           //提交清空页面
         } else {
@@ -838,7 +977,6 @@ class _ReportPageState extends State<ReportPage> {
           if (EntryIds1 != '' && i == 0) {
             checkList.add(EntryIds1);
             var resCheck = await this.pushDown(EntryIds1, 'defective');
-            print(resCheck['data']["Model"]["FID"]);
             if (resCheck['isBool'] != false) {
               var subData = await SubmitEntity.save(resCheck);
                 var res = jsonDecode(subData);

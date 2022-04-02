@@ -559,8 +559,7 @@ class _ListPageState extends State<ListPage> {
                                   onTap: () async {
                                     var number = 0;
                                     var str = '';
-                                    for (int i = 0; i <
-                                        this.hobby.length; i++) {
+                                    for (int i = 0; i < this.hobby.length; i++) {
                                       if (this.hobby[i][14]["value"] &&
                                           this.hobby[i][13]['value']['value'] ==
                                               "4") {
@@ -573,7 +572,15 @@ class _ListPageState extends State<ListPage> {
                                             pushMap,
                                             "PRD_MO",
                                             "PRD_INSTOCK",
-                                            this.hobby[i][3]['value']['label']);
+                                            this
+                                                .hobby[i][3]['value']['label'],
+                                            id: this
+                                                .hobby[i][12]['value']['value']
+                                                .toString(),
+                                            entryIds: this.hobby[i][11]
+                                            ['value']['value'].toString(),
+                                            fWkXh: this
+                                                .hobby[i][7]['value']['value']);
                                         str = str + number.toString() +
                                             ':' +
                                             res.toString();
@@ -609,8 +616,15 @@ class _ListPageState extends State<ListPage> {
                                           MaterialPageRoute(
                                             builder: (context) {
                                               return ReportPage(
-                                                  FBillNo: this.hobby[i][0]
-                                                  ['value']
+                                                FBillNo: this
+                                                    .hobby[i][0]['value'],
+                                                FBarcode: _code,
+                                                FSeq: this.hobby[i][10]['value'],
+                                                FEntryId: this.hobby[i][11]
+                                                ['value'],
+                                                FID: this.hobby[i][12]['value'],
+                                                f_wk_xh: this
+                                                    .hobby[i][7]['value'],
                                                 // 路由参数
                                               );
                                             },
@@ -971,7 +985,6 @@ class _ListPageState extends State<ListPage> {
     dataMap['formid'] = 'PRD_MO';
     dataMap['opNumber'] = 'toStart';
     Map<String, dynamic> entityMap = Map();
-
     entityMap['Id'] = id;
     entityMap['EntryIds'] = entryIds;
     numbers.add(entityMap);
@@ -984,8 +997,8 @@ class _ListPageState extends State<ListPage> {
         //查询生产订单
         Map<String, dynamic> userMap = Map();
         userMap['FilterString'] =
-            "FSaleOrderNo='$_code' and f_wk_xh >= " + (serialNum).toString() +
-                " and f_wk_xh <" + (serialNum + 1).toString();
+            "FSaleOrderNo='$_code' and f_wk_xh >= " + (i).toString() +
+                " and f_wk_xh <" + (i + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
         'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
@@ -1009,6 +1022,7 @@ class _ListPageState extends State<ListPage> {
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);
       var orderRes = jsonDecode(order);
+      var resMsg = '';
       if (orderRes.length > 0) {
         for (int i = 0; i < orderRes.length; i++) {
           /* orderRes.forEach((element) async {*/
@@ -1047,12 +1061,13 @@ class _ListPageState extends State<ListPage> {
           releaseDataMap['data'] = {'PkEntryIds': releaseNumbers};
           var releaseRes = await this.alterStatus(releaseDataMap);
           if (releaseRes['Result']['ResponseStatus']['IsSuccess']) {
-            return title.toString() + ':成功';
+            resMsg += title.toString() + ':成功;';
           } else {
-            return releaseRes['Result']['ResponseStatus']['Errors'][0]['Message']
-                .toString();
+            resMsg += releaseRes['Result']['ResponseStatus']['Errors'][0]['Message']
+                .toString() ;
           }
         };
+        return resMsg;
       } else {
         return title.toString() + ':成功';
       }
@@ -1130,13 +1145,13 @@ class _ListPageState extends State<ListPage> {
               this.getOrderList();
               ToastUtil.showInfo('审核成功');
             }
-            return await handlerStatus(title, id, entryIds, fWkXh);
+            return title.toString() + ':成功';
           } else {
             if(dType == 1){
               this.getOrderList();
               ToastUtil.showInfo('审核成功');
             }
-            return title.toString() + ':成功';
+            return await handlerStatus(title, id, entryIds, fWkXh);
           }
         } else {
           await unAuditOrder(auditMap,
@@ -1169,7 +1184,7 @@ class _ListPageState extends State<ListPage> {
         return await auditOrder(
             auditMap, title, pFormid, id: id, entryIds: entryIds, fWkXh: fWkXh);
       } else {
-        return await auditOrder(auditMap, title, pFormid);
+        return await auditOrder(auditMap, title, pFormid, id: id, entryIds: entryIds, fWkXh: fWkXh);
       }
     } else {
       return res['Result']['ResponseStatus']['Errors'][0]['Message'].toString();
