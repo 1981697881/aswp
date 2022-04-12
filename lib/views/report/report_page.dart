@@ -690,7 +690,7 @@ class _ReportPageState extends State<ReportPage> {
       for(var i = serialNum;i<=4;i++){
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (i).toString() + " and f_wk_xh <" + (i + 1).toString();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FStatus in (2) and f_wk_xh >= " + (i).toString() + " and f_wk_xh <" + (i + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
         'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
@@ -698,6 +698,7 @@ class _ReportPageState extends State<ReportPage> {
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
         var orderRes = jsonDecode(order);
+        serialNum = i;
         //判断同级
         if(orderRes.length > 0){
           break;
@@ -705,7 +706,7 @@ class _ReportPageState extends State<ReportPage> {
       }
       //查询生产订单
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum+1).toString() + " and f_wk_xh <" + (serialNum + 2).toString();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum).toString() + " and f_wk_xh <" + (serialNum + 1).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
       'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';

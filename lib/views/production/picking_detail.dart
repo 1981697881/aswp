@@ -174,6 +174,7 @@ class _PickingDetailState extends State<PickingDetail> {
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
+    print(orderDate);
     DateTime dateTime = DateTime.now();
     FDate =
         "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
@@ -736,27 +737,31 @@ class _PickingDetailState extends State<PickingDetail> {
     dataMap['formid'] = 'PRD_PickMtrl';
     Map<String, dynamic> orderMap = Map();
     orderMap['NeedReturnFields'] = [];
-    orderMap['IsDeleteEntry'] = true;
+    orderMap['IsDeleteEntry'] = false;
     Map<String, dynamic> Model = Map();
     Model['FID'] = collarOrderDate[0][0];
     var FEntity = [];
     var hobbyIndex = 0;
     this.hobby.forEach((element) {
-      if (element[5]['value']['value'] != '0') {
-        Map<String, dynamic> FEntityItem = Map();
-        FEntityItem['FActualQty'] = element[5]['value']['value'];
-        FEntityItem['FEntryID'] = collarOrderDate[hobbyIndex][1];
-       /* FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};*/
-       /* FEntityItem['FStockId'] = {
+      collarOrderDate.forEach((orderData) {
+        if(element[0]['value']['value']== orderData[3]&& element[4]['value']['value'] ==orderData[4]){
+          if (element[5]['value']['value'] != '0') {
+            Map<String, dynamic> FEntityItem = Map();
+            FEntityItem['FActualQty'] = element[5]['value']['value'];
+            FEntityItem['FEntryID'] = orderData[1];
+            /* FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};*/
+            /* FEntityItem['FStockId'] = {
           "FNumber": fBillNo.substring(0, 2) == "FO"
               ? 'XBC001'
               : collarOrderDate[hobbyIndex][2]
         };*/
-        FEntityItem['FStockId'] = {
-          "FNumber": collarOrderDate[hobbyIndex][2]
-        };
-        FEntity.add(FEntityItem);
-      }
+            FEntityItem['FStockId'] = {
+              "FNumber": orderData[2]
+            };
+            FEntity.add(FEntityItem);
+          }
+        }
+      });
       hobbyIndex++;
     });
 
@@ -817,9 +822,10 @@ class _PickingDetailState extends State<PickingDetail> {
         OrderMap['FormId'] = 'PRD_PickMtrl';
         OrderMap['FilterString'] = "FID='$entitysNumber'";
         OrderMap['FieldKeys'] =
-        'FID,FEntity_FEntryId,FStockId.FNumber,FMaterialId.FNumber';
+        'FID,FEntity_FEntryId,FStockId.FNumber,FMaterialId.FNumber,FActualQty';
         String order = await CurrencyEntity.polling({'data': OrderMap});
         var resData = jsonDecode(order);
+        print(resData);
         collarOrderDate = resData;
         saveOrder();
       } else {

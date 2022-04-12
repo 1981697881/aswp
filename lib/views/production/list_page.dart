@@ -997,7 +997,7 @@ class _ListPageState extends State<ListPage> {
         //查询生产订单
         Map<String, dynamic> userMap = Map();
         userMap['FilterString'] =
-            "FSaleOrderNo='$_code' and f_wk_xh >= " + (i).toString() +
+            "FSaleOrderNo='$_code' and FStatus in (2) and f_wk_xh >= " + (i).toString() +
                 " and f_wk_xh <" + (i + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
@@ -1006,6 +1006,7 @@ class _ListPageState extends State<ListPage> {
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
         var orderRes = jsonDecode(order);
+        serialNum = i;
         if (orderRes.length > 0) {
           break;
         }
@@ -1013,8 +1014,8 @@ class _ListPageState extends State<ListPage> {
       //查询生产订单
       Map<String, dynamic> userMap = Map();
       userMap['FilterString'] =
-          "FSaleOrderNo='$_code' and f_wk_xh >= " + (serialNum + 1).toString() +
-              " and f_wk_xh <" + (serialNum + 2).toString();
+          "FSaleOrderNo='$_code' and f_wk_xh >= " + (serialNum).toString() +
+              " and f_wk_xh <" + (serialNum + 1).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
       'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
