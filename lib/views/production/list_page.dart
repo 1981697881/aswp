@@ -246,7 +246,6 @@ class _ListPageState extends State<ListPage> {
 
   // 集合
   List hobby = [];
-
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -566,7 +565,7 @@ class _ListPageState extends State<ListPage> {
                                         Map<String, dynamic> pushMap = Map();
                                         pushMap['EntryIds'] =
                                         this.hobby[i][11]['value']['value'];
-                                        pushMap['RuleId'] = "PRD_MO2INSTOCK";
+                                        pushMap['RuleId'] = "MSD_MO2INSTOCK_PDA";
                                         pushMap['TargetFormId'] = "PRD_INSTOCK";
                                         var res = await this.pushDown(
                                             pushMap,

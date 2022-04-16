@@ -824,10 +824,11 @@ class _ReportPageState extends State<ReportPage> {
     //下推
     Map<String, dynamic> pushMap = Map();
     pushMap['EntryIds'] = val;
-    pushMap['RuleId'] = "PRD_MO2INSTOCK";
+    pushMap['RuleId'] = "MSD_MO2INSTOCK_PDA";
     pushMap['TargetFormId'] = "PRD_INSTOCK";
     pushMap['IsEnableDefaultRule'] = "false";
     pushMap['IsDraftWhenSaveFail'] = "false";
+    print(pushMap);
     var downData =
         await SubmitEntity.pushDown({"formid": "PRD_MO", "data": pushMap});
     print(downData);
