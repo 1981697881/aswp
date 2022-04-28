@@ -618,7 +618,6 @@ class _PickingDetailState extends State<PickingDetail> {
         ToastUtil.errorDialog(context,
             startRes['Result']['ResponseStatus']['Errors'][0]['Message']);
       });
-
     }
   }
   //删除
@@ -679,18 +678,36 @@ class _PickingDetailState extends State<PickingDetail> {
   //审核
   auditOrder(Map<String, dynamic> auditMap) async {
     var subData = await SubmitEntity.audit(auditMap);
-    print(subData);
     if (subData != null) {
       var res = jsonDecode(subData);
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
           //提交清空页面
+          //修改为开工状态
+          Map<String, dynamic> dataMap = Map();
+          var numbers = [];
+          dataMap['formid'] = 'PRD_MO';
+          dataMap['opNumber'] = 'toStart';
+          Map<String, dynamic> entityMap = Map();
+          entityMap['Id'] = fid;
+          entityMap['EntryIds'] = fEntryId;
+          numbers.add(entityMap);
+          dataMap['data'] = {'PkEntryIds': numbers};
+          var startRes = await this.alterStatus(dataMap);
+          if (startRes['Result']['ResponseStatus']['IsSuccess']) {
+            this.hobby = [];
+            this.orderDate = [];
+            this.FBillNo = '';
+            ToastUtil.showInfo('提交成功');
+            Navigator.of(context).pop("refresh");
+          } else {
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(context,
+                  startRes['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
          /* handlerStatus();*/
-          this.hobby = [];
-          this.orderDate = [];
-          this.FBillNo = '';
-          ToastUtil.showInfo('提交成功');
-          Navigator.of(context).pop("refresh");
         } else {
           unAuditOrder(auditMap,res['Result']['ResponseStatus']['Errors'][0]['Message']);
           /*setState(() {

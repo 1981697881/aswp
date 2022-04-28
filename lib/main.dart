@@ -15,6 +15,7 @@ import 'package:aswp/utils/toast_util.dart';
 import 'package:aswp/server/api.dart';
 import 'package:aswp/http/api_response.dart';
 
+import 'model/authorize_entity.dart';
 import 'model/currency_entity.dart';
 
 
@@ -155,17 +156,34 @@ class _MyHomePageState extends State {
             sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
             sharedPreferences.setString('FWorkShopName', resUser[0][3]);
             //  print("登录成功");
-            ToastUtil.showInfo('登录成功');
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return ListPage();
-                },
-              ),
-            );
+            Map<String, dynamic> authorMap = Map();
+            authorMap['auth'] = '2022PDAASD2003';
+            ApiResponse<AuthorizeEntity> author =
+            await AuthorizeEntity.getAuthorize(authorMap);
+            if (author.data.data.fStatus == "0") {
+              ToastUtil.showInfo('登录成功');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ListPage();
+                  },
+                ),
+              );
+            }else{
+              ToastUtil.errorDialog(context,
+                  author.data.data.fMessage);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return LoginPage();
+                  },
+                ),
+              );
+            }
           }else{
-            ToastUtil.showInfo('改账号无登录权限');
+            ToastUtil.showInfo('该账号无登录权限');
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
