@@ -43,6 +43,7 @@ class ReportPage extends StatefulWidget {
 }
 
 class _ReportPageState extends State<ReportPage> {
+  var _remarkContent = new TextEditingController();
   GlobalKey<TextWidgetState> textKey = GlobalKey();
   GlobalKey<TextWidgetState> FBillNoKey = GlobalKey();
   GlobalKey<TextWidgetState> FSaleOrderNoKey = GlobalKey();
@@ -856,6 +857,7 @@ class _ReportPageState extends State<ReportPage> {
         'FInStockType'
       ];
       orderMap['IsDeleteEntry'] = false;
+      orderMap['FDescription'] = this._remarkContent.text;
       Map<String, dynamic> Model = Map();
       Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
       // ignore: non_constant_identifier_names
@@ -1163,6 +1165,36 @@ class _ReportPageState extends State<ReportPage> {
                                     },
                                   ),
                               ]),
+                        ),
+                      ),
+                      divider,
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: TextField(
+                            //最多输入行数
+                            maxLines: 1,
+                            decoration: InputDecoration(
+                              hintText: "备注",
+                              //给文本框加边框
+                              border: OutlineInputBorder(),
+                            ),
+                            controller: this._remarkContent,
+                            //改变回调
+                            onChanged: (value) {
+                              setState(() {
+                                _remarkContent.value = TextEditingValue(
+                                    text: value,
+                                    selection: TextSelection.fromPosition(TextPosition(
+                                        affinity: TextAffinity.downstream,
+                                        offset: value.length)));
+                              });
+                            },
+                          ),
                         ),
                       ),
                       divider,

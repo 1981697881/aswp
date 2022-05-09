@@ -29,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   //表单状态
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  var message = '';
   var _password = ''; //用户名
   var _username = ''; //密码
   var _isShowPwd = false; //是否显示密码
@@ -104,7 +105,36 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
-
+  //AlertDialog
+  Future showExitDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("提示"),
+          content: Text("$message"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("确定"),
+              onPressed: () {
+                //关闭对话框并返回true
+                Navigator.of(context).pop();
+                ToastUtil.showInfo('登录成功');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ListPage();
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
@@ -191,7 +221,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-
     // 登录按钮区域
     Widget loginButtonArea = new Container(
       margin: EdgeInsets.only(left: 20, right: 20),
@@ -229,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
               userMap['FilterString'] =
                   "FStaffNumber='$_username' and FPwd='$_password'";
               userMap['FieldKeys'] =
-                  'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus';
+                  'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FDescription,FAuthCode';
               Map<String, dynamic> dataMap = Map();
               dataMap['data'] = userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);
@@ -242,19 +271,39 @@ class _LoginPageState extends State<LoginPage> {
                   sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
                   sharedPreferences.setString('FWorkShopName', resUser[0][3]);
                   Map<String, dynamic> authorMap = Map();
-                  authorMap['auth'] = '2022PDAASD2003';
+                  authorMap['auth'] = resUser[0][5];
                   ApiResponse<AuthorizeEntity> author =
-                      await AuthorizeEntity.getAuthorize(authorMap);
+                  await AuthorizeEntity.getAuthorize(authorMap);
                   if (author.data.data.fStatus == "0") {
-                    ToastUtil.showInfo('登录成功');
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return ListPage();
-                        },
-                      ),
-                    );
+                    Map<String, dynamic> empMap = Map();
+                    empMap['FormId'] = 'BD_Empinfo';
+                    empMap['FilterString'] =
+                        "FAuthCode='"+resUser[0][5]+"'";
+                    empMap['FieldKeys'] =
+                    'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode';
+                    Map<String, dynamic> empDataMap = Map();
+                    empDataMap['data'] = empMap;
+                    String EmpEntity = await CurrencyEntity.polling(empDataMap);
+                    var resEmp = jsonDecode(EmpEntity);
+                    if(author.data.data.fAuthNums > resEmp.length && resEmp.length > 0){
+                      //判断是否提示
+                      if(author.data.data.fMessage == null){
+                        ToastUtil.showInfo('登录成功');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return ListPage();
+                            },
+                          ),
+                        );
+                      }else{
+                        this.message = author.data.data.fMessage;
+                        showExitDialog();
+                      }
+                    }else{
+                      ToastUtil.showInfo('该账号无授予权限或者授权数量超过限定，请检查！');
+                    }
                   }else{
                     ToastUtil.errorDialog(context,
                         author.data.data.fMessage);

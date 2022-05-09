@@ -72,70 +72,74 @@ class Data {
     this.fAppkey,
     this.fSrvSDate,
     this.fSupplier,
+    this.fAuthNums,
     this.fStatus,
   });
 
   int fid;
+  int fAuthNums;
   String fTargetKey;
-  DateTime fSrvEDate;
+  String fSrvEDate;
   String fCustName;
   String fAuthList;
-  DateTime fAuthSDate;
+  String fAuthSDate;
   String furl;
   String fCode;
   String fPrjName;
   String fPrjNo;
   String fSrvPhone;
-  DateTime fAuthEDate;
+  String fAuthEDate;
   String fMessage;
   String fPrjType;
   String fAppSecret;
   String fAppkey;
-  DateTime fSrvSDate;
+  String fSrvSDate;
   String fSupplier;
   String fStatus;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     fid: json["FID"],
     fTargetKey: json["FTargetKey"],
-    fSrvEDate: DateTime.parse(json["FSrvEDate"]),
+    fSrvEDate: json["FSrvEDate"],
     fCustName: json["FCustName"],
     fAuthList: json["FAuthList"],
-    fAuthSDate: DateTime.parse(json["FAuthSDate"]),
+    fAuthSDate: json["FAuthSDate"],
     furl: json["FURL"],
     fCode: json["FCode"],
     fPrjName: json["FPrjName"],
     fPrjNo: json["FPrjNo"],
     fSrvPhone: json["FSrvPhone"],
-    fAuthEDate: DateTime.parse(json["FAuthEDate"]),
+    fAuthEDate: json["FAuthEDate"],
     fMessage: json["FMessage"],
     fPrjType: json["FPrjType"],
     fAppSecret: json["FAppSecret"],
     fAppkey: json["FAppkey"],
-    fSrvSDate: DateTime.parse(json["FSrvSDate"]),
+    fSrvSDate: json["FSrvSDate"],
     fSupplier: json["FSupplier"],
     fStatus: json["FStatus"],
+    fAuthNums: json["FAuthNums"],
   );
 
   Map<String, dynamic> toJson() => {
     "FID": fid,
     "FTargetKey": fTargetKey,
-    "FSrvEDate": "${fSrvEDate.year.toString().padLeft(4, '0')}-${fSrvEDate.month.toString().padLeft(2, '0')}-${fSrvEDate.day.toString().padLeft(2, '0')}",
+    "FSrvEDate": fSrvEDate,
     "FCustName": fCustName,
     "FAuthList": fAuthList,
-    "FAuthSDate": "${fAuthSDate.year.toString().padLeft(4, '0')}-${fAuthSDate.month.toString().padLeft(2, '0')}-${fAuthSDate.day.toString().padLeft(2, '0')}",
+    "FAuthSDate": fAuthSDate,
     "FURL": furl,
     "FCode": fCode,
     "FPrjName": fPrjName,
     "FPrjNo": fPrjNo,
     "FSrvPhone": fSrvPhone,
-    "FAuthEDate": "${fAuthEDate.year.toString().padLeft(4, '0')}-${fAuthEDate.month.toString().padLeft(2, '0')}-${fAuthEDate.day.toString().padLeft(2, '0')}",
+    "FAuthEDate": fAuthEDate,
     "FMessage": fMessage,
     "FPrjType": fPrjType,
     "FAppSecret": fAppSecret,
     "FAppkey": fAppkey,
-    "FSrvSDate": "${fSrvSDate.year.toString().padLeft(4, '0')}-${fSrvSDate.month.toString().padLeft(2, '0')}-${fSrvSDate.day.toString().padLeft(2, '0')}",
+    "FSrvSDate": fSrvSDate,
     "FSupplier": fSupplier,
     "FStatus": fStatus,
+    "FAuthNums": fAuthNums,
   };
 }

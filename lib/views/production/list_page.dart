@@ -273,7 +273,7 @@ class _ListPageState extends State<ListPage> {
     }*/
     if (this.keyWord != '') {
       userMap['FilterString'] =
-          "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber' and FDate <= '2022-05-30'";
+          "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber'";
       userMap['FormId'] = 'PRD_MO';
       userMap['FieldKeys'] =
           'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,f_wk_xh,FTreeEntity_FSeq,FStatus';
