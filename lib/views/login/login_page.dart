@@ -258,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
               userMap['FilterString'] =
                   "FStaffNumber='$_username' and FPwd='$_password'";
               userMap['FieldKeys'] =
-                  'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FDescription,FAuthCode';
+                  'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode';
               Map<String, dynamic> dataMap = Map();
               dataMap['data'] = userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);

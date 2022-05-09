@@ -25,6 +25,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
@@ -308,8 +309,6 @@ class _ListPageState extends State<ListPage> {
         Map<String, dynamic> dataMap2 = Map();
         dataMap2['data'] = pickmtrlMap;
         String order2 = await CurrencyEntity.polling(dataMap2);
-        print(order1);
-        print(order2);
         List arr = [];
         arr.add({
           "title": "单据编号",
@@ -451,8 +450,7 @@ class _ListPageState extends State<ListPage> {
         }
         hobby.add(arr);
       }
-      /*)*/;
-      print(hobby);
+      /*)*/
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -471,7 +469,6 @@ class _ListPageState extends State<ListPage> {
     _code = event;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
-    print(_code);
     /*this.controller.text = _code;*/
     await getOrderList();
     /*});*/
@@ -677,7 +674,6 @@ class _ListPageState extends State<ListPage> {
                                             await CurrencyEntity.polling(
                                                 dataMap);
                                         var resOrder = jsonDecode(order);
-                                        print(resOrder);
                                         //判断成功
                                         if (resOrder.length > 0) {
                                           number++;
@@ -711,7 +707,6 @@ class _ListPageState extends State<ListPage> {
                                         }
                                       }
                                     }
-                                    ;
                                     if (number == 0) {
                                       Navigator.pop(context);
                                       ToastUtil.showInfo('无领料数据');
@@ -881,7 +876,6 @@ class _ListPageState extends State<ListPage> {
   Future scan() async {
     String cameraScanResult = await scanner.scan(); //通过扫码获取二维码中的数据
     getScan(cameraScanResult); //将获取到的参数通过HTTP请求发送到服务器
-    print(cameraScanResult); //在控制台打印
   }
 
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
@@ -990,6 +984,7 @@ class _ListPageState extends State<ListPage> {
       }
     }
   }
+
   // 领料后操作
   handlerStatus(title, id, entryIds, fWkXh) async {
     //修改为开工状态
@@ -1240,6 +1235,11 @@ class _ListPageState extends State<ListPage> {
         child: MaterialApp(
       title: "loging",
       home: Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: scan,
+            tooltip: 'Increment',
+            child: Icon(Icons.filter_center_focus),
+          ),
           /*floatingActionButton: FloatingActionButton(
             onPressed: scan,
             tooltip: 'Increment',
