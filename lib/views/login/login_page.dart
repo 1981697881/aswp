@@ -258,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
               userMap['FilterString'] =
                   "FStaffNumber='$_username' and FPwd='$_password'";
               userMap['FieldKeys'] =
-                  'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode';
+                  'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName';
               Map<String, dynamic> dataMap = Map();
               dataMap['data'] = userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);
@@ -270,6 +270,7 @@ class _LoginPageState extends State<LoginPage> {
                 if (resUser[0].length >= 4 && resUser[0][4] == 'A') {
                   sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
                   sharedPreferences.setString('FWorkShopName', resUser[0][3]);
+                  sharedPreferences.setString('FName', resUser[0][6]);
                   Map<String, dynamic> authorMap = Map();
                   authorMap['auth'] = resUser[0][5];
                   ApiResponse<AuthorizeEntity> author =

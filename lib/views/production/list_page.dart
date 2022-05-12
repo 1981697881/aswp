@@ -1207,19 +1207,46 @@ class _ListPageState extends State<ListPage> {
     print(res);
     //判断成功
     if (res['Result']['ResponseStatus']['IsSuccess']) {
-      Map<String, dynamic> auditMap = Map();
-      auditMap = {
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      Map<String, dynamic> saveMap = Map();
+      saveMap = {
         "formid": pFormid,
         "data": {
-          'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+          "NeedReturnFields": [],
+          "IsDeleteEntry": false,
+          "Model": {
+            "F_MSD_Text1": sharedPreferences.getString('FName'),
+            "FID": res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+          }
         }
       };
-      if (pFormid == "PRD_PickMtrl") {
-        return await auditOrder(auditMap, title, pFormid,
-            id: id, entryIds: entryIds, fWkXh: fWkXh);
+      String saveData = await SubmitEntity.save(saveMap);
+      var resSave = jsonDecode(saveData);
+      if (resSave['Result']['ResponseStatus']['IsSuccess']) {
+        Map<String, dynamic> auditMap = Map();
+        auditMap = {
+          "formid": pFormid,
+          "data": {
+            'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+          }
+        };
+        if (pFormid == "PRD_PickMtrl") {
+          return await auditOrder(auditMap, title, pFormid,
+              id: id, entryIds: entryIds, fWkXh: fWkXh);
+        } else {
+          return await auditOrder(auditMap, title, pFormid,
+              id: id, entryIds: entryIds, fWkXh: fWkXh);
+        }
       } else {
-        return await auditOrder(auditMap, title, pFormid,
-            id: id, entryIds: entryIds, fWkXh: fWkXh);
+        Map<String, dynamic> deleteMap = Map();
+        deleteMap = {
+          "formid": pFormid,
+          "data": {
+            'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+          }
+        };
+        deleteOrder(deleteMap, title, type: 0);
+        return resSave['Result']['ResponseStatus']['Errors'][0]['Message'].toString();
       }
     } else {
       return res['Result']['ResponseStatus']['Errors'][0]['Message'].toString();

@@ -860,6 +860,8 @@ class _ReportPageState extends State<ReportPage> {
       orderMap['FDescription'] = this._remarkContent.text;
       Map<String, dynamic> Model = Map();
       Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      Model['F_MSD_Text1'] = sharedPreferences.getString('FName');
       // ignore: non_constant_identifier_names
       var FEntity = [];
       for (int entity = 0; entity < resData.length; entity++) {

@@ -757,6 +757,8 @@ class _PickingDetailState extends State<PickingDetail> {
     orderMap['IsDeleteEntry'] = false;
     Map<String, dynamic> Model = Map();
     Model['FID'] = collarOrderDate[0][0];
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    Model['F_MSD_Text1'] = sharedPreferences.getString('FName');
     var FEntity = [];
     var hobbyIndex = 0;
     this.hobby.forEach((element) {
