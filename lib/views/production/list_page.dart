@@ -881,7 +881,8 @@ class _ListPageState extends State<ListPage> {
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
     keyWord = scan;
-    this.controller.text = scan;
+    _code = scan;
+    /*this.controller.text = scan;*/
     await getOrderList();
   }
 
