@@ -1234,8 +1234,11 @@ class _ListPageState extends State<ListPage> {
           return await auditOrder(auditMap, title, pFormid,
               id: id, entryIds: entryIds, fWkXh: fWkXh);
         } else {
-          return await auditOrder(auditMap, title, pFormid,
-              id: id, entryIds: entryIds, fWkXh: fWkXh);
+          this.getOrderList();
+          ToastUtil.showInfo('保存成功');
+          return await handlerStatus(title, id, entryIds, fWkXh);
+         /* return await auditOrder(auditMap, title, pFormid,
+              id: id, entryIds: entryIds, fWkXh: fWkXh);*/
         }
       } else {
         Map<String, dynamic> deleteMap = Map();
@@ -1362,7 +1365,7 @@ class _ListPageState extends State<ListPage> {
           ),*/
           //浮动按钮的位置
           floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
+              FloatingActionButtonLocation.endFloat,
           appBar: AppBar(
             /* leading: IconButton(
               icon: Icon(Icons.arrow_back),
