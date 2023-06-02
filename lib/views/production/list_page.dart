@@ -86,7 +86,6 @@ class _ListPageState extends State<ListPage> {
 
   _initState() {
     this.getOrderList();
-
     /// 开启监听
     _subscription = scannerPlugin
         .receiveBroadcastStream()
@@ -1234,11 +1233,11 @@ class _ListPageState extends State<ListPage> {
           return await auditOrder(auditMap, title, pFormid,
               id: id, entryIds: entryIds, fWkXh: fWkXh);
         } else {
-          this.getOrderList();
+         /* this.getOrderList();
           ToastUtil.showInfo('保存成功');
-          return await handlerStatus(title, id, entryIds, fWkXh);
-         /* return await auditOrder(auditMap, title, pFormid,
-              id: id, entryIds: entryIds, fWkXh: fWkXh);*/
+          return await handlerStatus(title, id, entryIds, fWkXh);*/
+          return await auditOrder(auditMap, title, pFormid,
+              id: id, entryIds: entryIds, fWkXh: fWkXh);
         }
       } else {
         Map<String, dynamic> deleteMap = Map();

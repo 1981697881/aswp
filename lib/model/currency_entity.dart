@@ -11,7 +11,8 @@ class CurrencyEntity {
   static Future<String> polling(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.CURRENCY_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.CURRENCY_URL(), data: map);
       return response;
     } on DioError catch (e) {
       return e.error;

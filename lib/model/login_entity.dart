@@ -12,7 +12,8 @@ String loginEntityToJson(LoginEntity data) => json.encode(data.toJson());
 class LoginEntity {
 	static Future<ApiResponse<LoginEntity>> login(Map<String, dynamic> map) async {
 		try {
-			final response = await HttpUtils.post(API.LOGIN_URL,data: map);
+			API api = new API();
+			final response = await HttpUtils.post(await api.LOGIN_URL(),data: map);
 			final res = json.decode(response) as Map<String, dynamic>;
 			var data = LoginEntity.fromJson(res);
 			return ApiResponse.completed(data);

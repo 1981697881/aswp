@@ -11,7 +11,8 @@ class SubmitEntity {
   static  Future<List<Response>> dblSubmit(
       String map1,String map2) async {
     try {
-      final response = await HttpUtils.dblPost(API.SUBMIT_URL,API.SUBMIT_URL, data1: map1,data2: map2);
+      API api = new API();
+      final response = await HttpUtils.dblPost(await api.SUBMIT_URL(),await api.SUBMIT_URL(), data1: map1,data2: map2);
       return response;
     } on DioError catch (e) {
       return e.error;
@@ -20,7 +21,8 @@ class SubmitEntity {
   static Future<String> save(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.SAVE_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.SAVE_URL(), data: map);
       return response;
     } on DioError catch (e) {
       print(e);
@@ -30,7 +32,8 @@ class SubmitEntity {
   static Future<String> submit(
     Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.SUBMIT_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.SUBMIT_URL(), data: map);
       return response;
     } on DioError catch (e) {
       print(e);
@@ -49,7 +52,8 @@ class SubmitEntity {
   static  Future<List<Response>> dalPushDown(
       Map<String, dynamic> map1,Map<String, dynamic> map2) async {
     try {
-      final response = await HttpUtils.dblPost(API.DOWN_URL,API.DOWN_URL,data1: map1,data2: map2);
+      API api = new API();
+      final response = await HttpUtils.dblPost(await api.DOWN_URL(),await api.DOWN_URL(),data1: map1,data2: map2);
       return response;
     } on DioError catch (e) {
       return e.error;
@@ -58,7 +62,8 @@ class SubmitEntity {
   static Future<String> pushDown(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.DOWN_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.DOWN_URL(), data: map);
       return response;
     } on DioError catch (e) {
       return e.error;
@@ -67,7 +72,8 @@ class SubmitEntity {
   static Future<String> alterStatus(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.STATUS_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.STATUS_URL(), data: map);
       return response;
     } on DioError catch (e) {
       return e.error;
@@ -76,7 +82,8 @@ class SubmitEntity {
   static Future<String> audit(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.AUDIT_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.AUDIT_URL(), data: map);
       return response;
     } on DioError catch (e) {
       return e.error;
@@ -84,7 +91,8 @@ class SubmitEntity {
   }static Future<String> unAudit(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.UNAUDIT_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.UNAUDIT_URL(), data: map);
       return response;
     } on DioError catch (e) {
       return e.error;
@@ -92,7 +100,8 @@ class SubmitEntity {
   }static Future<String> delete(
       Map<String, dynamic> map) async {
     try {
-      final response = await HttpUtils.post(API.DELETE_URL, data: map);
+      API api = new API();
+      final response = await HttpUtils.post(await api.DELETE_URL(), data: map);
       return response;
     } on DioError catch (e) {
       return e.error;

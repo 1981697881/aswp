@@ -18,17 +18,14 @@ import 'package:aswp/http/api_response.dart';
 import 'model/authorize_entity.dart';
 import 'model/currency_entity.dart';
 
-
 const Color _primaryColor = Colors.blue;
 
-void main(List<String> args) async{
+void main(List<String> args) async {
   HttpUtils.init(
     baseUrl: "http://120.25.26.68/K3Cloud/",
   );
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(
-      debug: true
-  );
+  await FlutterDownloader.initialize(debug: true);
   runApp(MyApp());
   if (Platform.isAndroid) {
     SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
@@ -74,12 +71,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State {
-
   var _getaname = "";
   var _getpsw = "";
   var username = "";
   var password = "";
   var message = "";
+
   @override
   void initState() {
     super.initState();
@@ -117,6 +114,7 @@ class _MyHomePageState extends State {
     }
     return true;
   }
+
   /**
    * 验证密码
    */
@@ -128,6 +126,7 @@ class _MyHomePageState extends State {
     }
     return true;
   }
+
   //AlertDialog
   Future showExitDialog() {
     return showDialog<bool>(
@@ -158,71 +157,91 @@ class _MyHomePageState extends State {
       },
     );
   }
+
   void toLoing() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     _getaname = sharedPreferences.getString('username');
     _getpsw = sharedPreferences.getString('password');
     username = sharedPreferences.getString('FStaffNumber');
     password = sharedPreferences.getString('FPwd');
-    print(validateUserName(_getaname) && validatePassWord(_getpsw) && validateUserName(username) && validatePassWord(password));
-    if (validateUserName(_getaname) && validatePassWord(_getpsw) && validateUserName(username) && validatePassWord(password)) {
+    print(validateUserName(_getaname) &&
+        validatePassWord(_getpsw) &&
+        validateUserName(username) &&
+        validatePassWord(password));
+    if (validateUserName(_getaname) &&
+        validatePassWord(_getpsw) &&
+        validateUserName(username) &&
+        validatePassWord(password)) {
       Map<String, dynamic> map = Map();
       map['username'] = _getaname;
-      map['acctID'] = API.ACCT_ID;
-      map['lcid'] = API.lcid;
+      map['acctID'] = sharedPreferences.getString('acctId');
+      map['lcid'] = "2052";
       map['password'] = _getpsw;
       ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
       print(entity.data.loginResultType);
       if (entity.data.loginResultType == 1) {
-        Map<String,dynamic> userMap = Map();
-        userMap['FormId']='BD_Empinfo';
-        userMap['FilterString']= "FStaffNumber='$username' and FPwd='$password'";
-        userMap['FieldKeys']='FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName';
-        Map<String,dynamic> dataMap = Map();
-        dataMap['data']=userMap;
+        Map<String, dynamic> userMap = Map();
+        userMap['FormId'] = 'BD_Empinfo';
+        userMap['FilterString'] =
+            "FStaffNumber='$username' and FPwd='$password'";
+        userMap['FieldKeys'] =
+            'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName';
+        Map<String, dynamic> dataMap = Map();
+        dataMap['data'] = userMap;
         String UserEntity = await CurrencyEntity.polling(dataMap);
-        if(UserEntity.isNotEmpty){
-          var resUser = jsonDecode(UserEntity);
-          if(resUser[0][4] == 'A'){
-            sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
-            sharedPreferences.setString('FWorkShopName', resUser[0][3]);
-            sharedPreferences.setString('FName', resUser[0][6]);
-            Map<String, dynamic> authorMap = Map();
-            authorMap['auth'] = resUser[0][5];
-            ApiResponse<AuthorizeEntity> author =
-            await AuthorizeEntity.getAuthorize(authorMap);
-            if (author.data.data.fStatus == "0") {
-              Map<String, dynamic> empMap = Map();
-              empMap['FormId'] = 'BD_Empinfo';
-              empMap['FilterString'] =
-                  "FAuthCode='"+resUser[0][5]+"'";
-              empMap['FieldKeys'] =
-              'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode';
-              Map<String, dynamic> empDataMap = Map();
-              empDataMap['data'] = empMap;
-              String EmpEntity = await CurrencyEntity.polling(empDataMap);
-              var resEmp = jsonDecode(EmpEntity);
-              if(author.data.data.fAuthNums > resEmp.length && resEmp.length > 0){
-                if(author.data.data.fMessage == null){
-                  ToastUtil.showInfo('登录成功');
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ListPage();
-                      },
-                    ),
-                  );
-                }else{
-                  this.message = author.data.data.fMessage;
-                  showExitDialog();
+        if (UserEntity != "[]") {
+          if (UserEntity.isNotEmpty) {
+            var resUser = jsonDecode(UserEntity);
+            if (resUser[0][4] == 'A') {
+              sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
+              sharedPreferences.setString('FWorkShopName', resUser[0][3]);
+              sharedPreferences.setString('FName', resUser[0][6]);
+              Map<String, dynamic> authorMap = Map();
+              authorMap['auth'] = resUser[0][5];
+              ApiResponse<AuthorizeEntity> author =
+                  await AuthorizeEntity.getAuthorize(authorMap);
+              if (author.data.data.fStatus == "0") {
+                Map<String, dynamic> empMap = Map();
+                empMap['FormId'] = 'BD_Empinfo';
+                empMap['FilterString'] = "FAuthCode='" + resUser[0][5] + "'";
+                empMap['FieldKeys'] =
+                    'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode';
+                Map<String, dynamic> empDataMap = Map();
+                empDataMap['data'] = empMap;
+                String EmpEntity = await CurrencyEntity.polling(empDataMap);
+                var resEmp = jsonDecode(EmpEntity);
+                if (author.data.data.fAuthNums > resEmp.length &&
+                    resEmp.length > 0) {
+                  if (author.data.data.fMessage == null) {
+                    ToastUtil.showInfo('登录成功');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ListPage();
+                        },
+                      ),
+                    );
+                  } else {
+                    this.message = author.data.data.fMessage;
+                    showExitDialog();
+                  }
+                } else {
+                  ToastUtil.showInfo('该账号无授予权限或者授权数量超过限定，请检查！');
                 }
-              }else{
-                ToastUtil.showInfo('该账号无授予权限或者授权数量超过限定，请检查！');
+              } else {
+                ToastUtil.errorDialog(context, author.data.data.fMessage);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return LoginPage();
+                    },
+                  ),
+                );
               }
-            }else{
-              ToastUtil.errorDialog(context,
-                  author.data.data.fMessage);
+            } else {
+              ToastUtil.showInfo('该账号无登录权限');
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -232,17 +251,17 @@ class _MyHomePageState extends State {
                 ),
               );
             }
-          }else{
-            ToastUtil.showInfo('该账号无登录权限');
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return LoginPage();
-                },
-              ),
-            );
           }
+        } else {
+          ToastUtil.showInfo('登录失败，重新登录');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return LoginPage();
+              },
+            ),
+          );
         }
       } else {
         ToastUtil.showInfo('登录失败，重新登录');

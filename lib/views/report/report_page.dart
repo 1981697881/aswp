@@ -997,14 +997,14 @@ class _ReportPageState extends State<ReportPage> {
                             [0]['Id']
                       }
                     };
-                    if(EntryIds2 != ''){
+                    /*if(EntryIds2 != ''){
                       if(i == 1){
                         this.handlerStatus();
                       }
                     }else{
                       this.handlerStatus();
-                    }
-                    /*await auditOrder(auditMap,i,EntryIds2 != '');*/
+                    }*/
+                    await auditOrder(auditMap,i,EntryIds2 != '');
                   } else {
                     Map<String, dynamic> deleteMap = Map();
                     deleteMap = {
@@ -1040,14 +1040,14 @@ class _ReportPageState extends State<ReportPage> {
                           [0]['Id']
                     }
                   };
-                  /*await auditOrder(auditMap,i,EntryIds1 != '');*/
-                  if(EntryIds1 != ''){
+                  await auditOrder(auditMap,i,EntryIds1 != '');
+                  /*if(EntryIds1 != ''){
                     if(i == 1){
                       this.handlerStatus();
                     }
                   }else{
                     this.handlerStatus();
-                  }
+                  }*/
                 } else {
                   Map<String, dynamic> deleteMap = Map();
                   deleteMap = {
