@@ -832,11 +832,8 @@ class _ListPageState extends State<ListPage> {
                             );
                           });
                     },
-                    title: Text(this.hobby[i][j]["title"] +
-                        '：' +
-                        this.hobby[i][j]["value"]["label"].toString()),
-                    trailing: j == 0
-                        ? Row(
+                    title: Text(this.hobby[i][j]["title"] + '：' + this.hobby[i][j]["value"]["label"].toString()),
+                    trailing: j == 0 ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                                 Checkbox(
