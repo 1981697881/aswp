@@ -30,7 +30,7 @@ import 'package:qrscan/qrscan.dart' as scanner;
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class ListPage extends StatefulWidget {
-  ListPage({Key key}) : super(key: key);
+  ListPage({Key? key}) : super(key: key);
 
   @override
   _ListPageState createState() => _ListPageState();
@@ -47,7 +47,7 @@ class _ListPageState extends State<ListPage> {
 
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
 
   //生产车间
@@ -60,7 +60,7 @@ class _ListPageState extends State<ListPage> {
   String downloadUrl = '';
   String buildVersion = '';
   String buildUpdateDescription = '';
-  ProgressDialog pr;
+  late ProgressDialog pr;
   String apkName = 'aswp.apk';
   String appPath = '';
   ReceivePort _port = ReceivePort();
@@ -100,7 +100,7 @@ class _ListPageState extends State<ListPage> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();
     }
   }
 
@@ -115,10 +115,10 @@ class _ListPageState extends State<ListPage> {
   /// 执行版本更新的网络请求
   _getNewVersionAPP(context) async {
     ApiResponse<VersionEntity> entity = await VersionEntity.getVersion();
-    serviceVersionCode = entity.data.data.buildVersionNo;
-    buildVersion = entity.data.data.buildVersion;
-    buildUpdateDescription = entity.data.data.buildUpdateDescription;
-    downloadUrl = entity.data.data.downloadUrl;
+    serviceVersionCode = entity.data!.data.buildVersionNo;
+    buildVersion = entity.data!.data.buildVersion;
+    buildUpdateDescription = entity.data!.data.buildUpdateDescription;
+    downloadUrl = entity.data!.data.downloadUrl;
     _checkVersionCode();
   }
 
@@ -198,7 +198,7 @@ class _ListPageState extends State<ListPage> {
   static void _downLoadCallback(
       String id, DownloadTaskStatus status, int progress) {
     final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port');
+    IsolateNameServer.lookupPortByName('downloader_send_port')!;
     send.send([id, status, progress]);
   }
 
@@ -463,7 +463,7 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     EasyLoading.show(status: 'loading...');
@@ -840,7 +840,7 @@ class _ListPageState extends State<ListPage> {
                                   value: this.hobby[i][14]["value"],
                                   activeColor: Colors.red,
                                   checkColor: Colors.yellow,
-                                  onChanged: (bool value) {
+                                  onChanged: (value) {
                                     setState(() {
                                       this.hobby[i][14]["value"] = value;
                                     });
@@ -886,31 +886,39 @@ class _ListPageState extends State<ListPage> {
 
   void showDateSelect() async {
     //获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day - 30);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day + 4);
-    print(DateTimeRange(start: start, end: end));
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
-    DateTimeRange selectTimeRange = await showDateRangePicker(
-        //语言环境
+    DateTimeRange? selectTimeRange = await showDateRangePicker(
+      //语言环境
         locale: Locale("zh", "CH"),
         context: context,
         //开始时间
-        firstDate: DateTime(2021, 1),
+        firstDate: DateTime(now.year-3, now.month),
         //结束时间
-        lastDate: DateTime(2022, 2),
+        lastDate: DateTime(now.year, now.month+1),
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
-        initialDateRange: DateTimeRange(start: start, end: end));
+        initialDateRange: DateTimeRange(start: DateTime.parse(seDate[0]), end: DateTime.parse(seDate[1])));
     //结果
-    _dateSelectText = selectTimeRange.toString();
-    //选择结果中的开始时间
-    DateTime selectStart = selectTimeRange.start;
-    //选择结果中的结束时间
-    DateTime selectEnd = selectTimeRange.end;
-    print(_dateSelectText);
+    if(selectTimeRange != null){
+      _dateSelectText = selectTimeRange.toString();
+      //选择结果中的开始时间
+      DateTime selectStart = selectTimeRange.start;
+      //选择结果中的结束时间
+      DateTime selectEnd = selectTimeRange.end;
+    }
     setState(() {});
   }
 
@@ -1138,7 +1146,7 @@ class _ListPageState extends State<ListPage> {
 
   //审核 id,entryIds,fWkXh
   auditOrder(Map<String, dynamic> auditMap, title, type,
-      {String id, String entryIds, double fWkXh, var dType = 0}) async {
+      {String? id, String? entryIds, double? fWkXh, var dType = 0}) async {
     await SubmitEntity.submit(auditMap);
     var subData = await SubmitEntity.audit(auditMap);
     if (subData != null) {
@@ -1195,7 +1203,7 @@ class _ListPageState extends State<ListPage> {
   }
 
   pushDown(Map<String, dynamic> map, formid, pFormid, title,
-      {String id, String entryIds, double fWkXh}) async {
+      {String? id, String? entryIds, double? fWkXh}) async {
     //下推
     Map<String, dynamic> pushMap = Map();
     var downData = await SubmitEntity.pushDown({"formid": formid, "data": map});
@@ -1363,66 +1371,66 @@ class _ListPageState extends State<ListPage> {
           floatingActionButtonLocation:
               FloatingActionButtonLocation.endFloat,
           appBar: AppBar(
-            /* leading: IconButton(
+             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
-            ),*/
+            ),
             title: Text("生产订单"),
             centerTitle: true,
-            actions: <Widget>[
-              new IconButton(
-                  icon: new Icon(Icons.settings), onPressed: _pushSaved),
-            ],
+            // actions: <Widget>[
+            //   new IconButton(
+            //       icon: new Icon(Icons.settings), onPressed: _pushSaved),
+            // ],
           ),
           body: CustomScrollView(
             slivers: <Widget>[
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: StickyTabBarDelegate(
-                  minHeight: 50, //收起的高度
-                  maxHeight: 50, //展开的最大高度
-                  child: Container(
-                    color: Theme.of(context).primaryColor,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 2.0),
-                      child: Container(
-                          height: 52.0,
-                          child: new Card(
-                            child: new Container(
-                              child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        child: Center(
-                                          child: Text(
-                                            "用户：$username",
-                                          ),
-                                        )),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        child: Center(
-                                          child: Text(
-                                            "车间：$FName",
-                                          ),
-                                        )),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )),
-                    ),
-                  ),
-                ),
-              ),
+              // SliverPersistentHeader(
+              //   pinned: true,
+              //   delegate: StickyTabBarDelegate(
+              //     minHeight: 50, //收起的高度
+              //     maxHeight: 50, //展开的最大高度
+              //     child: Container(
+              //       color: Theme.of(context).primaryColor,
+              //       child: Padding(
+              //         padding: EdgeInsets.only(top: 2.0),
+              //         child: Container(
+              //             height: 52.0,
+              //             child: new Card(
+              //               child: new Container(
+              //                 child: new Row(
+              //                   mainAxisAlignment: MainAxisAlignment.start,
+              //                   mainAxisSize: MainAxisSize.max,
+              //                   children: <Widget>[
+              //                     Expanded(
+              //                       flex: 1,
+              //                       child: Container(
+              //                           width: 50,
+              //                           height: 50,
+              //                           child: Center(
+              //                             child: Text(
+              //                               "用户：$username",
+              //                             ),
+              //                           )),
+              //                     ),
+              //                     Expanded(
+              //                       flex: 1,
+              //                       child: Container(
+              //                           width: 50,
+              //                           height: 50,
+              //                           child: Center(
+              //                             child: Text(
+              //                               "车间：$FName",
+              //                             ),
+              //                           )),
+              //                     ),
+              //                   ],
+              //                 ),
+              //               ),
+              //             )),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               SliverFillRemaining(
                 child: ListView(children: <Widget>[
                   Column(
@@ -1442,9 +1450,9 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double maxHeight;
 
   StickyTabBarDelegate(
-      {@required this.minHeight,
-      @required this.maxHeight,
-      @required this.child});
+      {required this.minHeight,
+        required this.maxHeight,
+        required this.child});
 
   @override
   Widget build(

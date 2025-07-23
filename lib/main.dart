@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:aswp/views/login/login_page.dart';
 import 'package:aswp/views/index/index_page.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'http/httpUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aswp/utils/toast_util.dart';
@@ -25,7 +26,9 @@ void main(List<String> args) async {
     baseUrl: "http://120.25.26.68/K3Cloud/",
   );
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(debug: true);
+  await FlutterDownloader.initialize(
+      debug: true
+  );
   runApp(MyApp());
   if (Platform.isAndroid) {
     SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
@@ -36,10 +39,23 @@ void main(List<String> args) async {
 }
 
 class MyApp extends StatelessWidget {
+  //不显示 debug标签
+
 // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      //不显示 debug标签
+      debugShowCheckedModeBanner: false,
+      //当前运行环境配置
+      locale: Locale("zh","CH"),
+      //程序支持的语言环境配置
+      supportedLocales: [Locale("zh","CH")],
+      //Material 风格代理配置
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
       theme: ThemeData(
         primaryColor: _primaryColor,
         // primaryTextTheme: ThemeData.dark().primaryTextTheme,
@@ -57,14 +73,13 @@ class MyApp extends StatelessWidget {
           // ),
         ),
       ),
-      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -90,7 +105,7 @@ class _MyHomePageState extends State {
       if (count >= 3) {
 //取消定时器，避免无限回调
         timer.cancel();
-        timer = null;
+        // timer = null;
         toLoing();
       }
     });
@@ -146,7 +161,7 @@ class _MyHomePageState extends State {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return ListPage();
+                      return IndexPage();
                     },
                   ),
                 );
@@ -164,10 +179,6 @@ class _MyHomePageState extends State {
     _getpsw = sharedPreferences.getString('password');
     username = sharedPreferences.getString('FStaffNumber');
     password = sharedPreferences.getString('FPwd');
-    print(validateUserName(_getaname) &&
-        validatePassWord(_getpsw) &&
-        validateUserName(username) &&
-        validatePassWord(password));
     if (validateUserName(_getaname) &&
         validatePassWord(_getpsw) &&
         validateUserName(username) &&
@@ -178,21 +189,20 @@ class _MyHomePageState extends State {
       map['lcid'] = "2052";
       map['password'] = _getpsw;
       ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
-      print(entity.data.loginResultType);
-      if (entity.data.loginResultType == 1) {
+      if (entity.data!.loginResultType == 1) {
         Map<String, dynamic> userMap = Map();
         userMap['FormId'] = 'BD_Empinfo';
         userMap['FilterString'] =
             "FStaffNumber='$username' and FPwd='$password'";
         userMap['FieldKeys'] =
-            'FStaffNumber,FUseOrgId.FName,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName';
+            'FStaffNumber,FUseOrgId.FNumber,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName';
         Map<String, dynamic> dataMap = Map();
         dataMap['data'] = userMap;
         String UserEntity = await CurrencyEntity.polling(dataMap);
         if (UserEntity != "[]") {
           if (UserEntity.isNotEmpty) {
             var resUser = jsonDecode(UserEntity);
-            if (resUser[0][4] == 'A') {
+            if (resUser[0].length>4 && resUser[0][4] == 'A') {
               sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
               sharedPreferences.setString('FWorkShopName', resUser[0][3]);
               sharedPreferences.setString('FName', resUser[0][6]);
@@ -200,7 +210,7 @@ class _MyHomePageState extends State {
               authorMap['auth'] = resUser[0][5];
               ApiResponse<AuthorizeEntity> author =
                   await AuthorizeEntity.getAuthorize(authorMap);
-              if (author.data.data.fStatus == "0") {
+              if (author.data!.data.fStatus == "0") {
                 Map<String, dynamic> empMap = Map();
                 empMap['FormId'] = 'BD_Empinfo';
                 empMap['FilterString'] = "FAuthCode='" + resUser[0][5] + "'";
@@ -210,27 +220,29 @@ class _MyHomePageState extends State {
                 empDataMap['data'] = empMap;
                 String EmpEntity = await CurrencyEntity.polling(empDataMap);
                 var resEmp = jsonDecode(EmpEntity);
-                if (author.data.data.fAuthNums > resEmp.length &&
+                if (author.data!.data.fAuthNums > resEmp.length &&
                     resEmp.length > 0) {
-                  if (author.data.data.fMessage == null) {
+                  sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
+                  sharedPreferences.setString('MenuPermissions', UserEntity);
+                  if (author.data!.data.fMessage == null) {
                     ToastUtil.showInfo('登录成功');
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ListPage();
+                          return IndexPage();
                         },
                       ),
                     );
                   } else {
-                    this.message = author.data.data.fMessage;
+                    this.message = author.data!.data.fMessage;
                     showExitDialog();
                   }
                 } else {
                   ToastUtil.showInfo('该账号无授予权限或者授权数量超过限定，请检查！');
                 }
               } else {
-                ToastUtil.errorDialog(context, author.data.data.fMessage);
+                ToastUtil.errorDialog(context, author.data!.data.fMessage);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(

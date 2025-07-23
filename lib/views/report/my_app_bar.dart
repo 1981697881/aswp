@@ -4,13 +4,13 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppBar(
       {this.title = '',
         this.centerTitle = true,
-        this.rightDMActions,
-        this.backgroundColor,
-        this.mainColor,
-        this.titleW,
-        this.bottom,
+        required this.rightDMActions,
+        required this.backgroundColor,
+        required this.mainColor,
+        required this.titleW,
+        required this.bottom,
         this.leadingImg = '',
-        this.leadingW,
+        required this.leadingW,
         this.brightness = Brightness.light,
         this.automaticallyImplyLeading = true,
         this.elevation = 4.0});
@@ -37,7 +37,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       Size.fromHeight(48.0 + (bottom?.preferredSize.height ?? 0.0));
 
   Widget leading(BuildContext context) {
-    final ModalRoute<dynamic> parentRoute = ModalRoute.of(context);
+    final ModalRoute<dynamic> parentRoute = ModalRoute.of(context)!;
     final bool canPop = parentRoute.canPop;
     final bool useCloseButton =
         parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;

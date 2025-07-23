@@ -31,7 +31,7 @@ class ReportPage extends StatefulWidget {
   var f_wk_xh;
   var FBarcode;
 
-  ReportPage({Key key,  @required this.FBillNo,
+  ReportPage({Key? key,  @required this.FBillNo,
     @required this.FSeq,
     @required this.FEntryId,
     @required this.FID,
@@ -71,7 +71,7 @@ class _ReportPageState extends State<ReportPage> {
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription? _subscription;
   var _code;
   var _FNumber;
   var FSeq;
@@ -123,7 +123,7 @@ class _ReportPageState extends State<ReportPage> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();
     }
   }
 
@@ -152,7 +152,7 @@ class _ReportPageState extends State<ReportPage> {
         FDate = orderDate[0][3].substring(0, 10);
         selectData[DateMode.YMDHMS] = orderDate[0][3].substring(0, 10);
         FSaleOrderNo = orderDate[0][4];
-        globalKey.currentState.update();
+        globalKey.currentState!.update();
         /*FBillNoKey.currentState.onPressed(orderDate[0][0]);
     FSaleOrderNoKey.currentState.onPressed(orderDate[0][4]);*/
         hobby = [];
@@ -215,7 +215,7 @@ class _ReportPageState extends State<ReportPage> {
     } else {
       EasyLoading.dismiss();
       _code = '';
-      textKey.currentState.onPressed(_code);
+      textKey.currentState!.onPressed(_code);
       if (FNumber == '') {
         checkItem = 'FPrdOrgId';
         ToastUtil.showInfo('请扫描生产车间');
@@ -227,11 +227,11 @@ class _ReportPageState extends State<ReportPage> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     if (textKey.currentState != null) {
-      textKey.currentState.onPressed(_code);
+      textKey.currentState!.onPressed(_code);
       switch (checkItem) {
         case 'FBillNo':
           EasyLoading.show(status: 'loading...');
@@ -276,7 +276,7 @@ class _ReportPageState extends State<ReportPage> {
     });
   }
 
-  Widget _item(title, var data, var selectData, {String label}) {
+  Widget _item(title, var data, var selectData, {String? label}) {
     return Column(
       children: [
         Container(
@@ -285,7 +285,7 @@ class _ReportPageState extends State<ReportPage> {
             title: Text(title),
             onTap: () => _onClickItem(data, selectData, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(selectData.toString() ?? '暂无',
+              MyText(selectData?.toString() ?? '暂无',
                   color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
@@ -310,9 +310,9 @@ class _ReportPageState extends State<ReportPage> {
               PartRefreshWidget(globalKey, () {
                 //2、使用 创建一个widget
                 return MyText(
-                    PicketUtil.strEmpty(selectData[model])
+                    (PicketUtil.strEmpty(selectData[model])
                         ? '暂无'
-                        : selectData[model],
+                        : selectData[model])!,
                     color: Colors.grey,
                     rightpadding: 18);
               }),
@@ -355,7 +355,7 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  void _onClickItem(var data, var selectData, {String label}) {
+  void _onClickItem(var data, var selectData, {String? label}) {
     Pickers.showSinglePicker(
       context,
       data: data,

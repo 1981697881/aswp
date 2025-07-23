@@ -64,5 +64,5 @@ class API {
 
   //授权查询 authorize
   static const String AUTHORIZE_URL =
-      'http://auth.gzfzdev.com:50022/web/auth/findAuthMessage';
+      'http://14.29.254.232:50022/web/auth/findAuthMessage';
 }

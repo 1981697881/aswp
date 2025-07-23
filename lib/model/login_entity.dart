@@ -22,24 +22,64 @@ class LoginEntity {
 		}
 	}
 	LoginEntity({
-		this.message,
-		this.messageCode,
-		this.loginResultType,
+		required this.message,
+		required this.messageCode,
+		required this.loginResultType,
+		this.context,
+		this.kdsvcSessionId,
+		this.formId,
+		this.redirectFormParam,
+		this.formInputObject,
+		this.errorStackTrace,
+		required this.lcid,
+		this.accessToken,
+		this.kdAccessResult,
+		required this.isSuccessByApi,
 	});
 
-	dynamic message;
+	String message;
 	String messageCode;
 	int loginResultType;
+	dynamic context;
+	dynamic kdsvcSessionId;
+	dynamic formId;
+	dynamic redirectFormParam;
+	dynamic formInputObject;
+	dynamic errorStackTrace;
+	int lcid;
+	dynamic accessToken;
+	dynamic kdAccessResult;
+	bool isSuccessByApi;
 
 	factory LoginEntity.fromJson(Map<String, dynamic> json) => LoginEntity(
 		message: json["Message"],
 		messageCode: json["MessageCode"],
 		loginResultType: json["LoginResultType"],
+		context: json["Context"],
+		kdsvcSessionId: json["KDSVCSessionId"],
+		formId: json["FormId"],
+		redirectFormParam: json["RedirectFormParam"],
+		formInputObject: json["FormInputObject"],
+		errorStackTrace: json["ErrorStackTrace"],
+		lcid: json["Lcid"],
+		accessToken: json["AccessToken"],
+		kdAccessResult: json["KdAccessResult"],
+		isSuccessByApi: json["IsSuccessByAPI"],
 	);
 
 	Map<String, dynamic> toJson() => {
 		"Message": message,
 		"MessageCode": messageCode,
 		"LoginResultType": loginResultType,
+		"Context": context,
+		"KDSVCSessionId": kdsvcSessionId,
+		"FormId": formId,
+		"RedirectFormParam": redirectFormParam,
+		"FormInputObject": formInputObject,
+		"ErrorStackTrace": errorStackTrace,
+		"Lcid": lcid,
+		"AccessToken": accessToken,
+		"KdAccessResult": kdAccessResult,
+		"IsSuccessByAPI": isSuccessByApi,
 	};
 }
