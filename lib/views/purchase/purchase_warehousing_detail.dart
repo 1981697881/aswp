@@ -430,7 +430,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         inventoryMap['Limit'] = '50';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
-            'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId';
+            'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate,FStockLocId.FF100007.FName';
         Map<String, dynamic> inventoryDataMap = Map();
         inventoryDataMap['data'] = inventoryMap;
         String res = await CurrencyEntity.polling(inventoryDataMap);

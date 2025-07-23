@@ -577,7 +577,7 @@ class _PickingPageState extends State<PickingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("生产投料单"),
+            title: Text("生产订单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

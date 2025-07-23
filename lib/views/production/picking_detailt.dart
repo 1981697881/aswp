@@ -554,6 +554,33 @@ class _PickingDetailtState extends State<PickingDetailt> {
             "value": ''
           }
         });
+        Map<String, dynamic> inventoryMap = Map();
+        inventoryMap['FormId'] = 'STK_Inventory';
+        inventoryMap['FilterString'] =
+            "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";
+        inventoryMap['Limit'] = '50';
+        inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+        inventoryMap['FieldKeys'] =
+        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId';
+        Map<String, dynamic> inventoryDataMap = Map();
+        inventoryDataMap['data'] = inventoryMap;
+        String res = await CurrencyEntity.polling(inventoryDataMap);
+        var stocks = jsonDecode(res);
+        if (stocks.length > 0) {
+          arr.add({
+            "title": "库存",
+            "name": "FLot",
+            "isHide": false,
+            "value": {"label": '', "value": '', "fLotList": stocks}
+          });
+        } else {
+          arr.add({
+            "title": "库存",
+            "name": "FLot",
+            "isHide": false,
+            "value": {"label": '', "value": '', "fLotList": []}
+          });
+        }
         hobby.add(arr);
       };
       setState(() {
@@ -746,10 +773,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                     element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                     element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
                   }
-                  if (element[1]['value']['value'] == "") {
-                    element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
-                    element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
-                  }
+
                   if (element[14]['value']['value'] == "") {
                     element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
                     element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
@@ -790,17 +814,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                       continue;
                     }
                   }
-                  //判断包装规格
-                  if (element[1]['value']['label'] == fAuxPropId) {
-                    errorTitle = "";
-                  } else {
-                    errorTitle = "包装规格不一致";
-                    surplus = hobby[entryIndex][0]['value']['surplus'];
-                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                    insertIndex = hobbyIndex;
-                    continue;
-                  }
+
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -841,10 +855,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                       element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                       element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
                     }
-                    if (element[1]['value']['value'] == "") {
-                      element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
-                      element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
-                    }
+
                     if (element[14]['value']['value'] == "") {
                       element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
                       element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
@@ -885,17 +896,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                         continue;
                       }
                     }
-                    //判断包装规格
-                    if (element[1]['value']['label'] == fAuxPropId) {
-                      errorTitle = "";
-                    } else {
-                      errorTitle = "包装规格不一致";
-                      surplus = hobby[entryIndex][0]['value']['surplus'];
-                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                      insertIndex = hobbyIndex;
-                      continue;
-                    }
+
                     //判断末尾
                     /*if (fNumber.lastIndexOf(
                             element[0]['value']['value'].toString()) ==
@@ -1011,10 +1012,6 @@ class _PickingDetailtState extends State<PickingDetailt> {
                     element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                     element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
                   }
-                  if (element[1]['value']['value'] == "") {
-                    element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
-                    element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
-                  }
                   if (element[14]['value']['value'] == "") {
                     element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
                     element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
@@ -1059,17 +1056,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                       continue;
                     }
                   }
-                  //判断包装规格
-                  if (element[1]['value']['label'] == fAuxPropId) {
-                    errorTitle = "";
-                  } else {
-                    errorTitle = "包装规格不一致";
-                    surplus = hobby[entryIndex][0]['value']['surplus'];
-                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                    insertIndex = hobbyIndex;
-                    continue;
-                  }
+
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -1112,10 +1099,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                         element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                         element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
                       }
-                      if (element[1]['value']['value'] == "") {
-                        element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
-                        element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
-                      }
+
                       if (element[14]['value']['value'] == "") {
                         element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
                         element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
@@ -1156,17 +1140,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                           continue;
                         }
                       }
-                      //判断包装规格
-                      if (element[1]['value']['label'] == fAuxPropId) {
-                        errorTitle = "";
-                      } else {
-                        errorTitle = "包装规格不一致";
-                        surplus = hobby[entryIndex][0]['value']['surplus'];
-                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                        insertIndex = hobbyIndex;
-                        continue;
-                      }
+
                       //判断末尾
                       /*if (fNumber.lastIndexOf(
                               element[0]['value']['value'].toString()) ==
@@ -1285,10 +1259,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                           element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
                           element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
                         }
-                        if (element[1]['value']['value'] == "") {
-                          element[1]['value']['label'] = fAuxPropId == null? "":fAuxPropId;
-                          element[1]['value']['value'] =fAuxPropId == null? "":fAuxPropId;
-                        }
+
                         if (element[14]['value']['value'] == "") {
                           element[14]['value']['label'] = fProduceDate == null? "":fProduceDate;
                           element[14]['value']['value'] =fProduceDate == null? "":fProduceDate;
@@ -1329,17 +1300,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                             continue;
                           }
                         }
-                        //判断包装规格
-                        if (element[1]['value']['label'] == fAuxPropId) {
-                          errorTitle = "";
-                        } else {
-                          errorTitle = "包装规格不一致";
-                          surplus = hobby[entryIndex][0]['value']['surplus'];
-                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                          insertIndex = hobbyIndex;
-                          continue;
-                        }
+
                         //判断末尾
                         /* if (fNumber.lastIndexOf(
                                 element[0]['value']['value'].toString()) ==
@@ -1467,7 +1428,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
           ToastUtil.showInfo('该物料领料数量已达上限');
           return;
         }
-        materialDate.forEach((value) {
+        for(var value in materialDate){
           if(this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString())) != -1){
             var parentIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (value[2]+'-'+parseEntryID.toString()))]['index'];
             hobby[parentIndex][0]['value']['surplus'] = (surplus - inserNum >0?surplus - inserNum:0);
@@ -1587,8 +1548,35 @@ class _PickingDetailtState extends State<PickingDetailt> {
               "value": fExpiryDate
             }
           });
+          Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'STK_Inventory';
+          inventoryMap['FilterString'] =
+              "FMaterialId.FNumber='" + value[2] + "' and FBaseQty >0";
+          inventoryMap['Limit'] = '50';
+          inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+          inventoryMap['FieldKeys'] =
+          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate,FStockLocId.FF100007.FName';
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": stocks}
+            });
+          } else {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": []}
+            });
+          }
           hobby.insert(insertIndex, arr);
-        });
+        };
       }
       setState(() {
         EasyLoading.dismiss();
@@ -1948,7 +1936,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
     });
   }
   Future<List<int>?> _showModalBottomSheet(
-      BuildContext context, List<dynamic> options, List<dynamic> dataItem) async {
+      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
     return showModalBottomSheet<List<int>?>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -1972,18 +1960,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                     return Column(
                       children: <Widget>[
                         ListTile(
-                          title: Text('批号:'+options[index][5]+';包装规格:'+(options[index][6]==null?'':options[index][6])+';数量:'+options[index][4].toString()+';仓库:'+options[index][3]+(options[index][11]?(options[index][7]+'.'+options[index][8]+'.'+options[index][9]+'.'+options[index][10]):'')),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
-                          onTap: () {
-                            /*setState(() {
-                              print(dataItem);
-                              var childList = options[index][6] == null?  options[index][5].toString() +"-无":options[index][5].toString() +"-"+ options[index][6].toString();
-                              Navigator.pop(context);
-                              inNumDialog(childList, options[index][4].toString(),index,options[index][3]);
-                            });
-                            print(options[index]);*/
-                            // Do something
-
-                          },
+                          title: Text((options[index][5]==null?'':'批号:'+options[index][5]+';')+'仓库:'+options[index][3]+';数量:'+options[index][4].toString()+(options[index][7]==null?'':';生产日期:'+options[index][7]+';')+(options[index][8]==null?'':';有效期至:'+options[index][8]+';')),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
                         ),
                         Divider(height: 1.0),
                       ],
@@ -2239,6 +2216,36 @@ class _PickingDetailtState extends State<PickingDetailt> {
                               ),
                             ),
                           ])),
+                ),
+                divider,
+              ]),
+            );
+          }else if (j == 16) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        new MaterialButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          child: new Text('查看'),
+                          onPressed: () async {
+                            if(this.hobby[i][j]["value"]["fLotList"] != null && this.hobby[i][j]["value"]["fLotList"].length>0){
+                              await _showModalBottomSheet(
+                                  context, this.hobby[i][j]["value"]["fLotList"],this.hobby[i][j]["value"]);
+                            }else{
+                              ToastUtil.showInfo('无相关库存信息');
+                            }
+                            setState(() {});
+                          },
+                        ),
+                      ])),
                 ),
                 divider,
               ]),
@@ -2994,10 +3001,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
         }
         FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
         FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
-        FEntityItem['FAuxPropId'] = {
-          "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
-        };
-        FEntityItem['F_UUAC_Qty_ca9'] = element[12]['value']['value'];
+
         var fSerialSub = [];
         var kingDeeCode = element[0]['value']['kingDeeCode'];
         for (int subj = 0; subj < kingDeeCode.length; subj++) {

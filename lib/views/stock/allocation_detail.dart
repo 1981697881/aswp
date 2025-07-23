@@ -336,7 +336,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     if (data.length > 0) {
       this.fOrgID = data[0][10];
       hobby = [];
-      data.forEach((value) {
+      for(var value in data){
         List arr = [];
         arr.add({
           "title": "物料名称",
@@ -433,8 +433,35 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "isHide": false,
           "value": {"label": "", "value": ""}
         });
+        Map<String, dynamic> inventoryMap = Map();
+        inventoryMap['FormId'] = 'STK_Inventory';
+        inventoryMap['FilterString'] =
+            "FMaterialId.FNumber='" + value[0] + "' and FBaseQty >0";
+        inventoryMap['Limit'] = '50';
+        inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+        inventoryMap['FieldKeys'] =
+        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate,FStockLocId.FF100007.FName';
+        Map<String, dynamic> inventoryDataMap = Map();
+        inventoryDataMap['data'] = inventoryMap;
+        String res = await CurrencyEntity.polling(inventoryDataMap);
+        var stocks = jsonDecode(res);
+        if (stocks.length > 0) {
+          arr.add({
+            "title": "库存",
+            "name": "FLot",
+            "isHide": false,
+            "value": {"label": '', "value": '', "fLotList": stocks}
+          });
+        } else {
+          arr.add({
+            "title": "库存",
+            "name": "FLot",
+            "isHide": false,
+            "value": {"label": '', "value": '', "fLotList": []}
+          });
+        }
         hobby.add(arr);
-      });
+      };
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -1262,6 +1289,33 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "isHide": false,
             "value": {"label": "", "value": ""}
           });
+          Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'STK_Inventory';
+          inventoryMap['FilterString'] =
+              "FMaterialId.FNumber='" + value[1] + "' and FBaseQty >0";
+          inventoryMap['Limit'] = '50';
+          inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+          inventoryMap['FieldKeys'] =
+          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate,FStockLocId.FF100007.FName';
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocksList = jsonDecode(res);
+          if (stocksList.length > 0) {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": stocksList}
+            });
+          } else {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": []}
+            });
+          }
           hobby.add(arr);
         };
       }
@@ -1473,6 +1527,46 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   void _moveCursorToEnd(controller) {
     controller.selection = TextSelection.fromPosition(
       TextPosition(offset: controller.text.length),
+    );
+  }
+  Future<List<int>?> _showModalBottomSheet(
+      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(10.0),
+                topRight: const Radius.circular(10.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: <Widget>[
+                        ListTile(
+                          title: Text((options[index][5]==null?'':'批号:'+options[index][5]+';')+'仓库:'+options[index][3]+';数量:'+options[index][4].toString()+(options[index][7]==null?'':';生产日期:'+options[index][7]+';')+(options[index][8]==null?'':';有效期至:'+options[index][8]+';')),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
+                        ),
+                        Divider(height: 1.0),
+                      ],
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
     );
   }
   List<Widget> _getHobby() {
@@ -1753,6 +1847,36 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               },
                             ),
                           ])),
+                ),
+                divider,
+              ]),
+            );
+          }else if (j == 14) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        new MaterialButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          child: new Text('查看'),
+                          onPressed: () async {
+                            if(this.hobby[i][j]["value"]["fLotList"] != null && this.hobby[i][j]["value"]["fLotList"].length>0){
+                              await _showModalBottomSheet(
+                                  context, this.hobby[i][j]["value"]["fLotList"],this.hobby[i][j]["value"]);
+                            }else{
+                              ToastUtil.showInfo('无相关库存信息');
+                            }
+                            setState(() {});
+                          },
+                        ),
+                      ])),
                 ),
                 divider,
               ]),
