@@ -2187,6 +2187,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       Model['FBizType'] = "GENERAL";
       Model['FOwnerOutIdHead'] = {"FNumber": this.organizationsNumber1};
       Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber2};
+      Model['F_MSD_Base'] = {"FNUMBER": this.organizationsNumber2};
+      Model['F_MSD_Base1'] = {"FNUMBER": this.organizationsNumber2};
       var FEntity = [];
       var hobbyIndex = 0;
       print(materialDate);

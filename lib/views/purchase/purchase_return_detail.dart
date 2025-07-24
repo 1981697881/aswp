@@ -147,8 +147,11 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   //获取供应商
   getSupplierList() async {
     Map<String, dynamic> userMap = Map();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Supplier';
     userMap['FieldKeys'] = 'FSupplierId,FName,FNumber';
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber='"+tissue+"'";//
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -362,13 +365,13 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         arr.add({
           "title": "包装数量",
           "name": "",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "", "value": ""}
         });
         arr.add({
           "title": "包数",
           "name": "",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "", "value": ""}
         });
         arr.add({
@@ -610,17 +613,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       continue;
                     }
                   }
-                  //判断包装规格
-                  if (element[1]['value']['label'] == barcodeData[0][12]) {
-                    errorTitle = "";
-                  } else {
-                    errorTitle = "包装规格不一致";
-                    surplus = hobby[entryIndex][0]['value']['surplus'];
-                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                    insertIndex = hobbyIndex;
-                    continue;
-                  }
+
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -696,17 +689,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                         continue;
                       }
                     }
-                    //判断包装规格
-                    if (element[1]['value']['label'] == barcodeData[0][12]) {
-                      errorTitle = "";
-                    } else {
-                      errorTitle = "包装规格不一致";
-                      surplus = hobby[entryIndex][0]['value']['surplus'];
-                      parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                      fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                      insertIndex = hobbyIndex;
-                      continue;
-                    }
+
                     //判断末尾
                     /*if (fNumber.lastIndexOf(
                             element[0]['value']['value'].toString()) ==
@@ -864,17 +847,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                       continue;
                     }
                   }
-                  //判断包装规格
-                  if (element[1]['value']['label'] == barcodeData[0][12]) {
-                    errorTitle = "";
-                  } else {
-                    errorTitle = "包装规格不一致";
-                    surplus = hobby[entryIndex][0]['value']['surplus'];
-                    parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                    fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                    insertIndex = hobbyIndex;
-                    continue;
-                  }
+
                   element[3]['value']['value'] =
                       (double.parse(element[3]['value']['value']) +
                           double.parse(barcodeNum))
@@ -952,17 +925,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                           continue;
                         }
                       }
-                      //判断包装规格
-                      if (element[1]['value']['label'] == barcodeData[0][12]) {
-                        errorTitle = "";
-                      } else {
-                        errorTitle = "包装规格不一致";
-                        surplus = hobby[entryIndex][0]['value']['surplus'];
-                        parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                        fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                        insertIndex = hobbyIndex;
-                        continue;
-                      }
+
                       //判断末尾
                       /*if (fNumber.lastIndexOf(
                               element[0]['value']['value'].toString()) ==
@@ -1116,17 +1079,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                             continue;
                           }
                         }
-                        //判断包装规格
-                        if (element[1]['value']['label'] == barcodeData[0][12]) {
-                          errorTitle = "";
-                        } else {
-                          errorTitle = "包装规格不一致";
-                          surplus = hobby[entryIndex][0]['value']['surplus'];
-                          parseEntryID = hobby[entryIndex][0]['FEntryID'];
-                          fIsKFPeriod = hobby[entryIndex][0]['FIsKFPeriod'];
-                          insertIndex = hobbyIndex;
-                          continue;
-                        }
+
                         //判断末尾
                         /* if (fNumber.lastIndexOf(
                                 element[0]['value']['value'].toString()) ==
@@ -1327,7 +1280,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
             "title": "可退数量",
             "name": "FPrdOrgId",
             "isHide": false,
-            "value": {"label": surplus, "value": surplus}
+            "value": {"label": inserNum, "value": inserNum}
           });
           arr.add({
             "title": "最后扫描数量",
@@ -1341,13 +1294,13 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           arr.add({
             "title": "包装数量",
             "name": "",
-            "isHide": false,
+            "isHide": true,
             "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "包数",
             "name": "",
-            "isHide": false,
+            "isHide": true,
             "value": {"label": "", "value": ""}
           });
           arr.add({
@@ -2443,14 +2396,14 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
             .then((submitResult) async{
           if (submitResult) {
             //审核
-            /*HandlerOrder.orderHandler(
+            HandlerOrder.orderHandler(
                 context,
                 submitMap,
                 1,
                 "PUR_MRB",
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) async{
-              if (auditResult) {*/
+              if (auditResult) {
                 var errorMsg = "";
                 if(fBarCodeList == 1){
                   for (int i = 0; i < this.hobby.length; i++) {
@@ -2541,7 +2494,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                   ToastUtil.showInfo('提交成功');
                   Navigator.of(context).pop("refresh");
                 });
-              /*} else {
+              } else {
                 //失败后反审
                 HandlerOrder.orderHandler(
                     context,
@@ -2557,7 +2510,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                   }
                 });
               }
-            });*/
+            });
           } else {
             this.isSubmit = false;
           }
