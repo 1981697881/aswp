@@ -1365,7 +1365,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           inventoryMap['Limit'] = '50';
           inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
           inventoryMap['FieldKeys'] =
-          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate,FStockLocId.FF100007.FName';
+          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate';
           Map<String, dynamic> inventoryDataMap = Map();
           inventoryDataMap['data'] = inventoryMap;
           String res = await CurrencyEntity.polling(inventoryDataMap);
@@ -2067,7 +2067,11 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10),
+        SizedBox(height: 10,
+          child: Container(
+            color: Colors.grey, // 设置颜色
+          ),
+        ),
       );
       tempList.add(
         Column(

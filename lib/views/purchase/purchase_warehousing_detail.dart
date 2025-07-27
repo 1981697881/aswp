@@ -430,7 +430,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         inventoryMap['Limit'] = '50';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
-            'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate,FStockLocId.FF100007.FName';
+            'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate';
         Map<String, dynamic> inventoryDataMap = Map();
         inventoryDataMap['data'] = inventoryMap;
         String res = await CurrencyEntity.polling(inventoryDataMap);
@@ -599,12 +599,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         barcodeData[0][7] == null ? "" : barcodeData[0][7];
                     element[6]['value']['hide'] = barcodeData[0][13];
                   }
-                  if (element[1]['value']['value'] == "") {
-                    element[1]['value']['label'] =
-                        barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                    element[1]['value']['value'] =
-                        barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                  }
                   if (element[4]['value']['value'] == "") {
                     element[4]['value']['label'] =
                         this.storehouseName == null ? "" : this.storehouseName;
@@ -659,12 +653,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         barcodeData[0][7] == null ? "" : barcodeData[0][7];
                     element[6]['value']['hide'] = barcodeData[0][13];
                   }
-                  if (element[1]['value']['value'] == "") {
-                    element[1]['value']['label'] =
-                        barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                    element[1]['value']['value'] =
-                        barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                  }
+
                   if (element[4]['value']['value'] == "") {
                     element[4]['value']['label'] =
                         this.storehouseName == null ? "" : this.storehouseName;
@@ -770,12 +759,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         barcodeData[0][7] == null ? "" : barcodeData[0][7];
                     element[6]['value']['hide'] = barcodeData[0][13];
                   }
-                  if (element[1]['value']['value'] == "") {
-                    element[1]['value']['label'] =
-                        barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                    element[1]['value']['value'] =
-                        barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                  }
                   if (element[4]['value']['value'] == "") {
                     element[4]['value']['label'] =
                         this.storehouseName == null ? "" : this.storehouseName;
@@ -835,12 +818,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           barcodeData[0][7] == null ? "" : barcodeData[0][7];
                       element[6]['value']['hide'] = barcodeData[0][13];
                     }
-                    if (element[1]['value']['value'] == "") {
-                      element[1]['value']['label'] =
-                          barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                      element[1]['value']['value'] =
-                          barcodeData[0][12] == null ? "" : barcodeData[0][12];
-                    }
+
                     if (element[4]['value']['value'] == "") {
                       element[4]['value']['label'] = this.storehouseName == null
                           ? ""
@@ -945,16 +923,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         element[4]['value']['value'] =
                             barcodeData[0][7] == null ? "" : barcodeData[0][7];
                         element[6]['value']['hide'] = barcodeData[0][13];
-                      }
-                      if (element[1]['value']['value'] == "") {
-                        element[1]['value']['label'] =
-                            barcodeData[0][12] == null
-                                ? ""
-                                : barcodeData[0][12];
-                        element[1]['value']['value'] =
-                            barcodeData[0][12] == null
-                                ? ""
-                                : barcodeData[0][12];
                       }
                       if (element[4]['value']['value'] == "") {
                         element[4]['value']['label'] =
@@ -2116,7 +2084,11 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10),
+        SizedBox(height: 10,
+          child: Container(
+            color: Colors.grey, // 设置颜色
+          ),
+        ),
       );
       tempList.add(
         Column(

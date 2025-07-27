@@ -417,7 +417,11 @@ class _PickingDetailState extends State<PickingDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10),
+        SizedBox(height: 10,
+          child: Container(
+            color: Colors.grey, // 设置颜色
+          ),
+        ),
       );
       tempList.add(
         Column(

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:aswp/views/production/list_page.dart';
+import 'package:aswp/views/production/return_allocation_detail.dart';
 import 'package:aswp/views/production/return_detailt.dart';
+import 'package:aswp/views/stock/allocation_warehouse_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:aswp/views/production/picking_detail.dart';
 import 'package:aswp/views/production/picking_page.dart';
@@ -70,7 +72,7 @@ class MenuPermissions {
       "text": "生产退料",
       "parentId": 1,
       "color": Colors.pink.withOpacity(0.7),
-      "router": ReturnDetailt(),
+      "router": ReturnAllocationDetail(),
       "source": '',
     }); menu.add({
       "icon": Icons.loupe,
@@ -121,7 +123,7 @@ class MenuPermissions {
     // });
     menu.add({
       "icon": Icons.loupe,
-      "text": "调拨(有源单)",
+      "text": "调拨出库(有源单)",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": AllocationPage(),
@@ -129,10 +131,18 @@ class MenuPermissions {
     });
     menu.add({
       "icon": Icons.loupe,
-      "text": "调拨(无源单)",
+      "text": "调拨出库(无源单)",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": AllocationDetail(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "调拨入库",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": AllocationWarehouseDetail(),
       "source": '',
     });
     menu.add({

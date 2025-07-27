@@ -80,8 +80,6 @@ class _LoginPageState extends State<LoginPage> {
   }
   _load() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    print(sharedPreferences.getString('FStaffNumber'));
-    print(sharedPreferences.getString('FPwd'));
    if(sharedPreferences.getString('url') == null){
      urlContent.text = "http://120.25.26.68/K3Cloud";
      acctidContent.text = "62f8ff01e0b76e";
@@ -146,9 +144,9 @@ class _LoginPageState extends State<LoginPage> {
     // 正则匹配手机号
     /*RegExp exp = RegExp(r'^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9])|(19[0-9]))\d{8}$');*/
     if (value.isEmpty) {
-      return '用户名不能为空!';
-    } else if (value.trim().length < 3 || value.trim().length > 10) {
-      return '请输入用户名';
+      return '员工姓名或手机号码不能为空!';
+    } else if (value.trim().length < 2 || value.trim().length > 11) {
+      return '请输入正确员工姓名或手机号码';
     }
     return null;
   }
@@ -354,7 +352,7 @@ class _LoginPageState extends State<LoginPage> {
                               },
                             )
                         ),
-                        obscureText: false,
+                        obscureText: true,
                         controller: this.passwordContent,
                         //改变回调
                         onChanged: (value) {
@@ -476,8 +474,8 @@ class _LoginPageState extends State<LoginPage> {
               //设置键盘类型
               /* keyboardType: TextInputType.number,*/
               decoration: InputDecoration(
-                labelText: "用户名",
-                hintText: "请输入用户名",
+                labelText: "员工姓名或手机号码",
+                hintText: "请输入员工姓名或手机号码",
                 prefixIcon: Icon(Icons.person),
                 //尾部添加清除按钮
                 suffixIcon: (_isShowClear)
@@ -557,14 +555,12 @@ class _LoginPageState extends State<LoginPage> {
               //  print("登录成功");
               SharedPreferences sharedPreferences =
                   await SharedPreferences.getInstance();
-              sharedPreferences.setString('username', 'Kingdee1');
-              sharedPreferences.setString('password', 'kingdee@2022');
               Map<String, dynamic> userMap = Map();
               userMap['FormId'] = 'BD_Empinfo';
               userMap['FilterString'] =
-                  "FStaffNumber='$_username' and FPwd='$_password'";
+                  "(FName='$_username' or FMobile='$_username') and FPwd='$_password'";
               userMap['FieldKeys'] =
-                  'FStaffNumber,FUseOrgId.FNumber,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName';
+                  'FStaffNumber,FUseOrgId.FNumber,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName,FMobile';
               Map<String, dynamic> dataMap = Map();
               dataMap['data'] = userMap;
               String UserEntity = await CurrencyEntity.polling(dataMap);

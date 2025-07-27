@@ -124,7 +124,7 @@ class _MyHomePageState extends State {
     /*RegExp exp = RegExp(r'^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9])|(19[0-9]))\d{8}$');*/
     if (value == null) {
       return false;
-    } else if (value.trim().length < 3 || value.trim().length > 10) {
+    } else if (value.trim().length < 2 || value.trim().length > 11) {
       return false;
     }
     return true;
@@ -193,7 +193,7 @@ class _MyHomePageState extends State {
         Map<String, dynamic> userMap = Map();
         userMap['FormId'] = 'BD_Empinfo';
         userMap['FilterString'] =
-            "FStaffNumber='$username' and FPwd='$password'";
+            "(FName='$username' or FMobile='$username') and FPwd='$password'";
         userMap['FieldKeys'] =
             'FStaffNumber,FUseOrgId.FNumber,FWorkShopID.FNumber,FWorkShopID.FName,FForbidStatus,FAuthCode,FName';
         Map<String, dynamic> dataMap = Map();

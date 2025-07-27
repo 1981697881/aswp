@@ -1976,7 +1976,11 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10),
+        SizedBox(height: 10,
+          child: Container(
+            color: Colors.grey, // 设置颜色
+          ),
+        ),
       );
       tempList.add(
         Column(
