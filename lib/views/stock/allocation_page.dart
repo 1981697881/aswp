@@ -103,7 +103,7 @@ class _RetrievalPageState extends State<AllocationPage> {
       }
     }
     this.isScan = false;
-    userMap['FormId'] = 'QDEP_Cust_PickingCollect';
+    userMap['FormId'] = 'MSD_Cust_PickingCollect';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialID.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreatorId,FCreatorId,FDate,FEntity_FEntryId,FMaterialID.FNumber,FMaterialID.FName,FMaterialID.FSpecification,FApproverId,FApproverId,FUnitID.FNumber,FUnitID.FName,FRemainQty,FApproveDate';
@@ -348,7 +348,7 @@ class _RetrievalPageState extends State<AllocationPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("调拨"),
+            title: Text("分拣单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

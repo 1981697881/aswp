@@ -330,7 +330,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo' FRemainQty>0";
-    userMap['FormId'] = 'QDEP_Cust_PickingCollect';
+    userMap['FormId'] = 'MSD_Cust_PickingCollect';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreatorId,FCreatorId,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FApproverId,FApproverId,FUnitId.FNumber,FUnitId.FName,FRemainQty,FSourceBillNo,FID,FMaterialId.FIsBatchManage,FMaterialId.FIsKFPeriod';
