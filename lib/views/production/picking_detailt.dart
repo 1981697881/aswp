@@ -134,7 +134,6 @@ class _PickingDetailtState extends State<PickingDetailt> {
           .listen(_onEvent, onError: _onError);
     }
     getWorkShop();
-    getBagList();
     /* getWorkShop();*/
   }
   void _setupListener(int index) {
@@ -387,8 +386,9 @@ class _PickingDetailtState extends State<PickingDetailt> {
     orderDate = jsonDecode(order);
     hobby = [];
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
     var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
-    print(fStockIds);
+    // print(fStockIds);
     if (orderDate.length > 0) {
       for (var value in orderDate) {
         //orderDate.forEach((value) {
@@ -426,10 +426,10 @@ class _PickingDetailtState extends State<PickingDetailt> {
           }
         });
         arr.add({
-          "title": "包装规格",
+          "title": "规格型号",
           "isHide": false,
           "name": "FMaterialIdFSpecification",
-          "value": {"label": "", "value": ""}
+          "value": {"label": value[9], "value": value[9]}
           //"value": {"label": value[16]==null?"":value[16], "value": value[16]==null?"":value[16]}
         });
         arr.add({
@@ -515,19 +515,19 @@ class _PickingDetailtState extends State<PickingDetailt> {
         arr.add({
           "title": "最后扫描数量",
           "name": "FLastQty",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "0", "value": "0","remainder": "0","representativeQuantity": "0"}
         });
         arr.add({
           "title": "包装数量",
           "name": "",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "", "value": ""}
         });
         arr.add({
           "title": "包数",
           "name": "",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "", "value": ""}
         });
         arr.add({
@@ -554,32 +554,65 @@ class _PickingDetailtState extends State<PickingDetailt> {
             "value": ''
           }
         });
-        Map<String, dynamic> inventoryMap = Map();
-        inventoryMap['FormId'] = 'STK_Inventory';
-        inventoryMap['FilterString'] =
-            "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";
-        inventoryMap['Limit'] = '50';
-        inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
-        inventoryMap['FieldKeys'] =
-        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId';
-        Map<String, dynamic> inventoryDataMap = Map();
-        inventoryDataMap['data'] = inventoryMap;
-        String res = await CurrencyEntity.polling(inventoryDataMap);
-        var stocks = jsonDecode(res);
-        if (stocks.length > 0) {
-          arr.add({
-            "title": "库存",
-            "name": "FLot",
-            "isHide": false,
-            "value": {"label": '', "value": '', "fLotList": stocks}
-          });
-        } else {
-          arr.add({
-            "title": "库存",
-            "name": "FLot",
-            "isHide": false,
-            "value": {"label": '', "value": '', "fLotList": []}
-          });
+        if(fStockIds.length>0){
+          Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'STK_Inventory';
+          inventoryMap['FilterString'] =
+              "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0 and FStockOrgID.FNumber = '" +tissue + "'";
+          inventoryMap['Limit'] = '50';
+          inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+          inventoryMap['FieldKeys'] =
+          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate';
+          for(var flex in fStockIds){
+            inventoryMap['FieldKeys'] += ",FStockLocId."+flex[4]+".FNumber";
+          }
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": stocks}
+            });
+          } else {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": []}
+            });
+          }
+        }else{
+          Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'STK_Inventory';
+          inventoryMap['FilterString'] =
+              "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0 and FStockOrgID.FNumber = '" +tissue + "'";
+          inventoryMap['Limit'] = '50';
+          inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+          inventoryMap['FieldKeys'] =
+          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate';
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": stocks}
+            });
+          } else {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": []}
+            });
+          }
         }
         hobby.add(arr);
       };
@@ -594,12 +627,6 @@ class _PickingDetailtState extends State<PickingDetailt> {
       });
       ToastUtil.showInfo('无数据');
     }
-    /* _onEvent("21096;AQ40621210N1二仓;2024-06-21;150;,1634386736;2");
-    _onEvent("21096;AQ40621210N1二仓;2024-06-21;198;,1711487255;2");*/
-    /*_onEvent("13012;24031301鑫灏/展化;2024-03-13;235;,2121490693;4");
-     _onEvent("13012;20231213科曼斯/龙翔;2023-12-13;10;,2123054921;4");
-    _onEvent("11057;24C2493261遂悦/巴斯夫;2024-03-29;731;,2124408211;2");
-    _onEvent("11057;20240326遂悦/巴斯夫;2024-03-26;1000;,2124246395;2");*/
   }
 
   void _onEvent(event) async {
@@ -690,7 +717,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
         }
       } else {
         _code = event;
-        this.getMaterialList("", _code, '', '', '', '', '', false);
+        //this.getMaterialList("", _code, '', '', '', '', '', false);
+        ToastUtil.showInfo('无需扫码，请手工录入数量');
         print("ChannelPage: $event");
       }
     }
@@ -1451,10 +1479,10 @@ class _PickingDetailtState extends State<PickingDetailt> {
             }
           });
           arr.add({
-            "title": "包装规格",
+            "title": "规格型号",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": fAuxPropId, "value": fAuxPropId}
+            "value": {"label": value[3], "value": value[3]}
           });
           arr.add({
             "title": "单位名称",
@@ -1506,7 +1534,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
           arr.add({
             "title": "最后扫描数量",
             "name": "FLastQty",
-            "isHide": false,
+            "isHide": true,
             "value": {
               "label": inserNum.toString(),
               "value": inserNum.toString(),"remainder": ((double.parse(barCodeScan[4])*1000 - inserNum*1000)/1000).toString(),"representativeQuantity": barCodeScan[4]
@@ -1515,13 +1543,13 @@ class _PickingDetailtState extends State<PickingDetailt> {
           arr.add({
             "title": "包装数量",
             "name": "",
-            "isHide": false,
+            "isHide": true,
             "value": {"label": "", "value": ""}
           });
           arr.add({
             "title": "包数",
             "name": "",
-            "isHide": false,
+            "isHide": true,
             "value": {"label": "", "value": ""}
           });
           arr.add({
@@ -1822,11 +1850,23 @@ class _PickingDetailtState extends State<PickingDetailt> {
                                 ToastUtil.showInfo('输入数量大于可用数量');
                               }
 
-                            }else{
+                            }else if(checkItem == 'position'){
                               this.hobby[checkData][checkDataChild]["value"]
                               ["label"] = _FNumber;
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
+                            }else{
+                              if (double.parse(_FNumber) <=
+                                  this.hobby[checkData][9]["value"]
+                                  ['value']) {
+                                this.hobby[checkData][checkDataChild]["value"]
+                                ["label"] = _FNumber;
+                                this.hobby[checkData][checkDataChild]['value']
+                                ["value"] = _FNumber;
+                                Navigator.pop(context);
+                              } else {
+                                ToastUtil.showInfo('输入数量大于可用数量');
+                              }
                             }
                             checkItem = '';
                           });
@@ -1937,6 +1977,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
   }
   Future<List<int>?> _showModalBottomSheet(
       BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     return showModalBottomSheet<List<int>?>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -1957,10 +1998,20 @@ class _PickingDetailtState extends State<PickingDetailt> {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
+                    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
+                    var floc = '';
+                    if(fStockIds.length>0){
+                      for(var i = 0; i< fStockIds.length;i++){
+                        if(options[index][9+i] != null && options[index][9+i] != ''){
+                          floc = options[index][9+i];
+                          break;
+                        }
+                      }
+                    }
                     return Column(
                       children: <Widget>[
                         ListTile(
-                          title: Text((options[index][5]==null?'':'批号:'+options[index][5]+';')+'仓库:'+options[index][3]+';数量:'+options[index][4].toString()+(options[index][7]==null?'':';生产日期:'+options[index][7]+';')+(options[index][8]==null?'':';有效期至:'+options[index][8]+';')),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
+                          title: Text((options[index][5]==null?'':'批号:'+options[index][5]+';')+'仓库:'+options[index][3]+(floc==''?'':';仓位:'+floc+';')+';数量:'+options[index][4].toString()+(options[index][7]==null?'':';生产日期:'+options[index][7]+';')+(options[index][8]==null?'':';有效期至:'+options[index][8]+';')),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
                         ),
                         Divider(height: 1.0),
                       ],
@@ -2081,7 +2132,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
       _setupListener(i);
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 0) {
+          if (j == 3) {
             comList.add(
               Column(children: [
                 Container(
@@ -2094,33 +2145,21 @@ class _PickingDetailtState extends State<PickingDetailt> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.search),
-                              tooltip: '查看',
-                              padding: EdgeInsets.only(left: 30),
-                              onPressed: () async{
-                                Map<String, dynamic> inventoryMap = Map();
-                                inventoryMap['FormId'] = 'STK_Inventory';
-                                inventoryMap['FilterString'] = "FMaterialId.FNumber='" + this.hobby[i][j]["value"]["value"] + "' and FBaseQty >0";
-                                inventoryMap['Limit'] = '50';
-                                inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
-                                inventoryMap['FieldKeys'] =
-                                'FMaterialId.FNumber,F_UUAC_BaseProperty,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FStockLocId.FF100018.FNumber,FStockLocId.FF100019.FNumber,FStockLocId.FF100020.FNumber,FStockLocId.FF100021.FNumber,FStockID.FIsOpenLocation';
-                                Map<String, dynamic> inventoryDataMap = Map();
-                                inventoryDataMap['data'] = inventoryMap;
-                                String res = await CurrencyEntity.polling(inventoryDataMap);
-                                var stocks = jsonDecode(res);
-                                if (stocks.length > 0) {
-                                  await _showModalBottomSheet(
-                                      context, stocks,this.hobby[i]);
-                                  checkData = i;
-                                  checkDataChild = j;
-                                  _FNumber = '0';
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"];
+                                this._FNumber =
+                                this.hobby[i][j]["value"]["label"];
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                                if (this.hobby[i][j]["value"]["label"] != 0) {
                                   this._textNumber.value =
                                       _textNumber.value.copyWith(
-                                        text: '0',
+                                        text: this.hobby[i][j]["value"]["label"],
                                       );
-                                }else{
-                                  ToastUtil.showInfo('无库存');
                                 }
                               },
                             ),
@@ -2220,7 +2259,56 @@ class _PickingDetailtState extends State<PickingDetailt> {
                 divider,
               ]),
             );
-          }else if (j == 16) {
+          }else if (j == 6) {
+             comList.add(
+               Visibility(
+                 maintainSize: false,
+                 maintainState: false,
+                 maintainAnimation: false,
+                 visible: this.hobby[i][j]["value"]["hide"],
+                 child: Column(children: [
+                   Container(
+                     color: Colors.white,
+                     child: ListTile(
+                         title: Text(this.hobby[i][j]["title"] +
+                             '：' +
+                             this.hobby[i][j]["value"]["label"].toString()),
+                         trailing: Row(
+                             mainAxisSize: MainAxisSize.min,
+                             children: <Widget>[
+                               IconButton(
+                                 icon: new Icon(Icons.filter_center_focus),
+                                 tooltip: '点击扫描',
+                                 onPressed: () {
+                                   this._textNumber.text = this
+                                       .hobby[i][j]["value"]["label"]
+                                       .toString();
+                                   this._FNumber = this
+                                       .hobby[i][j]["value"]["label"]
+                                       .toString();
+                                   checkItem = 'position';
+                                   this.show = false;
+                                   checkData = i;
+                                   checkDataChild = j;
+                                   scanDialog();
+                                   print(this.hobby[i][j]["value"]["label"]);
+                                   if (this.hobby[i][j]["value"]["label"] != 0) {
+                                     this._textNumber.value =
+                                         _textNumber.value.copyWith(
+                                           text: this
+                                               .hobby[i][j]["value"]["label"]
+                                               .toString(),
+                                         );
+                                   }
+                                 },
+                               ),
+                             ])),
+                   ),
+                   divider,
+                 ]),
+               ),
+             );
+           }else if (j == 16) {
             comList.add(
               Column(children: [
                 Container(
@@ -2298,34 +2386,6 @@ class _PickingDetailtState extends State<PickingDetailt> {
               _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],
                   stock: this.hobby[i]),
-            );
-          }else if (j == 1) {
-            comList.add(
-              Column(children: [
-                Container(
-                  color: Colors.white,
-                  child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            IconButton(
-                              icon: new Icon(Icons.chevron_right),
-                              onPressed: () {
-                                this.controller.clear();
-                                this.bagList = [];
-                                for(var element in this.bagListObj){
-                                  this.bagList.add(element[1]);
-                                }
-                                _showMultiChoiceModalBottomSheet(context, this.bagList,  this.hobby[i][j]);
-                              },
-                            ),
-                          ])),
-                ),
-                divider,
-              ]),
             );
           } else if ( j == 11) {
             comList.add(

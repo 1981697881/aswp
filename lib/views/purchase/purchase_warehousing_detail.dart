@@ -61,7 +61,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   var typeName;
   var typeNumber;
   var show = false;
-  var _checked = false;
+  var _checked = true;
   var isSubmit = false;
   var isScanWork = false;
   var checkData;
@@ -285,12 +285,15 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
 
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
     print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo' and FENTRYSTATUS = 'A'";
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber,FDetailEntity_FSeq';
+        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber,FDetailEntity_FSeq,FMaterialId.FIsKFPeriod';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -407,13 +410,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         arr.add({
           "title": "最后扫描数量",
           "name": "FLastQty",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "0", "value": "0"}
         });
         arr.add({
           "title": "生产日期",
           "name": "FProduceDate",
-          "isHide": false,
+          "isHide": !value[34],
           "value": {
             "label": value[26] != null && value[26] != ''
                 ? value[26].substring(0, 10)
@@ -423,32 +426,65 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                 : ''
           }
         });
-        Map<String, dynamic> inventoryMap = Map();
-        inventoryMap['FormId'] = 'STK_Inventory';
-        inventoryMap['FilterString'] =
-            "FMaterialId.FNumber='" + value[5] + "' and FBaseQty >0";
-        inventoryMap['Limit'] = '50';
-        inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
-        inventoryMap['FieldKeys'] =
-            'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate';
-        Map<String, dynamic> inventoryDataMap = Map();
-        inventoryDataMap['data'] = inventoryMap;
-        String res = await CurrencyEntity.polling(inventoryDataMap);
-        var stocks = jsonDecode(res);
-        if (stocks.length > 0) {
-          arr.add({
-            "title": "库存",
-            "name": "FLot",
-            "isHide": false,
-            "value": {"label": '', "value": '', "fLotList": stocks}
-          });
-        } else {
-          arr.add({
-            "title": "库存",
-            "name": "FLot",
-            "isHide": false,
-            "value": {"label": '', "value": '', "fLotList": []}
-          });
+        if(fStockIds.length>0){
+          Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'STK_Inventory';
+          inventoryMap['FilterString'] =
+              "FMaterialId.FNumber='" + value[5] + "' and FBaseQty >0 and FStockOrgID.FNumber = '" +tissue + "'";
+          inventoryMap['Limit'] = '50';
+          inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+          inventoryMap['FieldKeys'] =
+          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate';
+          for(var flex in fStockIds){
+            inventoryMap['FieldKeys'] += ",FStockLocId."+flex[4]+".FNumber";
+          }
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": stocks}
+            });
+          } else {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": []}
+            });
+          }
+        }else{
+          Map<String, dynamic> inventoryMap = Map();
+          inventoryMap['FormId'] = 'STK_Inventory';
+          inventoryMap['FilterString'] =
+              "FMaterialId.FNumber='" + value[5] + "' and FBaseQty >0 and FStockOrgID.FNumber = '" +tissue + "'";
+          inventoryMap['Limit'] = '50';
+          inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
+          inventoryMap['FieldKeys'] =
+          'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FProduceDate,FExpiryDate';
+          Map<String, dynamic> inventoryDataMap = Map();
+          inventoryDataMap['data'] = inventoryMap;
+          String res = await CurrencyEntity.polling(inventoryDataMap);
+          var stocks = jsonDecode(res);
+          if (stocks.length > 0) {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": stocks}
+            });
+          } else {
+            arr.add({
+              "title": "库存",
+              "name": "FLot",
+              "isHide": false,
+              "value": {"label": '', "value": '', "fLotList": []}
+            });
+          }
         }
         hobby.add(arr);
       };
@@ -530,7 +566,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         }
       } else {
         _code = event;
-        this.getMaterialList("", _code, "");
+        ToastUtil.showInfo('无需扫码，请手工录入数量');
+        //this.getMaterialList("", _code, "");
         print("ChannelPage: $event");
       }
     }
@@ -1547,6 +1584,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   }
   Future<List<int>?> _showModalBottomSheet(
       BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     return showModalBottomSheet<List<int>?>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -1567,10 +1605,20 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
+                    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
+                    var floc = '';
+                    if(fStockIds.length>0){
+                      for(var i = 0; i< fStockIds.length;i++){
+                        if(options[index][9+i] != null && options[index][9+i] != ''){
+                          floc = options[index][9+i];
+                          break;
+                        }
+                      }
+                    }
                     return Column(
                       children: <Widget>[
                         ListTile(
-                          title: Text('批号:'+options[index][5]+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
+                          title: Text((options[index][5]==null?'':'批号:'+options[index][5]+';')+'仓库:'+options[index][3]+(floc==''?'':';仓位:'+floc+';')+';数量:'+options[index][4].toString()+(options[index][7]==null?'':';生产日期:'+options[index][7]+';')+(options[index][8]==null?'':';有效期至:'+options[index][8]+';')),//+';仓库:'+options[index][3]+';数量:'+options[index][4].toString()+';包装规格:'+options[index][6]
                         ),
                         Divider(height: 1.0),
                       ],
@@ -1611,46 +1659,29 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
-                      // trailing: Row(
-                      //     mainAxisSize: MainAxisSize.min,
-                      //     children: <Widget>[
-                      //       SizedBox(
-                      //         width: 150, // 设置固定宽度
-                      //         child: TextField(
-                      //             controller: _textNumber3[i],
-                      //             // 文本控制器
-                      //             keyboardType: TextInputType.numberWithOptions(
-                      //                 decimal: true),
-                      //             inputFormatters: [
-                      //               FilteringTextInputFormatter.allow(
-                      //                   RegExp(r'^\d*\.?\d{0,2}')), // 允许小数和数字
-                      //             ],
-                      //             focusNode: focusNodes[i],
-                      //             decoration: InputDecoration(
-                      //               hintText: '请输入',
-                      //               contentPadding: EdgeInsets.all(0),
-                      //             ),
-                      //             onChanged: (value) {
-                      //               setState(() {
-                      //                 if (double.parse(value) <=
-                      //                     this.hobby[i][9]["value"]
-                      //                         ['rateValue']) {
-                      //                   this.hobby[i][j]["value"]["label"] =
-                      //                       value;
-                      //                   this.hobby[i][j]['value']["value"] =
-                      //                       value;
-                      //                 } else {
-                      //                   this._textNumber3[i].text =
-                      //                       this.hobby[i][j]["value"]["value"];
-                      //                   // 移动光标到末尾
-                      //                   _moveCursorToEnd(this._textNumber3[i]);
-                      //                   ToastUtil.showInfo('输入数量大于可用数量');
-                      //                 }
-                      //               });
-                      //             }),
-                      //       ),
-                      //     ])
-                         ),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.filter_center_focus),
+                              tooltip: '点击扫描',
+                              onPressed: () {
+                                this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"];
+                                this._FNumber =
+                                this.hobby[i][j]["value"]["label"];
+                                checkData = i;
+                                checkDataChild = j;
+                                scanDialog();
+                                if (this.hobby[i][j]["value"]["label"] != 0) {
+                                  this._textNumber.value =
+                                      _textNumber.value.copyWith(
+                                        text: this.hobby[i][j]["value"]["label"],
+                                      );
+                                }
+                              },
+                            ),
+                          ])),
                 ),
                 divider,
               ]),
@@ -1822,9 +1853,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: <
                           Widget>[
                         Visibility(
-                          visible: this.hobby[i][9]["value"]['value'] !=
-                              double.parse(
-                                  this.hobby[i][3]["value"]["value"]), //
+                          visible: false, //this.hobby[i][9]["value"]['value'] != double.parse(this.hobby[i][3]["value"]["value"])
                           child: FlatButton(
                             color: Colors.blue,
                             textColor: Colors.white,
@@ -1992,33 +2021,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                             "value": value[26].substring(0, 10)
                                           }
                                         });
-                                        Map<String, dynamic> inventoryMap = Map();
-                                        inventoryMap['FormId'] = 'STK_Inventory';
-                                        inventoryMap['FilterString'] =
-                                            "FMaterialId.FNumber='" + value[5] + "' and FBaseQty >0";
-                                        inventoryMap['Limit'] = '50';
-                                        inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
-                                        inventoryMap['FieldKeys'] =
-                                        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId';
-                                        Map<String, dynamic> inventoryDataMap = Map();
-                                        inventoryDataMap['data'] = inventoryMap;
-                                        String res = await CurrencyEntity.polling(inventoryDataMap);
-                                        var stocks = jsonDecode(res);
-                                        if (stocks.length > 0) {
-                                          arr.add({
-                                            "title": "库存",
-                                            "name": "FLot",
-                                            "isHide": false,
-                                            "value": {"label": '', "value": '', "fLotList": stocks}
-                                          });
-                                        } else {
-                                          arr.add({
-                                            "title": "库存",
-                                            "name": "FLot",
-                                            "isHide": false,
-                                            "value": {"label": '', "value": '', "fLotList": []}
-                                          });
-                                        }
                                         this.hobby[i][9]["value"]['label'] =
                                             double.parse(this.hobby[i][3]
                                                 ["value"]["value"]);
@@ -3244,8 +3246,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         'department'),
                   ),
                   /*_item('部门', ['生产部'], '生产部'),*/
-                  _item('入库仓库', this.stockList, this.storehouseName,
-                      'storehouse'),
+                  // _item('入库仓库', this.stockList, this.storehouseName,
+                  //     'storehouse'),
                   Visibility(
                     maintainSize: false,
                     maintainState: false,

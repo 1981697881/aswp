@@ -78,32 +78,24 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FActReceiveQty-FInStockJoinQty>0";
-    var scanCode = keyWord.split(",");
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
-      userMap['FilterString'] =
-      "FActReceiveQty-FInStockJoinQty>0 and FPreDeliveryDate >= '$startDate' and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FPreDeliveryDate  <= '$endDate'";
-    }
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FActReceiveQty-FInStockJoinQty>0 and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FPurOrgId.FNumber = '" +tissue + "'";
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] =/*and FActlandQty>0*/
-        "FActReceiveQty-FInStockJoinQty>0 and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
+        userMap['FilterString'] +=/*and FActlandQty>0*/
+        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%')";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] =/*and FActlandQty>0*/
-        "FActReceiveQty-FInStockJoinQty>0 and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%') and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
+        userMap['FilterString'] +=/*and FActlandQty>0*/
+        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%')";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
-          this.endDate = this._dateSelectText.substring(26, 36); 
-          userMap['FilterString'] =
-          "FActReceiveQty-FInStockJoinQty>0 and FPreDeliveryDate >= '$startDate' and FDocumentStatus = 'C' and FENTRYSTATUS = 'A' and FPreDeliveryDate  <= '$endDate'";
-        }else{
-          userMap['FilterString'] =/*and FActlandQty>0*/
-          "FActReceiveQty-FInStockJoinQty>0 and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FActlandQty>0";
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] +=
+          " and FPreDeliveryDate >= '$startDate' and FPreDeliveryDate  <= '$endDate'";
         }
       }
     }

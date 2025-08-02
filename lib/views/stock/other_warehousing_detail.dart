@@ -121,7 +121,6 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getDepartmentList();
     getStockList();
     //getOrganizationsList();
-    //_onEvent("33005;AQ41121107N1;2024-11-22;700;MO002349,1601056347;6");
 
   }
   //获取部门
@@ -403,75 +402,31 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     if (materialDate.length > 0) {
       var barCodeScan;
+      var number = 0;
       if(fBarCodeList == 1){
         barCodeScan = barcodeData[0];
         barCodeScan[4] = barCodeScan[4].toString();
-      }else{
-        barCodeScan = scanCode;
-      }
-      var barcodeNum = scanCode[3];
-      var number = 0;
-      for (var element in hobby) {
-        var residue = 0.0;
-        //判断是否启用批号
-        if(element[5]['isHide']){//不启用
-          if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(code) == -1){
-              //判断是否可重复扫码
-              if(scanCode.length>4){
-                element[0]['value']['barcode'].add(code);
-              }
-              if (element[4]['value']['value'] == "") {
-                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
-              }
-              if(fIsOpenLocation){
-                element[6]['value']['hide'] = fIsOpenLocation;
-                if (element[6]['value']['value'] == "") {
-                  element[6]['value']['label'] = fLoc == null? "":fLoc;
-                  element[6]['value']['value'] =fLoc == null? "":fLoc;
-                }
-              }
-              //判断条码数量
-              if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
-                //判断条码是否重复
-                if(element[0]['value']['scanCode'].indexOf(code) == -1){
-                  element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
-                    element[3]['value']['label']=element[3]['value']['value'];
-                  var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
-                  element[8]['value']['label'] =barcodeNum.toString();
-                  element[8]['value']['value'] = barcodeNum.toString();
-                  element[0]['value']['kingDeeCode'].add(item);
-                  element[0]['value']['scanCode'].add(code);
-                  barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
-                }
-                number++;
-                break;
-              }
-            }else{
-              ToastUtil.showInfo('该标签已扫描');
-              number++;
-              break;
-            }
-          }
-        }else{//启用批号
-          if(element[0]['value']['value'] == scanCode[0]){
-            if(element[0]['value']['barcode'].indexOf(code) == -1){
-              if (element[4]['value']['value'] == "") {
-                element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
-                element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
-              }
-              if(fIsOpenLocation){
-                element[6]['value']['hide'] = fIsOpenLocation;
-                if (element[6]['value']['value'] == "") {
-                  element[6]['value']['label'] = fLoc == null? "":fLoc;
-                  element[6]['value']['value'] =fLoc == null? "":fLoc;
-                }
-              }
-              if(element[5]['value']['value'] == scanCode[1]){
+        var barcodeNum = scanCode[3];
+        for (var element in hobby) {
+          var residue = 0.0;
+          //判断是否启用批号
+          if(element[5]['isHide']){//不启用
+            if(element[0]['value']['value'] == scanCode[0]){
+              if(element[0]['value']['barcode'].indexOf(code) == -1){
                 //判断是否可重复扫码
                 if(scanCode.length>4){
                   element[0]['value']['barcode'].add(code);
+                }
+                if (element[4]['value']['value'] == "") {
+                  element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                  element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                }
+                if(fIsOpenLocation){
+                  element[6]['value']['hide'] = fIsOpenLocation;
+                  if (element[6]['value']['value'] == "") {
+                    element[6]['value']['label'] = fLoc == null? "":fLoc;
+                    element[6]['value']['value'] =fLoc == null? "":fLoc;
+                  }
                 }
                 //判断条码数量
                 if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
@@ -486,23 +441,40 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     element[0]['value']['scanCode'].add(code);
                     barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
                   }
+                  number++;
+                  break;
                 }
+              }else{
+                ToastUtil.showInfo('该标签已扫描');
                 number++;
                 break;
-              }else{
-                if(element[5]['value']['value'] == ""){
+              }
+            }
+          }else{//启用批号
+            if(element[0]['value']['value'] == scanCode[0]){
+              if(element[0]['value']['barcode'].indexOf(code) == -1){
+                if (element[4]['value']['value'] == "") {
+                  element[4]['value']['label'] = barcodeData[0][6] == null? "":barcodeData[0][6];
+                  element[4]['value']['value'] = barcodeData[0][7] == null? "":barcodeData[0][7];
+                }
+                if(fIsOpenLocation){
+                  element[6]['value']['hide'] = fIsOpenLocation;
+                  if (element[6]['value']['value'] == "") {
+                    element[6]['value']['label'] = fLoc == null? "":fLoc;
+                    element[6]['value']['value'] =fLoc == null? "":fLoc;
+                  }
+                }
+                if(element[5]['value']['value'] == scanCode[1]){
                   //判断是否可重复扫码
                   if(scanCode.length>4){
                     element[0]['value']['barcode'].add(code);
                   }
-                  element[5]['value']['label'] = scanCode[1];
-                  element[5]['value']['value'] = scanCode[1];
                   //判断条码数量
                   if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
                     //判断条码是否重复
                     if(element[0]['value']['scanCode'].indexOf(code) == -1){
                       element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
-                    element[3]['value']['label']=element[3]['value']['value'];
+                      element[3]['value']['label']=element[3]['value']['value'];
                       var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
                       element[8]['value']['label'] =barcodeNum.toString();
                       element[8]['value']['value'] = barcodeNum.toString();
@@ -513,79 +485,170 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                   }
                   number++;
                   break;
+                }else{
+                  if(element[5]['value']['value'] == ""){
+                    //判断是否可重复扫码
+                    if(scanCode.length>4){
+                      element[0]['value']['barcode'].add(code);
+                    }
+                    element[5]['value']['label'] = scanCode[1];
+                    element[5]['value']['value'] = scanCode[1];
+                    //判断条码数量
+                    if((double.parse(element[3]['value']['value'])+double.parse(barcodeNum)) > 0 && double.parse(barcodeNum)>0){
+                      //判断条码是否重复
+                      if(element[0]['value']['scanCode'].indexOf(code) == -1){
+                        element[3]['value']['value']=(double.parse(element[3]['value']['value'])+double.parse(barcodeNum)).toString();
+                        element[3]['value']['label']=element[3]['value']['value'];
+                        var item = barCodeScan[0].toString() + "-" + barcodeNum + "-" + fsn;
+                        element[8]['value']['label'] =barcodeNum.toString();
+                        element[8]['value']['value'] = barcodeNum.toString();
+                        element[0]['value']['kingDeeCode'].add(item);
+                        element[0]['value']['scanCode'].add(code);
+                        barcodeNum = (double.parse(barcodeNum) - double.parse(barcodeNum)).toString();
+                      }
+                    }
+                    number++;
+                    break;
+                  }
                 }
+              }else{
+                ToastUtil.showInfo('该标签已扫描');
+                number++;
+                break;
               }
-            }else{
-              ToastUtil.showInfo('该标签已扫描');
-              number++;
-              break;
             }
           }
         }
-      }
-      if(number ==0 && this.fBillNo ==""){
-        materialDate.forEach((value) {
-          List arr = [];
-          arr.add({
-            "title": "物料名称",
-            "name": "FMaterial",
-            "FIsKFPeriod": value[7],
-            "isHide": false,
-            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
+        if(number ==0 && this.fBillNo ==""){
+          materialDate.forEach((value) {
+            List arr = [];
+            arr.add({
+              "title": "物料名称",
+              "name": "FMaterial",
+              "FIsKFPeriod": value[7],
+              "isHide": false,
+              "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-"+scanCode[3]+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-"+scanCode[3]]}
+            });
+            arr.add({
+              "title": "规格型号",
+              "isHide": false,
+              "name": "FMaterialIdFSpecification",
+              "value": {"label": value[3], "value": value[3]}
+            });
+            arr.add({
+              "title": "单位名称",
+              "name": "FUnitId",
+              "isHide": false,
+              "value": {"label": value[4], "value": value[5]}
+            });
+            arr.add({
+              "title": "入库数量",
+              "name": "FRealQty",
+              "isHide": false,
+              "value": {"label": scanCode[3].toString(), "value": scanCode[3].toString()}
+            });
+            arr.add({
+              "title": "仓库",
+              "name": "FStockID",
+              "isHide": false,
+              "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
+            });
+            arr.add({
+              "title": "批号",
+              "name": "FLot",
+              "isHide": value[6] != true,
+              "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):''}
+            });
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {"label": barcodeData[0][13], "value": barcodeData[0][13],"hide": barcodeData[0][14]}
+            });
+            arr.add({
+              "title": "操作",
+              "name": "",
+              "isHide": false,
+              "value": {"label": "", "value": ""}
+            });
+            arr.add({
+              "title": "最后扫描数量",
+              "name": "FLastQty",
+              "isHide": false,
+              "value": {
+                "label": scanCode[3].toString(),
+                "value": scanCode[3].toString()
+              }
+            });
+            hobby.add(arr);
           });
-          arr.add({
-            "title": "规格型号",
-            "isHide": false,
-            "name": "FMaterialIdFSpecification",
-            "value": {"label": value[3], "value": value[3]}
+        }
+      }else{
+        barCodeScan = scanCode;
+        if(number ==0 && this.fBillNo ==""){
+          materialDate.forEach((value) {
+            List arr = [];
+            arr.add({
+              "title": "物料名称",
+              "name": "FMaterial",
+              "FIsKFPeriod": value[7],
+              "isHide": false,
+              "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [code],"kingDeeCode": [barCodeScan[0].toString()+"-0"+"-"+fsn],"scanCode": [barCodeScan[0].toString()+"-0"]}
+            });
+            arr.add({
+              "title": "规格型号",
+              "isHide": false,
+              "name": "FMaterialIdFSpecification",
+              "value": {"label": value[3], "value": value[3]}
+            });
+            arr.add({
+              "title": "单位名称",
+              "name": "FUnitId",
+              "isHide": false,
+              "value": {"label": value[4], "value": value[5]}
+            });
+            arr.add({
+              "title": "入库数量",
+              "name": "FRealQty",
+              "isHide": false,
+              "value": {"label": "0", "value": "0"}
+            });
+            arr.add({
+              "title": "仓库",
+              "name": "FStockID",
+              "isHide": false,
+              "value": {"label": "", "value": ""}
+            });
+            arr.add({
+              "title": "批号",
+              "name": "FLot",
+              "isHide": value[6] != true,
+              "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):''}
+            });
+            arr.add({
+              "title": "仓位",
+              "name": "FStockLocID",
+              "isHide": false,
+              "value": {"label": "", "value": "","hide": false}
+            });
+            arr.add({
+              "title": "操作",
+              "name": "",
+              "isHide": false,
+              "value": {"label": "", "value": ""}
+            });
+            arr.add({
+              "title": "最后扫描数量",
+              "name": "FLastQty",
+              "isHide": true,
+              "value": {
+                "label": "0",
+                "value": "0","remainder": "0","representativeQuantity": "0"
+              }
+            });
+            hobby.add(arr);
           });
-          arr.add({
-            "title": "单位名称",
-            "name": "FUnitId",
-            "isHide": false,
-            "value": {"label": value[4], "value": value[5]}
-          });
-          arr.add({
-            "title": "入库数量",
-            "name": "FRealQty",
-            "isHide": false,
-            "value": {"label": scanCode[3].toString(), "value": scanCode[3].toString()}
-          });
-          arr.add({
-            "title": "仓库",
-            "name": "FStockID",
-            "isHide": false,
-            "value": {"label": barcodeData[0][6], "value": barcodeData[0][7]}
-          });
-          arr.add({
-            "title": "批号",
-            "name": "FLot",
-            "isHide": value[6] != true,
-            "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):''}
-          });
-          arr.add({
-            "title": "仓位",
-            "name": "FStockLocID",
-            "isHide": false,
-            "value": {"label": barcodeData[0][13], "value": barcodeData[0][13],"hide": barcodeData[0][14]}
-          });
-          arr.add({
-            "title": "操作",
-            "name": "",
-            "isHide": false,
-            "value": {"label": "", "value": ""}
-          });
-          arr.add({
-            "title": "最后扫描数量",
-            "name": "FLastQty",
-            "isHide": false,
-            "value": {
-              "label": scanCode[3].toString(),
-              "value": scanCode[3].toString()
-            }
-          });
-          hobby.add(arr);
-        });
+        }
       }
       setState(() {
         EasyLoading.dismiss();
@@ -772,7 +835,43 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       List<Widget> comList = [];
       _textNumber2.add(TextEditingController());
       for (int j = 0; j < this.hobby[i].length; j++) {
-        if (!this.hobby[i][j]['isHide']) {
+        if (j == 3) {
+          comList.add(
+            Column(children: [
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                    title: Text(this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString()),
+                    trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          IconButton(
+                            icon: new Icon(Icons.filter_center_focus),
+                            tooltip: '点击扫描',
+                            onPressed: () {
+                              this._textNumber.text =
+                              this.hobby[i][j]["value"]["label"];
+                              this._FNumber =
+                              this.hobby[i][j]["value"]["label"];
+                              checkData = i;
+                              checkDataChild = j;
+                              scanDialog();
+                              if (this.hobby[i][j]["value"]["label"] != 0) {
+                                this._textNumber.value =
+                                    _textNumber.value.copyWith(
+                                      text: this.hobby[i][j]["value"]["label"],
+                                    );
+                              }
+                            },
+                          ),
+                        ])),
+              ),
+              divider,
+            ]),
+          );
+        }else if (!this.hobby[i][j]['isHide']) {
           if (j==5) {
             comList.add(
               Column(children: [

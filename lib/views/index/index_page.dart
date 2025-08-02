@@ -84,6 +84,7 @@ class _IndexPageState extends State<IndexPage> {
     FlutterDownloader.registerCallback(_downLoadCallback);
     afterFirstLayout(context);
     this.getWorkShop();
+    this.getStockList();
   }
   @override
   void dispose() {
@@ -157,7 +158,18 @@ class _IndexPageState extends State<IndexPage> {
       return;
     }
   }
-
+  getStockList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'BD_STOCK';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber,FUseOrgId.FNumber';
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FFlexNumber is not null and FUseOrgId.FNumber='"+tissue+"'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    sharedPreferences.setString('FStockIds', res);
+  }
   void _onError(Object error) {
     setState(() {
       _code = "扫描异常";
@@ -539,6 +551,7 @@ class _IndexPageState extends State<IndexPage> {
                 });
                 sharedPreferences.setString('tissue', data[2]);
                 sharedPreferences.setString('tissueName', data[1]);
+                this.getStockList();
                 Navigator.pop(context);
               },
             ),

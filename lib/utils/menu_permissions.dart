@@ -22,6 +22,7 @@ import 'package:aswp/views/stock/other_Inventory_detail.dart';
 import 'package:aswp/views/stock/other_warehousing_detail.dart';
 import 'package:aswp/views/stock/other_warehousing_page.dart';
 import 'package:aswp/views/stock/scheme_Inventory_detail.dart';
+import 'package:aswp/views/stock/stock_page.dart';
 
 class MenuPermissions {
   static void getMenu() async {}
@@ -151,6 +152,14 @@ class MenuPermissions {
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": SchemeInventoryDetail(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "库存查询",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": StockPage(),
       "source": '',
     });
     // menu.add({

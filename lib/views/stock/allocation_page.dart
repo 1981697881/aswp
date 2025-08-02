@@ -80,33 +80,32 @@ class _RetrievalPageState extends State<AllocationPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FRemainQty>0 and FDocumentStatus='C'";
-    var scanCode = keyWord.split(",");
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
-      userMap['FilterString'] =
-      "FRemainQty>0 and FDocumentStatus='C' and FDate>= '$startDate' and FDate <= '$endDate'";
-    }
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FQty>0 and FCLOSESTATUS='A' and FAPPORGID.FNumber = '" +tissue + "'";
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FDocumentStatus='C' and FRemainQty>0";
+            " and FBillNo like '%"+keyWord+"%'";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FDocumentStatus='C' and FRemainQty>0";
+            " and FBillNo like '%"+keyWord+"%'";
       }else{
-        userMap['FilterString'] =
-            "FBillNo like '%"+keyWord+"%' and FDocumentStatus='C' and FRemainQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] +=
+          " and FDate>= '$startDate' and FDate <= '$endDate'";
+        }
       }
     }
     this.isScan = false;
-    userMap['FormId'] = 'MSD_Cust_PickingCollect';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialID.FNumber ASC';
+    userMap['FormId'] = 'STK_TRANSFERAPPLY';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FCreatorId,FCreatorId,FDate,FEntity_FEntryId,FMaterialID.FNumber,FMaterialID.FName,FMaterialID.FSpecification,FApproverId,FApproverId,FUnitID.FNumber,FUnitID.FName,FRemainQty,FApproveDate';
+    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FNumber,FStockInId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -124,6 +123,12 @@ class _RetrievalPageState extends State<AllocationPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
+          "title": "调入库存组织",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[2], "value": value[1]}
+        });
+        arr.add({
           "title": "单据日期",
           "name": "FDate",
           "isHide": false,
@@ -133,13 +138,13 @@ class _RetrievalPageState extends State<AllocationPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
           "isHide": true,
-          "value": {"label": value[7], "value": value[7]}
+          "value": {"label": value[6], "value": value[6]}
         });
         arr.add({
           "title": "单位名称",
@@ -152,6 +157,18 @@ class _RetrievalPageState extends State<AllocationPage> {
           "name": "FBaseQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
+        });
+        arr.add({
+          "title": "调出仓库",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[16], "value": value[16]}
+        });
+        arr.add({
+          "title": "调入仓库",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[17]==null?'':value[17], "value": value[17]==null?'':value[17]}
         });
         hobby.add(arr);
       });
@@ -348,7 +365,7 @@ class _RetrievalPageState extends State<AllocationPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("分拣单"),
+            title: Text("调拨申请单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

@@ -95,34 +95,26 @@ class _PickingPageState extends State<PickingPage> {
       hobby = [];
       this._getHobby();
     });
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FNoStockInQty>0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
-      userMap['FilterString'] =
-      "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-    }
+    userMap['FilterString'] = "FNoStockInQty>0 and FStatus in(3,4) and FPrdOrgId.FNumber = '" +tissue + "'";
     if(this.isScan){
       if(this.keyWord != ''){
-        userMap['FilterString'] =
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FStatus in(3,4) and FNoStockInQty>0";
+        userMap['FilterString'] +=
+        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%')";
       }
     }else{
       if(this.keyWord != ''){
-        userMap['FilterString'] =
-        "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FStatus in(3,4) and FNoStockInQty>0";
+        userMap['FilterString'] +=
+        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%')";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
           this.endDate = this._dateSelectText.substring(26, 36);
-          userMap['FilterString'] =
-          "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-        }else{
-          userMap['FilterString'] =
-          "FStatus in(3,4) and FNoStockInQty>0";
+          userMap['FilterString'] +=
+          " and FDate>= '$startDate' and FDate <= '$endDate'";
         }
-
       }
     }
     this.isScan = false;

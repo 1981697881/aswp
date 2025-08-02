@@ -436,24 +436,26 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    var scanCode = code.split(";");
+    var scanCode = [code,'','','',0];
     var postionList = fLoc.split(".");
     if (scanCode.length > 1) {
       if (scanCode.length > 1) {
         userMap['FilterString'] = "FMaterialId.FNumber='" +
             scanCode[0] +
             "' and FStockId.FNumber = '$stockNumber' and FSchemeNo = '$schemeNumber' and FOwnerId.FNumber = '$organizationsNumber'";
-        if (barcodeData[0][13]) {
-          userMap['FilterString'] += " and FProduceDate='" +
-              fProduceDate +
-              "' and fExpiryDate='" +
-              fExpiryDate +
-              "'";
-        }
-        if (barcodeData[0][14]) {
-          userMap['FilterString'] +=
-              " and FLot.FNumber='" + barcodeData[0][17] + "'";
-        }
+       if(barcodeData != ''){
+         if (barcodeData[0][13]) {
+           userMap['FilterString'] += " and FProduceDate='" +
+               fProduceDate +
+               "' and fExpiryDate='" +
+               fExpiryDate +
+               "'";
+         }
+         if (barcodeData[0][14]) {
+           userMap['FilterString'] +=
+               " and FLot.FNumber='" + barcodeData[0][17] + "'";
+         }
+       }
         if (fIsOpenLocation) {
           userMap['FilterString'] += " and FStockLocId." +
               flexNumber +
@@ -500,7 +502,6 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       barCodeScan[4] = barCodeScan[4].toString();
     } else {
       barCodeScan = scanCode;
-      barCodeScan.add(barCodeScan[4]);
     }
     if (orderDate.length > 0) {
       ToastUtil.showInfo('查询盘点作业成功');
@@ -829,7 +830,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
             arr.add({
               "title": "最后扫描数量",
               "name": "FLastQty",
-              "isHide": false,
+              "isHide": true,
               "value": {
                 "label": barCodeScan[4].toString(),
                 "value": barCodeScan[4].toString()
@@ -1008,8 +1009,6 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
                 flexNumber = stockListObj[elementIndex][4];
-                //_onEvent("test2;;;100.0;N;1");
-                //_onEvent("31831;AQ50114310N1;2025-01-14;200;MO002611,0838433912;20");
               }
               elementIndex++;
             });
@@ -1061,7 +1060,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          /*if (j == 4) {
+          if (j == 4) {
             comList.add(
               Column(children: [
                 Container(
@@ -1104,8 +1103,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                 divider,
               ]),
             );
-          } else*/
-          if (j == 8) {
+          } else if (j == 8) {
             comList.add(
               Column(children: [
                 Container(
@@ -1469,7 +1467,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                       arr.add({
                         "title": "最后扫描数量",
                         "name": "FLastQty",
-                        "isHide": false,
+                        "isHide": true,
                         "value": {"label": "0", "value": "0"}
                       });
                       arr.add({
