@@ -573,7 +573,7 @@ class _IndexPageState extends State<IndexPage> {
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: new Text('主页'),
+          title: new Text('${this.organizationsName}'),
           centerTitle: true,
           actions: <Widget>[
             new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),

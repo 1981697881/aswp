@@ -193,6 +193,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       this.organizationsName1 = sharedPreferences.getString('tissueName');
       this.organizationsNumber2 = sharedPreferences.getString('tissue');
       this.organizationsName2 = sharedPreferences.getString('tissueName');
+      this.getStockList();
+      this.getStockListT();
     });
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'ORG_Organizations';
@@ -205,8 +207,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     organizationsListObj.forEach((element) {
       organizationsList.add(element[1]);
     });
-    getStockList();
-    getStockListT();
+
   }
 
   void getWorkShop() async {
