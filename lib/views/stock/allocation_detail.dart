@@ -150,9 +150,6 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    if (fOrgID == null) {
-      this.fOrgID = deptData[1];
-    }
     if(this.organizationsNumber1 != null){
       userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber='"+this.organizationsNumber1+"'";
     }else{
@@ -175,9 +172,6 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    if (fOrgID == null) {
-      this.fOrgID = deptData[1];
-    }
     if(this.organizationsNumber2 != null){
       userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber='"+this.organizationsNumber2+"'";
     }else{
@@ -333,6 +327,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
     'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FNumber,FStockInId.FNumber,FBillTypeID.FNUMBER,FEntity_FSeq,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod,FMaterialId.FIsBatchManage,FLot.FNumber,FProduceDate,FExpiryDate,FStockID.FIsOpenLocation,FStockLocId,FStockOrgId.FNumber,FStockOrgInId.FNumber,FStockId.FName,FStockInId.FName';
+    if(fStockIds.length>0){
+      for(var flex in fStockIds){
+        userMap['FieldKeys'] += ",FStockLocId."+flex[4]+".FNumber";
+      }
+    }
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -417,11 +416,20 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "isHide": false,
           "value": {"label": value[30], "value": value[16], 'dimension': ""}
         });
+        var floc = '';
+        if(fStockIds.length>0){
+          for(var i = 0; i< fStockIds.length;i++){
+            if(value[32+i] != null && value[32+i] != ''){
+              floc = value[32+i];
+              break;
+            }
+          }
+        }
         arr.add({
           "title": "调出仓位",
           "name": "FStockLocID",
           "isHide": false,
-          "value": {"label": value[26]?value[27]:'', "value": value[26]?value[27]:'', "hide": value[26]}
+          "value": {"label": floc==null|| floc ==''?'':floc, "value": floc==null|| floc ==''?'':floc, "hide": value[26]}
         });
         arr.add({
           "title": "调入仓库",

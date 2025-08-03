@@ -70,7 +70,9 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   List<dynamic> typeListObj = [];
   var organizationsList = [];
   List<dynamic> organizationsListObj = [];
+
   var supplierList = [];
+  var searchSupplierList = [];
   List<dynamic> supplierListObj = [];
   var stockList = [];
   List<dynamic> stockListObj = [];
@@ -1686,14 +1688,15 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       },
     );
   }
-  setClickData(Map<dynamic,dynamic> dataItem, val) async{
+  setClickData(List<dynamic> dataItem) async{
     setState(() {
-      dataItem['value']['value'] = val;
-      dataItem['value']['label'] = val;
+      this.supplierName = dataItem[1];
+      this.supplierNumber = dataItem[2];
     });
   }
+
   Future<List<int>?> _showMultiChoiceModalBottomSheet(
-      BuildContext context, List<dynamic> options, Map<dynamic,dynamic> dataItem) async {
+      BuildContext context, List<dynamic> options) async {
     List selected = [];
     return showModalBottomSheet<List<int>?>(
       backgroundColor: Colors.transparent,
@@ -1737,12 +1740,11 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                             border: InputBorder.none),
                         onSubmitted: (value){
                           options = [];
-                          for(var element in this.bagListObj){
-                            options.add(element[1]);
-                          }
+                          options = this.supplierListObj;
                           setState(() {
-                            options = options.where((item) => item.toString().replaceAll('kg', '') == value).toList();
+                            options = options.where((item) => item[1].contains(value)).toList();
                             //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                            print(options);
                           });
                         },
                         // onChanged: onSearchTextChanged,
@@ -1758,11 +1760,11 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
                       contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      title: new Row(children: <Widget>[Text(options[index],
+                      title: new Row(children: <Widget>[Text(options[index][1],
                       )
                       ], mainAxisAlignment: MainAxisAlignment.center,),
                       onTap: () async{
-                        await this.setClickData(dataItem, options[index]);
+                        await this.setClickData(options[index]);
                         Navigator.of(context).pop();
                       },
                     );
@@ -2775,8 +2777,27 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                     maintainState: false,
                     maintainAnimation: false,
                     visible: !isScanWork,
-                    child: _item('供应商:', this.supplierList, this.supplierName,
-                        'supplier'),
+                    child: Column(children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                            title: Text('供应商：${supplierName!=null ? supplierName: "暂无"}'),
+                            trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: new Icon(Icons.chevron_right),
+                                    onPressed: () {
+                                      this.controller.clear();
+                                      this.searchSupplierList = [];
+                                      this.searchSupplierList = this.supplierListObj;
+                                      _showMultiChoiceModalBottomSheet(context, this.searchSupplierList);
+                                    },
+                                  ),
+                                ])),
+                      ),
+                      divider,
+                    ]),
                   ),
                  /* Visibility(
                     maintainSize: false,
