@@ -80,6 +80,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   var supplierList = [];
   List<dynamic> supplierListObj = [];
   var stockList = [];
+  var searchStockList = [];
   var typeList = [];
   List<dynamic> typeListObj = [];
   List<dynamic> stockListObj = [];
@@ -1474,28 +1475,17 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
     );
   }
 
-  setClickData(Map<dynamic, dynamic> dataItem, val) async {
+  setClickData(List<dynamic> dataItem, val) async {
     setState(() {
-      dataItem['value']['value'] = val;
-      dataItem['value']['label'] = val;
+      dataItem[4]['value']['value'] = val[1];
+      dataItem[4]['value']['label'] = val[2];
+      dataItem[6]['value']['hide'] = val[3];
     });
   }
 
   Future<List<int>?> _showMultiChoiceModalBottomSheet(BuildContext context,
-      List<dynamic> options, Map<dynamic, dynamic> dataItem) async {
+      List<dynamic> options, List<dynamic> dataItem, List<dynamic> stockList) async {
     List selected = [];
-    /*var selectList = this.hobby;
-    for (var select in selectList) {
-      for(var item in options){
-        if (select[1]['value']['value'] == item[1]) {
-          selected.add(item);
-        } else {
-          selected.remove(item);
-        }
-      }
-    }*/
-    print(options);
-    print(selected);
     return showModalBottomSheet<List<int>?>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -1539,12 +1529,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                             options.add(element[1]);
                           }
                           setState(() {
-                            options = options
-                                .where((item) =>
-                                    item.toString().replaceAll('kg', '') ==
-                                    value)
-                                .toList();
-                            //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                            options = [];
+                            options = stockList;
+                            setState(() {
+                              options = options.where((item) => item[1].contains(value)).toList();
+                              //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                              print(options);
+                            });
                           });
                         },
                         // onChanged: onSearchTextChanged,
@@ -1561,8 +1552,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 10),
                       title: new Row(
                         children: <Widget>[
-                          Text(
-                            options[index],
+                          Text(options[index][1]
                           )
                         ],
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1723,10 +1713,35 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               this._textNumber2[i].text = this.hobby[i][j]["value"]["label"];
             }
           } else if (j == 4) {
+            // comList.add(
+            //   _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
+            //       this.hobby[i][j],
+            //       stock: this.hobby[i]),
+            // );
             comList.add(
-              _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
-                  this.hobby[i][j],
-                  stock: this.hobby[i]),
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.chevron_right),
+                              onPressed: () {
+                                this.controller.clear();
+                                this.searchStockList = [];
+                                this.searchStockList = this.stockListObj;
+                                _showMultiChoiceModalBottomSheet(context, this.searchStockList, this.hobby[i],this.stockListObj);
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
             );
           } else if (j == 11) {
             comList.add(

@@ -68,8 +68,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   var storingLocationNumber;
   var fBarCodeList;
   var stockList = [];
+  var searchStockList = [];
   List<dynamic> stockListObj = [];
   var stockListT = [];
+  var searchStockListT = [];
   List<dynamic> stockListObjT = [];
   var organizationsList = [];
   List<dynamic> organizationsListObj = [];
@@ -354,9 +356,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     ]);
     hobby = [];
     if (orderDate.length > 0) {
-      this.storehouseNumberT = orderDate[0][16];
-      this.storehouseNameT = orderDate[0][30];
-      this.showPositionT = orderDate[0][26];
+      this.storehouseNumber = orderDate[0][16];
+      this.storehouseName = orderDate[0][30];
+      this.showPosition = orderDate[0][26];
       hobby = [];
       for(var value in orderDate){
         fNumber.add(value[5]);
@@ -609,22 +611,22 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               orderIndex++;
             }
             if(this.fBillNo == null){
-              if(this.storehouseNumberT == null && this.hobby.length == 0){
-                this.storehouseNumberT = barcodeData[0][6];
-                this.storehouseNameT = barcodeData[0][19];
-                this.showPositionT = barcodeData[0][18];
+              if(this.storehouseNumber == null && this.hobby.length == 0){
+                this.storehouseNumber = barcodeData[0][6];
+                this.storehouseName = barcodeData[0][19];
+                this.showPosition = barcodeData[0][18];
               }else{
-                if(this.storehouseNumberT != barcodeData[0][6]){
+                if(this.storehouseNumber != barcodeData[0][6]){
                   msg = '调出仓库与条码仓库不一致,请检查';
                 }
               }
             }else{
-              if(this.storehouseNumberT == null){
-                this.storehouseNumberT = barcodeData[0][6];
-                this.storehouseNameT = barcodeData[0][19];
-                this.showPositionT = barcodeData[0][18];
+              if(this.storehouseNumber == null){
+                this.storehouseNumber = barcodeData[0][6];
+                this.storehouseName = barcodeData[0][19];
+                this.showPosition = barcodeData[0][18];
               }else{
-                if(this.storehouseNumberT != barcodeData[0][6]){
+                if(this.storehouseNumber != barcodeData[0][6]){
                   msg = '调出仓库与条码仓库不一致,请检查';
                 }
               }
@@ -659,7 +661,6 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         print("ChannelPage: $event");
       }
     }
-    checkItem = '';
     print("ChannelPage: $event");
   }
 
@@ -762,11 +763,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   if (element[6]['value']['value'] == "") {
-                    element[6]['value']['label'] = this.storehouseNameT == null? "":this.storehouseNameT;
-                    element[6]['value']['value'] =this.storehouseNumberT == null? "":this.storehouseNumberT;
+                    element[6]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                    element[6]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
                   }
-                  if(this.showPositionT){
-                    element[7]['value']['hide'] = this.showPositionT;
+                  if(this.showPosition){
+                    element[7]['value']['hide'] = this.showPosition;
                     if (element[7]['value']['value'] == "") {
                       element[7]['value']['label'] = fLoc == null? "":fLoc;
                       element[7]['value']['value'] = fLoc == null? "":fLoc;
@@ -830,11 +831,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   //判断条码是否重复
                   if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                     if (element[6]['value']['value'] == "") {
-                      element[6]['value']['label'] = this.storehouseNameT == null? "":this.storehouseNameT;
-                      element[6]['value']['value'] =this.storehouseNumberT == null? "":this.storehouseNumberT;
+                      element[6]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                      element[6]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
                     }
-                    if(this.showPositionT){
-                      element[7]['value']['hide'] = this.showPositionT;
+                    if(this.showPosition){
+                      element[7]['value']['hide'] = this.showPosition;
                       if (element[7]['value']['value'] == "") {
                         element[7]['value']['label'] = fLoc == null? "":fLoc;
                         element[7]['value']['value'] = fLoc == null? "":fLoc;
@@ -972,11 +973,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               if (scanCode[5] == "N") {
                 if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                   if (element[6]['value']['value'] == "") {
-                    element[6]['value']['label'] = this.storehouseNameT == null? "":this.storehouseNameT;
-                    element[6]['value']['value'] =this.storehouseNumberT == null? "":this.storehouseNumberT;
+                    element[6]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                    element[6]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
                   }
-                  if(this.showPositionT){
-                    element[7]['value']['hide'] = this.showPositionT;
+                  if(this.showPosition){
+                    element[7]['value']['hide'] = this.showPosition;
                     if (element[7]['value']['value'] == "") {
                       element[7]['value']['label'] = fLoc == null? "":fLoc;
                       element[7]['value']['value'] = fLoc == null? "":fLoc;
@@ -1042,11 +1043,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     //判断条码是否重复
                     if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                       if (element[6]['value']['value'] == "") {
-                        element[6]['value']['label'] = this.storehouseNameT == null? "":this.storehouseNameT;
-                        element[6]['value']['value'] =this.storehouseNumberT == null? "":this.storehouseNumberT;
+                        element[6]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                        element[6]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
                       }
-                      if(this.showPositionT){
-                        element[7]['value']['hide'] = this.showPositionT;
+                      if(this.showPosition){
+                        element[7]['value']['hide'] = this.showPosition;
                         if (element[7]['value']['value'] == "") {
                           element[7]['value']['label'] = fLoc == null? "":fLoc;
                           element[7]['value']['value'] = fLoc == null? "":fLoc;
@@ -1188,11 +1189,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       //判断条码是否重复
                       if (element[0]['value']['scanCode'].indexOf(code) == -1) {
                         if (element[6]['value']['value'] == "") {
-                          element[6]['value']['label'] = this.storehouseNameT == null? "":this.storehouseNameT;
-                          element[6]['value']['value'] =this.storehouseNumberT == null? "":this.storehouseNumberT;
+                          element[6]['value']['label'] = this.storehouseName == null? "":this.storehouseName;
+                          element[6]['value']['value'] =this.storehouseNumber == null? "":this.storehouseNumber;
                         }
-                        if(this.showPositionT){
-                          element[7]['value']['hide'] = this.showPositionT;
+                        if(this.showPosition){
+                          element[7]['value']['hide'] = this.showPosition;
                           if (element[7]['value']['value'] == "") {
                             element[7]['value']['label'] = fLoc == null? "":fLoc;
                             element[7]['value']['value'] = fLoc == null? "":fLoc;
@@ -1586,25 +1587,25 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             "title": "调出仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": this.storehouseNameT == null? "":this.storehouseNameT, "value": this.storehouseNumberT == null? "":this.storehouseNumberT, "dimension": ""}
+            "value": {"label": this.storehouseName == null? "":this.storehouseName, "value": this.storehouseNumber == null? "":this.storehouseNumber, "dimension": ""}
           });
           arr.add({
             "title": "调出仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": "", "value": "", "hide": showPositionT}
+            "value": {"label": "", "value": "", "hide": showPosition}
           });
           arr.add({
             "title": "调入仓库",
             "name": "FStockID",
             "isHide": false,
-            "value": {"label": this.storehouseName == null? "":this.storehouseName, "value": this.storehouseNumber == null? "":this.storehouseNumber, "dimension": ""}
+            "value": {"label": this.storehouseNameT == null? "":this.storehouseNameT, "value": this.storehouseNumberT == null? "":this.storehouseNumberT, "dimension": ""}
           });
           arr.add({
             "title": "调入仓位",
             "name": "FStockLocID",
             "isHide": false,
-            "value": {"label": "", "value": "", "hide": showPosition}
+            "value": {"label": "", "value": "", "hide": showPositionT}
           });
           arr.add({
             "title": "最后扫描数量",
@@ -1833,27 +1834,27 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             new FlatButton(
               child: new Text('确定'),
               onPressed: () {
-                if(type == 1){
+                if(type == 2){
                   storehouseNameT = name;
                   storehouseNumberT = number;
                   showPositionT = isLoc;
                   for(var hItem in this.hobby){
-                      hItem[6]['value']['label'] = storehouseNameT;
-                      hItem[6]['value']['value'] = storehouseNumberT;
-                      hItem[7]['value']['label'] = "";
-                      hItem[7]['value']['value'] = "";
-                      hItem[7]['value']['hide'] = showPositionT;
+                      hItem[8]['value']['label'] = storehouseNameT;
+                      hItem[8]['value']['value'] = storehouseNumberT;
+                      hItem[9]['value']['label'] = "";
+                      hItem[9]['value']['value'] = "";
+                      hItem[9]['value']['hide'] = showPositionT;
                   }
                 }else{
                   storehouseName = name;
                   storehouseNumber = number;
                   showPosition = isLoc;
                   for(var hItem in this.hobby){
-                      hItem[8]['value']['label'] = storehouseName;
-                      hItem[8]['value']['value'] = storehouseNumber;
-                      hItem[9]['value']['label'] = "";
-                      hItem[9]['value']['value'] = "";
-                      hItem[9]['value']['hide'] = showPosition;
+                      hItem[6]['value']['label'] = storehouseName;
+                      hItem[6]['value']['value'] = storehouseNumber;
+                      hItem[7]['value']['label'] = "";
+                      hItem[7]['value']['value'] = "";
+                      hItem[7]['value']['hide'] = showPosition;
                   }
                 }
                 //提交清空页面
@@ -1907,7 +1908,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             for(var element in data){
               if (element == p) {
                 if(storehouseNumber != stockListObj[elementIndex][2] && storehouseNumber != null){
-                  _showConfirmationDialog(2, p, stockListObjT[elementIndex][2], stockListObjT[elementIndex][3]);
+                  _showConfirmationDialog(1, p, stockListObj[elementIndex][2], stockListObj[elementIndex][3]);
                   return;
                 }else{
                   storehouseName = p;
@@ -1916,10 +1917,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   this.storingLocationName = "";
                   this.storingLocationNumber = "";
                   for(var hItem in this.hobby){
-                    if(hItem[8]['value']['value'] == ""){
-                      hItem[8]['value']['label'] = storehouseName;
-                      hItem[8]['value']['value'] = storehouseNumber;
-                      hItem[9]['value']['hide'] = showPosition;
+                    if(hItem[6]['value']['value'] == ""){
+                      hItem[6]['value']['label'] = storehouseName;
+                      hItem[6]['value']['value'] = storehouseNumber;
+                      hItem[7]['value']['hide'] = showPosition;
                     }
                   }
                 }
@@ -1927,22 +1928,21 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               elementIndex++;
             }
           }else if (hobby == 'storehouseT') {
-
             var elementIndex = 0;
             for(var element in data){
               if (element == p) {
                 if(storehouseNumberT != stockListObjT[elementIndex][2] && storehouseNumberT != null){
-                  _showConfirmationDialog(1, p, stockListObjT[elementIndex][2], stockListObjT[elementIndex][3]);
+                  _showConfirmationDialog(2, p, stockListObjT[elementIndex][2], stockListObjT[elementIndex][3]);
                   return;
                 }else{
                   storehouseNameT = p;
                   storehouseNumberT = stockListObjT[elementIndex][2];
                   showPositionT = stockListObjT[elementIndex][3];
                   for(var hItem in this.hobby){
-                    if(hItem[6]['value']['value'] == ""){
-                      hItem[6]['value']['label'] = storehouseNameT;
-                      hItem[6]['value']['value'] = storehouseNumberT;
-                      hItem[7]['value']['hide'] = showPositionT;
+                    if(hItem[8]['value']['value'] == ""){
+                      hItem[8]['value']['label'] = storehouseNameT;
+                      hItem[8]['value']['value'] = storehouseNumberT;
+                      hItem[9]['value']['hide'] = showPositionT;
                     }
                   }
                 }
@@ -1979,6 +1979,129 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             });
           }
         setState(() {
+        });
+      },
+    );
+  }
+  setClickData(List<dynamic> dataItem, int type) async{
+    setState(() {
+      if(type == 1){
+        if(storehouseNumber != dataItem[2] && storehouseNumber != null){
+          _showConfirmationDialog(1, dataItem[1], dataItem[2], dataItem[3]);
+          return;
+        }else{
+          storehouseName = dataItem[1];
+          storehouseNumber =dataItem[2];
+          showPosition = dataItem[3];
+          this.storingLocationName = "";
+          this.storingLocationNumber = "";
+          for(var hItem in this.hobby){
+            if(hItem[6]['value']['value'] == ""){
+              hItem[6]['value']['label'] = storehouseName;
+              hItem[6]['value']['value'] = storehouseNumber;
+              hItem[7]['value']['hide'] = showPosition;
+            }
+          }
+        }
+      }else{
+        if(storehouseNumberT != dataItem[2] && storehouseNumberT != null){
+          _showConfirmationDialog(2, dataItem[1], dataItem[2], dataItem[3]);
+          return;
+        }else{
+          storehouseNameT = dataItem[1];
+          storehouseNumberT = dataItem[2];
+          showPositionT = dataItem[3];
+          for(var hItem in this.hobby){
+            if(hItem[8]['value']['value'] == ""){
+              hItem[8]['value']['label'] = storehouseNameT;
+              hItem[8]['value']['value'] = storehouseNumberT;
+              hItem[9]['value']['hide'] = showPositionT;
+            }
+          }
+        }
+      }
+    });
+  }
+
+  Future<List<int>?> _showChoiceModalBottomSheet(
+      BuildContext context, List<dynamic> options, int type, List<dynamic> stockList) async {
+    List selected = [];
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Row(
+                crossAxisAlignment:
+                CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 6.0,
+                  ),
+                  Icon(
+                    Icons.search,
+                    color: Colors.grey,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 10.0,left: 10.0),
+                      alignment: Alignment.center,
+                      child: TextField(
+                        controller: this.controller,
+                        decoration: new InputDecoration(
+                            contentPadding:
+                            EdgeInsets.only(
+                                bottom: 12.0),
+                            hintText: '输入关键字',
+                            border: InputBorder.none),
+                        onSubmitted: (value){
+                          options = [];
+                          options = stockList;
+                          setState(() {
+                            options = options.where((item) => item[1].contains(value)).toList();
+                            //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                            print(options);
+                          });
+                        },
+                        // onChanged: onSearchTextChanged,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              Divider(height: 1.0),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      title: new Row(children: <Widget>[Text(options[index][1],
+                      )
+                      ], mainAxisAlignment: MainAxisAlignment.center,),
+                      onTap: () async{
+                        await this.setClickData(options[index], type);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
         });
       },
     );
@@ -2218,6 +2341,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                   checkData = i;
                                   checkDataChild = j;
                                   scanDialog();
+
                                   print(this.hobby[i][j]["value"]["label"]);
                                   if (this.hobby[i][j]["value"]["label"] != 0) {
                                     this._textNumber.value =
@@ -2267,6 +2391,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                   checkData = i;
                                   checkDataChild = j;
                                   scanDialog();
+
                                   print(this.hobby[i][j]["value"]["label"]);
                                   if (this.hobby[i][j]["value"]["label"] != 0) {
                                     this._textNumber.value =
@@ -2656,8 +2781,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       Model['FBizType'] = "GENERAL";
       Model['FOwnerOutIdHead'] = {"FNumber": this.organizationsNumber1};
       Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber2};
-      Model['F_MSD_Base'] = {"FNUMBER": this.storehouseNumberT};
-      Model['F_MSD_Base1'] = {"FNUMBER": this.storehouseNumber};
+      Model['F_MSD_Base'] = {"FNUMBER": this.storehouseNumber};
+      Model['F_MSD_Base1'] = {"FNUMBER": this.storehouseNumberT};
       var FEntity = [];
       var hobbyIndex = 0;
       print(materialDate);
@@ -3147,12 +3272,53 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     maintainState: false,
                     maintainAnimation: false,
                     visible: this.fBillNo == '' || this.fBillNo == null,
-                    child: _item('调出仓库', this.stockList, this.storehouseNameT,
-                        'storehouseT'),
+                    child: Column(children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                            title: Text('调出仓库：${storehouseName!=null ? storehouseName: "暂无"}'),
+                            trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: new Icon(Icons.chevron_right),
+                                    onPressed: () {
+                                      this.controller.clear();
+                                      this.searchStockList = [];
+                                      this.searchStockList = this.stockListObj;
+                                      _showChoiceModalBottomSheet(context, this.searchStockList,1,this.stockListObj);
+                                    },
+                                  ),
+                                ])),
+                      ),
+                      divider,
+                    ]),
                   ),
+                  Column(children: [
+                    Container(
+                      color: Colors.white,
+                      child: ListTile(
 
-                  _item('调入仓库', this.stockListT, this.storehouseName,
-                      'storehouse'),
+                      title: Text('调入仓库：${storehouseNameT!=null ? storehouseNameT: "暂无"}'),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.chevron_right),
+                              onPressed: () {
+                                this.controller.clear();
+                                this.searchStockListT = [];
+                                this.searchStockListT = this.stockListObjT;
+                                _showChoiceModalBottomSheet(context, this.searchStockListT,0, this.stockListObjT);
+                              },
+                            ),
+                              ])),
+
+                    ),
+                    divider,
+                  ]),
+                  // _item('调入仓库', this.stockListT, this.storehouseName,
+                  //     'storehouse'),
           // Visibility(
           //   maintainSize: false,
           //   maintainState: false,
