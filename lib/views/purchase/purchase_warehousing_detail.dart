@@ -1477,13 +1477,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
 
   setClickData(List<dynamic> dataItem, val) async {
     setState(() {
-      dataItem[4]['value']['value'] = val[1];
-      dataItem[4]['value']['label'] = val[2];
+      dataItem[4]['value']['value'] = val[2];
+      dataItem[4]['value']['label'] = val[1];
       dataItem[6]['value']['hide'] = val[3];
     });
   }
 
-  Future<List<int>?> _showMultiChoiceModalBottomSheet(BuildContext context,
+  Future<List<int>?> _showChoiceModalBottomSheet(BuildContext context,
       List<dynamic> options, List<dynamic> dataItem, List<dynamic> stockList) async {
     List selected = [];
     return showModalBottomSheet<List<int>?>(
@@ -1735,7 +1735,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                 this.controller.clear();
                                 this.searchStockList = [];
                                 this.searchStockList = this.stockListObj;
-                                _showMultiChoiceModalBottomSheet(context, this.searchStockList, this.hobby[i],this.stockListObj);
+                                _showChoiceModalBottomSheet(context, this.searchStockList, this.hobby[i],this.stockListObj);
                               },
                             ),
                           ])),

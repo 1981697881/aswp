@@ -65,6 +65,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   //包装规格
   var bagList = [];
   var hobbyItem = [];
+  var searchStockList = [];
   List<dynamic> bagListObj = [];
   var typeList = [];
   List<dynamic> typeListObj = [];
@@ -1688,6 +1689,103 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       },
     );
   }
+  setClickDataT(List<dynamic> dataItem, val) async {
+    setState(() {
+      dataItem[4]['value']['value'] = val[2];
+      dataItem[4]['value']['label'] = val[1];
+      dataItem[6]['value']['hide'] = val[3];
+    });
+  }
+
+  Future<List<int>?> _showChoiceModalBottomSheet(BuildContext context,
+      List<dynamic> options, List<dynamic> dataItem, List<dynamic> stockList) async {
+    List selected = [];
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 6.0,
+                  ),
+                  Icon(
+                    Icons.search,
+                    color: Colors.grey,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 10.0, left: 10.0),
+                      alignment: Alignment.center,
+                      child: TextField(
+                        controller: this.controller,
+                        decoration: new InputDecoration(
+                            contentPadding: EdgeInsets.only(bottom: 12.0),
+                            hintText: '输入关键字',
+                            border: InputBorder.none),
+                        onSubmitted: (value) {
+                          options = [];
+                          for (var element in this.bagListObj) {
+                            options.add(element[1]);
+                          }
+                          setState(() {
+                            options = [];
+                            options = stockList;
+                            setState(() {
+                              options = options.where((item) => item[1].contains(value)).toList();
+                              //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                              print(options);
+                            });
+                          });
+                        },
+                        // onChanged: onSearchTextChanged,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Divider(height: 1.0),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      title: new Row(
+                        children: <Widget>[
+                          Text(options[index][1]
+                          )
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      onTap: () async {
+                        await this.setClickDataT(dataItem, options[index]);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
+    );
+  }
   setClickData(List<dynamic> dataItem) async{
     setState(() {
       this.supplierName = dataItem[1];
@@ -2035,9 +2133,34 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
               ]),
             );
           }else if (j == 4) {
+            // comList.add(
+            //   _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
+            //       this.hobby[i][j],stock:this.hobby[i]),
+            // );
             comList.add(
-              _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
-                  this.hobby[i][j],stock:this.hobby[i]),
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: new Icon(Icons.chevron_right),
+                              onPressed: () {
+                                this.controller.clear();
+                                this.searchStockList = [];
+                                this.searchStockList = this.stockListObj;
+                                _showChoiceModalBottomSheet(context, this.searchStockList, this.hobby[i],this.stockListObj);
+                              },
+                            ),
+                          ])),
+                ),
+                divider,
+              ]),
             );
           }else if(j == 6){
             comList.add(
