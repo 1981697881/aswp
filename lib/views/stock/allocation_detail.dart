@@ -29,11 +29,12 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class AllocationDetail extends StatefulWidget {
   var FBillNo;
+  var FStockOrgInId;
 
-  AllocationDetail({Key? key, @required this.FBillNo}) : super(key: key);
+  AllocationDetail({Key? key, @required this.FBillNo, @required this.FStockOrgInId}) : super(key: key);
 
   @override
-  _RetrievalDetailState createState() => _RetrievalDetailState(FBillNo);
+  _RetrievalDetailState createState() => _RetrievalDetailState(FBillNo,FStockOrgInId);
 }
 
 class _RetrievalDetailState extends State<AllocationDetail> {
@@ -93,11 +94,15 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   final controller = TextEditingController();
   List<TextEditingController> _textNumber3 = [];
   List<FocusNode> focusNodes = [];
-  _RetrievalDetailState(FBillNo) {
+  _RetrievalDetailState(FBillNo, FStockOrgInId) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
-      this.getOrderList();
-      getOrganizationsList();
+      if(FStockOrgInId != null){
+        this.organizationsNumber2 = FStockOrgInId['value'];
+        this.getStockListT();
+      }else{
+        this.getOrderList();
+      }
       isScanWork = true;
     } else {
       isScanWork = false;
@@ -148,7 +153,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     stockList = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
@@ -170,7 +175,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     stockListT = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
@@ -186,17 +191,26 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     stockListObjT.forEach((element) {
       stockListT.add(element[1]);
     });
+    if(this.fBillNo != null && this.fBillNo != ''){
+      this.getOrderList();
+    }
   }
   //获取组织
   getOrganizationsList() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      this.organizationsNumber1 = sharedPreferences.getString('tissue');
-      this.organizationsName1 = sharedPreferences.getString('tissueName');
-      this.organizationsNumber2 = sharedPreferences.getString('tissue');
-      this.organizationsName2 = sharedPreferences.getString('tissueName');
+      if(this.organizationsNumber1 == '' || this.organizationsNumber1 == null){
+        this.organizationsNumber1 = sharedPreferences.getString('tissue');
+        this.organizationsName1 = sharedPreferences.getString('tissueName');
+      }
+      if(this.organizationsNumber2 == '' || this.organizationsNumber2 == null){
+        this.organizationsNumber2 = sharedPreferences.getString('tissue');
+        this.organizationsName2 = sharedPreferences.getString('tissueName');
+      }
       this.getStockList();
-      this.getStockListT();
+      if(this.fBillNo == null || this.fBillNo == ''){
+        this.getStockListT();
+      }
     });
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'ORG_Organizations';
@@ -329,10 +343,17 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     userMap['FormId'] = 'STK_TRANSFERAPPLY';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FNumber,FStockInId.FNumber,FBillTypeID.FNUMBER,FEntity_FSeq,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod,FMaterialId.FIsBatchManage,FLot.FNumber,FProduceDate,FExpiryDate,FStockID.FIsOpenLocation,FStockLocId,FStockOrgId.FNumber,FStockOrgInId.FNumber,FStockId.FName,FStockInId.FName';
+    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FNumber,FStockInId.FNumber,FBillTypeID.FNUMBER,FEntity_FSeq,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod,FMaterialId.FIsBatchManage,FLot.FNumber,FProduceDate,FExpiryDate,FStockID.FIsOpenLocation,FStockInId.FIsOpenLocation,FStockOrgId.FNumber,FStockOrgId.FName,FStockOrgInId.FNumber,FStockOrgInId.FName,FStockId.FName,FStockInId.FName';
     if(fStockIds.length>0){
       for(var flex in fStockIds){
         userMap['FieldKeys'] += ",FStockLocId."+flex[4]+".FNumber";
+      }
+    }
+    if(stockListObjT.length>0){
+      for(var flex in stockListObjT){
+        if(flex[4] != null && flex[4] != ''){
+          userMap['FieldKeys'] += ",FStockLocInId."+flex[4]+".FNumber";
+        }
       }
     }
     Map<String, dynamic> dataMap = Map();
@@ -357,8 +378,19 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     hobby = [];
     if (orderDate.length > 0) {
       this.storehouseNumber = orderDate[0][16];
-      this.storehouseName = orderDate[0][30];
+      this.storehouseName = orderDate[0][32];
       this.showPosition = orderDate[0][26];
+      this.organizationsNumber1 = orderDate[0][28];
+      this.organizationsName1 = orderDate[0][29];
+      if(orderDate[0][30] != null && orderDate[0][30] !='' ){
+        this.organizationsNumber2 = orderDate[0][30];
+        this.organizationsName2 = orderDate[0][31];
+      }
+      if(orderDate[0][17] != null && orderDate[0][17] != ''){
+        this.storehouseNumberT = orderDate[0][17];
+        this.storehouseNameT = orderDate[0][33];
+        this.showPositionT = orderDate[0][27];
+      }
       hobby = [];
       for(var value in orderDate){
         fNumber.add(value[5]);
@@ -417,13 +449,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "title": "调出仓库",
           "name": "FStockId",
           "isHide": false,
-          "value": {"label": value[30], "value": value[16], 'dimension': ""}
+          "value": {"label": value[32], "value": value[16], 'dimension': ""}
         });
         var floc = '';
         if(fStockIds.length>0){
           for(var i = 0; i< fStockIds.length;i++){
-            if(value[32+i] != null && value[32+i] != ''){
-              floc = value[32+i];
+            if(value[34+i] != null && value[34+i] != ''){
+              floc = value[34+i];
               break;
             }
           }
@@ -438,13 +470,24 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "title": "调入仓库",
           "name": "FStockId",
           "isHide": false,
-          "value": {"label": "", "value": ""}
+          "value": {"label": value[33], "value": value[33]}
         });
+        var fIntloc = '';
+        int count = stockListObjT.where((list) => list.length > 4 && list[4] != null).length;
+        if(count>0){
+          for(var i = 0; i< count;i++){
+            print(34+i+fStockIds.length);
+              if(value[34+i+fStockIds.length] != null && value[34+i+fStockIds.length] != ''){
+                fIntloc = value[34+i+fStockIds.length];
+                break;
+              }
+          }
+        }
         arr.add({
           "title": "调入仓位",
           "name": "FStockLocID",
           "isHide": false,
-          "value": {"label": "", "value": "", "hide": false}
+          "value": {"label": fIntloc==null|| fIntloc ==''?'':fIntloc, "value": fIntloc==null|| fIntloc ==''?'':fIntloc, "hide": value[27]}
         });
         arr.add({
           "title": "最后扫描数量",
@@ -549,7 +592,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
-
+    this.getOrganizationsList();
   }
   void _onEvent(event) async {
     if (checkItem == 'FLoc' || checkItem == 'HPoc') {
@@ -2865,15 +2908,16 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           FEntityItem['FQty'] = element[3]['value']['value'];
           FEntityItem['FBaseQty'] = element[3]['value']['value'];
 
-          /*FEntityItem['FEntity_Link'] = [
+          FEntityItem['FBillEntry_Link'] = [
             {
-              "FEntity_Link_FRuleId": "DeliveryNotice-OutStock",
-              "FEntity_Link_FSTableName": "T_STK_TRANSFERAPPLYENTRY",
-              "FEntity_Link_FSBillId": orderDate[hobbyIndex][15],
-              "FEntity_Link_FSId": orderDate[hobbyIndex][4],
-              "FEntity_Link_FSALBASEQTY": element[8]['value']['value']
+              "FBillEntry_Link_FRuleId": "StkTransferApply-StkTransferDirect",
+              "FBillEntry_Link_FSTableName": "T_STK_STKTRANSFERAPPENTRY",
+              "FBillEntry_Link_FSBillId": orderDate[hobbyIndex][15],
+              "FBillEntry_Link_FSId": orderDate[hobbyIndex][4],
+              "FBillEntry_Link_FSALBASEQTY": element[8]['value']['value'],
+              "FBillEntry_Link_FBaseQty": element[8]['value']['value']
             }
-          ];*/
+          ];
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
@@ -3260,7 +3304,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         Container(
                           color: Colors.white,
                           child: ListTile(
-                            title: Text("调出仓库：${storehouseNameT==null?'':storehouseNameT}"),
+                            title: Text("调出仓库：${storehouseName==null?'':storehouseName}"),
                           ),
                         ),
                         divider,

@@ -105,7 +105,7 @@ class _RetrievalPageState extends State<AllocationPage> {
     userMap['FormId'] = 'STK_TRANSFERAPPLY';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FName,FStockInId.FName';
+    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FName,FStockInId.FName,FStockOrgInId.FNumber,FStockOrgInId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -123,7 +123,7 @@ class _RetrievalPageState extends State<AllocationPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "调入库存组织",
+          "title": "申请组织",
           "name": "",
           "isHide": false,
           "value": {"label": value[2], "value": value[1]}
@@ -169,6 +169,12 @@ class _RetrievalPageState extends State<AllocationPage> {
           "name": "",
           "isHide": false,
           "value": {"label": value[17]==null?'':value[17], "value": value[17]==null?'':value[17]}
+        });
+        arr.add({
+          "title": "调入组织",
+          "name": "",
+          "isHide": true,
+          "value": {"label": value[19], "value": value[18]}
         });
         hobby.add(arr);
       });
@@ -245,7 +251,8 @@ class _RetrievalPageState extends State<AllocationPage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return AllocationDetail(
-                              FBillNo: this.hobby[i][0]['value']
+                              FBillNo: this.hobby[i][0]['value'],
+                              FStockOrgInId: this.hobby[i][9]['value']
                             // 路由参数
                           );
                         },
