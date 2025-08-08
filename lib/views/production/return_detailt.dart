@@ -52,6 +52,7 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
   var FDate = '';
   var FStockOrgId = '';
   var FPrdOrgId = '';
+  String newBillNo='';
   var show = false;
   var isSubmit = false;
   var isScanWork = false;
@@ -2306,6 +2307,7 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
       print(res);
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         var returnData = res['Result']['NeedReturnData'];
+        newBillNo=returnData[0]['FBillNo'];
         Map<String, dynamic> submitMap = Map();
         submitMap = {
           "formid": "STK_TransferDirect",
@@ -2473,8 +2475,8 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
                   this.hobby = [];
                   this.orderDate = [];
                   this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
+                  EasyLoading.dismiss();
+                  _showSaveedDialog(newBillNo);
                 });
               } else {
                 //失败后反审
@@ -2503,6 +2505,27 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
     } else {
       ToastUtil.showInfo('无提交数据');
     }
+  }
+  /// 保存成功提示框
+  Future<void> _showSaveedDialog(String billNo) async {
+    String checkQtyResult="";
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("保存成功，生成单据号："+billNo,style: TextStyle(fontSize: 16, color: Colors.black)),
+            actions: <Widget>[
+              new ElevatedButton(
+                child: new Text('确定'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pop("refresh");
+                },
+              )
+            ],
+          );
+        });
   }
   //保存
   saveOrder() async {

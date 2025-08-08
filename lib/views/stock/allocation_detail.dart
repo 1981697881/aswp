@@ -48,6 +48,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   String FName = '';
   String FNumber = '';
   String FDate = '';
+  String newBillNo='';
   var isSubmit = false;
   var show = false;
   var isScanWork = false;
@@ -284,12 +285,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     var stockFlex = jsonDecode(stockRes);
     String order = "";
     if (stockFlex.length > 0) {
-      List stockFlexRes = [];
+      var stockFlexRes = [];
       for(var item in stockFlex){
         Map<String, dynamic> stockMap = Map();
         stockMap['FormId'] = 'BD_STOCK';
         stockMap['FieldKeys'] =
-        'FStockID,FName,FNumber,FIsOpenLocation';
+        'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
         stockMap['FilterString'] = "FNumber = '" +
             item[1] +
             "' and FUseOrgId.FNumber = '" +
@@ -299,31 +300,30 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         stockDataMap['data'] = stockMap;
         String res = await CurrencyEntity.polling(stockDataMap);
         if (jsonDecode(res).length > 0) {
-          stockFlexRes.addAll(jsonDecode(res));
-        }
-      }
-      print(stockFlexRes);
-      List stockData = [];
-      for(var item in stockFlexRes){
-        if(item[4] != null){
-          userMap['FieldKeys'] ='FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FStockId.FNumber,FStockLocId.'+item[4] +'.FName,FBaseUnitId.FNumber,FBaseUnitId.FName,FBaseQty,FLot.FNumber,FOwnerId.FNumber,FMaterialId.FIsBatchManage,FProduceDate,FExpiryDate,FMaterialId.FIsKFPeriod,FID';
-          Map<String, dynamic> dataMap = Map();
-          dataMap['data'] = userMap;
-          order = await CurrencyEntity.polling(dataMap);
-          var orderRes = jsonDecode(order);
-          if (orderRes.length > 0) {
-            for(var flexItem in orderRes){
-              flexItem.add(item[4]);
-            }
-            stockData.addAll(orderRes);
+          if(stockFlexRes.indexOf(jsonDecode(res)[0][4]) == -1 && jsonDecode(res)[0][4] != null){
+            stockFlexRes.add(jsonDecode(res)[0][4]);
           }
         }
+      }
+      List stockData = [];
+      userMap['FieldKeys'] ='FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FStockId.FNumber,FBaseUnitId.FNumber,FBaseUnitId.FName,FBaseQty,FLot.FNumber,FOwnerId.FNumber,FMaterialId.FIsBatchManage,FProduceDate,FExpiryDate,FMaterialId.FIsKFPeriod,FID,FStockId.FIsOpenLocation';
+      for(var item in stockFlexRes){
+        if(item != null){
+          userMap['FieldKeys'] += ',FStockLocId.'+item +'.FName';
+        }
+      }
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = userMap;
+      order = await CurrencyEntity.polling(dataMap);
+      var orderRes = jsonDecode(order);
+      if (orderRes.length > 0) {
+        stockData.addAll(orderRes);
       }
       setState(() {
         EasyLoading.dismiss();
       });
       if(stockData.length>0){
-        await _showMultiChoiceModalBottomSheet(context, stockData);
+        await _showMultiChoiceModalBottomSheet(context, stockData, stockFlexRes);
       }else{
         ToastUtil.showInfo('无库存数量');
       }
@@ -333,6 +333,150 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       });
       ToastUtil.showInfo('无数据');
     }
+  }
+  getInventoryDataList(data,stockDataList) async {
+    EasyLoading.show(status: 'loading...');
+    FDate = formatDate(DateTime.now(), [
+      yyyy,
+      "-",
+      mm,
+      "-",
+      dd,
+    ]);
+    selectData[DateMode.YMD] = formatDate(DateTime.now(), [
+      yyyy,
+      "-",
+      mm,
+      "-",
+      dd,
+    ]);
+    if (data.length > 0) {
+      this.fOrgID = data[0][10];
+      this.storehouseNumber = data[0][4];
+      this.storehouseName = data[0][3];
+      this.showPosition = data[0][15];
+      // hobby = [];
+      data.forEach((value) {
+        List arr = [];
+        arr.add({
+          "title": "物料名称",
+          "name": "FMaterial",
+          "isHide": false,
+          "value": {
+            "label": value[1] + "- (" + value[0] + ")",
+            "value": value[0],
+            "fid": value[14],
+            "barcode": []
+          }
+        });
+        arr.add({
+          "title": "规格型号",
+          "name": "FMaterialIdFSpecification",
+          "isHide": true,
+          "value": {"label": value[2], "value": value[2]}
+        });
+        arr.add({
+          "title": "单位名称",
+          "name": "FUnitId",
+          "isHide": false,
+          "value": {"label": value[6], "value": value[5]}
+        });
+        arr.add({
+          "title": "调拨数量",
+          "name": "FBaseQty",
+          "isHide": false,
+          "value": {"label": "", "value": "0"}
+        });
+        arr.add({
+          "title": "申请数量",
+          "name": "FRemainOutQty",
+          "isHide": true,
+          "value": {"label": "", "value": "0"}
+        });
+        arr.add({
+          "title": "批号",
+          "name": "FLot",
+          "isHide": value[10] != true,
+          "value": {"label": value[8], "value": value[8]}
+        });
+        arr.add({
+          "title": "调出仓库",
+          "name": "FStockId",
+          "isHide": false,
+          "value": {"label": value[3], "value": value[4], 'dimension': ''}
+        });
+
+        var floc = '';
+        if(stockDataList.length>0){
+          for(var i = 0; i< stockDataList.length;i++){
+            if(value[16+i] != null && value[16+i] != ''){
+              floc = value[16+i];
+              break;
+            }
+          }
+        }
+        arr.add({
+          "title": "调出仓位",
+          "name": "FStockLocID",
+          "isHide": false,
+          "value": {"label": floc==null|| floc ==''?'':floc, "value": floc==null|| floc ==''?'':floc, "hide": value[15]}
+        });
+        arr.add({
+          "title": "调入仓库",
+          "name": "FStockId",
+          "isHide": false,
+          "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "调入仓位",
+          "name": "FStockLocID",
+          "isHide": false,
+          "value": {"label": "", "value": "", 'hide': false}
+        });
+        arr.add({
+          "title": "最后扫描数量",
+          "name": "FLastQty",
+          "isHide": true,
+          "value": {"label": "0", "value": "0"}
+        });
+        arr.add({
+          "title": "生产日期",
+          "name": "FProduceDate",
+          "isHide": value[13] != true,
+          "value": {
+            "label": value[11] == null ? '' : value[11].substring(0, 10),
+            "value": value[11] == null ? '' : value[11].substring(0, 10)
+          }
+        });
+        arr.add({
+          "title": "有效期至",
+          "name": "FExpiryDate",
+          "isHide": value[13] != true,
+          "value": {
+            "label": value[12] == null ? '' : value[12].substring(0, 10),
+            "value": value[12] == null ? '' : value[12].substring(0, 10)
+          }
+        });
+        arr.add({
+          "title": "操作",
+          "name": "",
+          "isHide": false,
+          "value": {"label": "", "value": ""}
+        });
+        hobby.add(arr);
+      });
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+    } else {
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+      ToastUtil.showInfo('无数据');
+    }
+    FocusScope.of(context).requestFocus(FocusNode());
   }
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
@@ -2694,7 +2838,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   }
 
   Future<List<int>?> _showMultiChoiceModalBottomSheet(
-      BuildContext context, List<dynamic> options) async {
+      BuildContext context, List<dynamic> options, List<dynamic> stockDataList) async {
     List selected = [];
     var selectList = this.hobby;
     for (var select in selectList) {
@@ -2706,8 +2850,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         }
       }
     }
-    print(options);
-    print(selected);
+    // print(options);
+    // print(selected);
     return showModalBottomSheet<List<int>?>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -2726,7 +2870,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             height: MediaQuery.of(context).size.height / 2.0,
             child: Column(children: [
               _getModalSheetHeaderWithConfirm(
-                '商品选择',
+                options[0][1],
                 onCancel: () {
                   Navigator.of(context).pop();
                 },
@@ -2734,16 +2878,15 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   var itemList = [];
                   for (var select in selectList) {
                     for(var item in selected){
-                      print(select[0]['fid'] == item[15]);
-                      if (select[0]['fid'] != item[15]) {
+                      if (select[0]['value']['fid'] != item[15]) {
                         itemList.add(item);
                       }
                     }
                   }
                   if(selectList.length == 0){
-                    this.getOrderList();
+                    this.getInventoryDataList(selected,stockDataList);
                   }else{
-                    this.getOrderList();
+                    this.getInventoryDataList(itemList,stockDataList);
                   }
                   Navigator.of(context).pop();
                 },
@@ -2752,13 +2895,22 @@ class _RetrievalDetailState extends State<AllocationDetail> {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
+                    var floc = null;
+                    if(stockDataList.length>0){
+                      for(var i = 0; i< stockDataList.length;i++){
+                        if(options[index][16+i] != null && options[index][16+i] != ''){
+                          floc = options[index][16+i];
+                          break;
+                        }
+                      }
+                    }
                     return ListTile(
                       trailing: Icon(
                           selected.contains(options[index])
                               ? Icons.check_box
                               : Icons.check_box_outline_blank,
                           color: Theme.of(context).primaryColor),
-                      title: Text(options[index][1]+';仓库：'+options[index][3]+';仓位：'+(options[index][5]==null?'无':options[index][5])),
+                      title: Text('仓库:'+options[index][3]+';仓位:'+(floc==null?'无':floc)+';数量:'+options[index][7].toString()),
                       onTap: () {
                         setState(() {
                           if (selected.contains(options[index])) {
@@ -2766,14 +2918,14 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           } else {
                             var number = 0;
                             for (var element in hobby) {
-                              if (element[0]['fid'] == options[index][15]) {
+                              if (element[0]['value']['fid'] == options[index][14]) {
                                 number++;
                               }
                             }
                             if(number==0){
                               selected.add(options[index]);
                             }else{
-                              ToastUtil.showInfo('商品已存在');
+                              ToastUtil.showInfo('库存已存在');
                             }
                           }
                           print(selected);
@@ -2907,17 +3059,18 @@ class _RetrievalDetailState extends State<AllocationDetail> {
 
           FEntityItem['FQty'] = element[3]['value']['value'];
           FEntityItem['FBaseQty'] = element[3]['value']['value'];
-
-          FEntityItem['FBillEntry_Link'] = [
-            {
-              "FBillEntry_Link_FRuleId": "StkTransferApply-StkTransferDirect",
-              "FBillEntry_Link_FSTableName": "T_STK_STKTRANSFERAPPENTRY",
-              "FBillEntry_Link_FSBillId": orderDate[hobbyIndex][15],
-              "FBillEntry_Link_FSId": orderDate[hobbyIndex][4],
-              "FBillEntry_Link_FSALBASEQTY": element[8]['value']['value'],
-              "FBillEntry_Link_FBaseQty": element[8]['value']['value']
-            }
-          ];
+          if(isScanWork){
+            FEntityItem['FBillEntry_Link'] = [
+              {
+                "FBillEntry_Link_FRuleId": "StkTransferApply-StkTransferDirect",
+                "FBillEntry_Link_FSTableName": "T_STK_STKTRANSFERAPPENTRY",
+                "FBillEntry_Link_FSBillId": orderDate[hobbyIndex][15],
+                "FBillEntry_Link_FSId": orderDate[hobbyIndex][4],
+                "FBillEntry_Link_FSALBASEQTY": element[8]['value']['value'],
+                "FBillEntry_Link_FBaseQty": element[8]['value']['value']
+              }
+            ];
+          }
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
@@ -2937,6 +3090,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       print(res);
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         var returnData = res['Result']['NeedReturnData'];
+        newBillNo=returnData[0]['FBillNo'];
         Map<String, dynamic> submitMap = Map();
         submitMap = {
           "formid": "STK_TransferDirect",
@@ -3135,7 +3289,27 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       ToastUtil.showInfo('无提交数据');
     }
   }
-
+  /// 保存成功提示框
+  Future<void> _showSaveedDialog(String billNo) async {
+    String checkQtyResult="";
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("保存成功，生成单据号："+billNo,style: TextStyle(fontSize: 16, color: Colors.black)),
+            actions: <Widget>[
+              new ElevatedButton(
+                child: new Text('确定'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pop("refresh");
+                },
+              )
+            ],
+          );
+        });
+  }
   /// 确认提交提示对话框
   Future<void> _showSumbitDialog() async {
     return showDialog<void>(
@@ -3200,84 +3374,97 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             children: <Widget>[
               Expanded(
                 child: ListView(children: <Widget>[
-                  /*Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: Text("单号：$FBillNo"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),*/
-                  /*Container(
-                    height: 52.0,
-                    child: new Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: Row(children: [
-                        Card(
-                          child: new Container(
-                              width: hc_ScreenWidth() - 80,
-                              child: Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  SizedBox(
-                                    width: 6.0,
-                                  ),
-                                  Icon(
-                                    Icons.search,
-                                    color: Colors.grey,
-                                  ),
-                                  Expanded(
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      child: TextField(
-                                        controller: this.controller,
-                                        decoration: new InputDecoration(
-                                            contentPadding:
-                                            EdgeInsets.only(
-                                                bottom: 12.0),
-                                            hintText: '物料编码',
-                                            border: InputBorder.none),
-                                        onSubmitted: (value) {
-                                          setState(() {
-                                            this.keyWord = value;
-                                            this.getInventoryList();
-                                          });
-                                        },
+
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: this.fBillNo == '' || this.fBillNo == null,
+                    child: Container(
+                      height: 52.0,
+                      child: new Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Row(children: [
+                          Card(
+                            child: new Container(
+                                width: hc_ScreenWidth() - 80,
+                                child: Row(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.center,
+                                  children: <Widget>[
+                                    SizedBox(
+                                      width: 6.0,
+                                    ),
+                                    Icon(
+                                      Icons.search,
+                                      color: Colors.grey,
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        child: TextField(
+                                          controller: this.controller,
+                                          decoration: new InputDecoration(
+                                              contentPadding:
+                                              EdgeInsets.only(
+                                                  bottom: 12.0),
+                                              hintText: '物料编码',
+                                              border: InputBorder.none),
+                                          onSubmitted: (value) {
+                                            setState(() {
+                                              this.keyWord = value;
+                                              this.getInventoryList();
+                                            });
+                                          },
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  new IconButton(
-                                    icon: new Icon(Icons.cancel),
-                                    color: Colors.grey,
-                                    iconSize: 18.0,
-                                    onPressed: () {
-                                      this.controller.clear();
-                                    },
-                                  ),
-                                ],
-                              )),
-                        ),
-                        new SizedBox(
-                          width: 60.0,
-                          height: 40.0,
-                          child: new RaisedButton(
-                            color: Colors.lightBlueAccent,
-                            child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
-                            onPressed: (){
-                              setState(() {
-                                this.keyWord = this.controller.text;
-                                this.getInventoryList();
-                              });
-                            },
+                                    new IconButton(
+                                      icon: new Icon(Icons.cancel),
+                                      color: Colors.grey,
+                                      iconSize: 18.0,
+                                      onPressed: () {
+                                        this.controller.clear();
+                                      },
+                                    ),
+                                  ],
+                                )),
+                          ),
+                          new SizedBox(
+                            width: 60.0,
+                            height: 40.0,
+                            child: new RaisedButton(
+                              color: Colors.lightBlueAccent,
+                              child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                              onPressed: (){
+                                setState(() {
+                                  this.keyWord = this.controller.text;
+                                  this.getInventoryList();
+                                });
+                              },
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: this.fBillNo == '' || this.fBillNo == null,
+                    child: Column(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          child: ListTile(
+                            title: Text("单号：$FBillNo"),
                           ),
                         ),
-                      ]),
+                        divider,
+                      ],
                     ),
-                  ),*/
+                  ),
                   _dateItem('日期：', DateMode.YMD),
                   /*_item('调出组织', this.organizationsList, this.organizationsName1,
                       'organizations1'),*/

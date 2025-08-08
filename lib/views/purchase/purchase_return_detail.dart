@@ -47,6 +47,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
   String FNumber = '';
   String supName = '';
   String FDate = '';
+  String newBillNo='';
   var supplierName;
   var supplierNumber;
   var typeName;
@@ -2664,6 +2665,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         Map<String, dynamic> submitMap = Map();
         var returnData = res['Result']['NeedReturnData'];
+        newBillNo=returnData[0]['FBillNo'];
         submitMap = {
           "formid": "PUR_MRB",
           "data": {
@@ -2775,8 +2777,8 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                   this.hobby = [];
                   this.orderDate = [];
                   this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
+                  EasyLoading.dismiss();
+                  _showSaveedDialog(newBillNo);
                 });
               } else {
                 //失败后反审
@@ -2809,6 +2811,27 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     } else {
       ToastUtil.showInfo('无提交数据');
     }
+  }
+  /// 保存成功提示框
+  Future<void> _showSaveedDialog(String billNo) async {
+    String checkQtyResult="";
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("保存成功，生成单据号："+billNo,style: TextStyle(fontSize: 16, color: Colors.black)),
+            actions: <Widget>[
+              new ElevatedButton(
+                child: new Text('确定'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pop("refresh");
+                },
+              )
+            ],
+          );
+        });
   }
   /// 确认提交提示对话框
   Future<void> _showSumbitDialog() async {

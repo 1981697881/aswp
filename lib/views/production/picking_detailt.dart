@@ -65,6 +65,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
   var FDate = '';
   var FStockOrgId = '';
   var FPrdOrgId = '';
+  String newBillNo='';
   var show = false;
   var isSubmit = false;
   var isSubmitT = false;
@@ -2942,8 +2943,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
           this.hobby = [];
           this.orderDate = [];
           this.FBillNo = '';
-          ToastUtil.showInfo('提交成功');
-          Navigator.of(context).pop("refresh");
+          EasyLoading.dismiss();
+          _showSaveedDialog(newBillNo);
         } else {
           unAuditOrder(auditMap,
               res['Result']['ResponseStatus']['Errors'][0]['Message']);
@@ -2956,7 +2957,27 @@ class _PickingDetailtState extends State<PickingDetailt> {
       }
     }
   }
-
+  /// 保存成功提示框
+  Future<void> _showSaveedDialog(String billNo) async {
+    String checkQtyResult="";
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("保存成功，生成单据号："+billNo,style: TextStyle(fontSize: 16, color: Colors.black)),
+            actions: <Widget>[
+              new ElevatedButton(
+                child: new Text('确定'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pop("refresh");
+                },
+              )
+            ],
+          );
+        });
+  }
   //提交
   submitOrder(Map<String, dynamic> submitMap) async {
     var subData = await SubmitEntity.submit(submitMap);
@@ -2973,57 +2994,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          //auditOrder(auditMap);
-          var errorMsg = "";
-          if (fBarCodeList == 1) {
-            for (int i = 0; i < this.hobby.length; i++) {
-              if (this.hobby[i][3]['value']['value'] != '0') {
-                var kingDeeCode = this.hobby[i][0]['value']['kingDeeCode'];
-                for (int j = 0; j < kingDeeCode.length; j++) {
-                  Map<String, dynamic> dataCodeMap = Map();
-                  dataCodeMap['formid'] = 'QDEP_Cust_BarCodeList';
-                  Map<String, dynamic> orderCodeMap = Map();
-                  orderCodeMap['NeedReturnFields'] = [];
-                  orderCodeMap['IsDeleteEntry'] = false;
-                  Map<String, dynamic> codeModel = Map();
-                  var itemCode = kingDeeCode[j].split("-");
-                  codeModel['FID'] = itemCode[0];
-                  Map<String, dynamic> codeFEntityItem = Map();
-                  codeFEntityItem['FBillDate'] = FDate;
-                  codeFEntityItem['FOutQty'] = itemCode[1];
-                  codeFEntityItem['FEntryBillNo'] = orderDate[0][0];
-                  codeFEntityItem['FEntryStockID'] = {
-                    "FNUMBER": this.hobby[i][4]['value']['value']
-                  };
-                  var codeFEntity = [codeFEntityItem];
-                  codeModel['FEntity'] = codeFEntity;
-                  orderCodeMap['Model'] = codeModel;
-                  dataCodeMap['data'] = orderCodeMap;
-                  print(dataCodeMap);
-                  String codeRes = await SubmitEntity.save(dataCodeMap);
-                  var barcodeRes = jsonDecode(codeRes);
-                  if (!barcodeRes['Result']['ResponseStatus']['IsSuccess']) {
-                    errorMsg += "错误反馈：" +
-                        itemCode[1] +
-                        ":" +
-                        barcodeRes['Result']['ResponseStatus']['Errors'][0]
-                        ['Message'];
-                  }
-                  print(codeRes);
-                }
-              }
-            }
-          }
-          if (errorMsg != "") {
-            ToastUtil.errorDialog(context, errorMsg);
-          }
-          //提交清空页面
-          /*handlerStatus();*/
-          this.hobby = [];
-          this.orderDate = [];
-          this.FBillNo = '';
-          ToastUtil.showInfo('提交成功');
-          Navigator.of(context).pop("refresh");
+          auditOrder(auditMap);
         } else {
           setState(() {
             this.isSubmit = false;
@@ -3046,7 +3017,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
       'FSerialNo',
       'FSNQty'
     ];
-    orderMap['NeedReturnFields'] = ['FEntity', 'FSerialSubEntity', 'FSerialNo'];
+    orderMap['NeedReturnFields'] = ['FBillNo'];
     orderMap['IsDeleteEntry'] = true;
     Map<String, dynamic> Model = Map();
     Model['FID'] = orderDate[0][14];
@@ -3228,6 +3199,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
     var res = jsonDecode(order);
     print(res);
     if (res['Result']['ResponseStatus']['IsSuccess']) {
+      var returnData = res['Result']['NeedReturnData'];
+      newBillNo=returnData[0]['FBillNo'];
       Map<String, dynamic> submitMap = Map();
       submitMap = {
         "formid": "PRD_PickMtrl",

@@ -104,8 +104,14 @@ class _StockPageState extends State<StockPage> {
     var isPosition = false;
     userMap['FilterString'] = "FBaseQty>0 and FStockOrgID.FNumber = '" +tissue + "'";
     if (keyWord != '') {
-          userMap['FilterString'] += " and (FMaterialId.FNumber like '%"+keyWord.split(";")[0]+"%' or FMaterialId.FName like '%"+keyWord.split(";")[0]+"%')";
-        if (batchNo != '') {
+          userMap['FilterString'] += " and (FMaterialId.FNumber like '%"+keyWord.split(";")[0]+"%' or FMaterialId.FName like '%"+keyWord.split(";")[0]+"%'";
+          if(fStockIds.length>0){
+            for(var flex in fStockIds){
+              userMap['FilterString'] += " or FStockLocId."+flex[4]+".FNumber like '%"+keyWord.split(";")[0]+"%'";
+            }
+          }
+          userMap['FilterString'] +=")";
+          if (batchNo != '') {
           userMap['FilterString'] += " and FLot.FNumber= '"+batchNo+"'";
         }
           if (this.warehouseNumber != null) {
@@ -552,10 +558,6 @@ class _StockPageState extends State<StockPage> {
                                                       this.getOrderList(
                                                           this.keyWord, "", "");
                                                     });
-                                                  },
-                                                  onTap: () {
-                                                    // 处理点击事件（可选）
-                                                    print("文本框被点击");
                                                   },
                                                   // onChanged: onSearchTextChanged,
                                                 ),

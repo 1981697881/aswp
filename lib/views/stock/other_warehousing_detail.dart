@@ -42,6 +42,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   String FSaleOrderNo = '';
   String FName = '';
   String FNumber = '';
+  String newBillNo='';
   var supplierName;
   var supplierNumber;
   var departmentName;
@@ -1400,7 +1401,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       dataMap['formid'] = 'STK_MISCELLANEOUS';
       Map<String, dynamic> orderMap = Map();
       orderMap['NeedUpDataFields'] = ['FEntity','FSerialSubEntity','FSerialNo'];
-      orderMap['NeedReturnFields'] = ['FEntity','FSerialSubEntity','FSerialNo'];
+      orderMap['NeedReturnFields'] = [
+        'FBillNo',
+      ];
       orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
@@ -1525,6 +1528,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       print(res);
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         Map<String, dynamic> submitMap = Map();
+        var returnData = res['Result']['NeedReturnData'];
+        newBillNo=returnData[0]['FBillNo'];
         submitMap = {
           "formid": "STK_MISCELLANEOUS",
           "data": {
@@ -1640,8 +1645,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                   this.orderDate = [];
                   this.materialDate = [];
                   this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
+                  EasyLoading.dismiss();
+                  _showSaveedDialog(newBillNo);
                 });
               } else {
                 //失败后反审
@@ -1674,6 +1679,27 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     } else {
       ToastUtil.showInfo('无提交数据');
     }
+  }
+  /// 保存成功提示框
+  Future<void> _showSaveedDialog(String billNo) async {
+    String checkQtyResult="";
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("保存成功，生成单据号："+billNo,style: TextStyle(fontSize: 16, color: Colors.black)),
+            actions: <Widget>[
+              new ElevatedButton(
+                child: new Text('确定'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pop("refresh");
+                },
+              )
+            ],
+          );
+        });
   }
   /// 确认提交提示对话框
   Future<void> _showSumbitDialog() async {

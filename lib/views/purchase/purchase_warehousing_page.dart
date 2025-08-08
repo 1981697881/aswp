@@ -84,12 +84,12 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] +=/*and FActlandQty>0*/
-        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%')";
+        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSrcBillNo like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%')";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] +=/*and FActlandQty>0*/
-        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%')";
+        " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FSrcBillNo like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%')";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
