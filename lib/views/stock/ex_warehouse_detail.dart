@@ -170,7 +170,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"'";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"' and F_MSD_Text = '是'";
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;

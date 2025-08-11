@@ -141,7 +141,7 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"' and FIsStock = 1";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"' and FIsStock = 1 and F_MSD_Text = '是'";
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;

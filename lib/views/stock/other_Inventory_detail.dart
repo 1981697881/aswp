@@ -107,7 +107,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
     var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"'";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"' and F_MSD_Text = '是'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
