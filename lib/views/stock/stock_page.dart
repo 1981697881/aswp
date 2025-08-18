@@ -40,9 +40,11 @@ class _StockPageState extends State<StockPage> {
   var fSn = "";
   var fBarCodeList;
   var warehouseList = [];
+  var searchStockList = [];
   List<dynamic> warehouseListObj = [];
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
+  final searchController = TextEditingController();
   _StockPageState(value) {
     if (value != null) {
       this._onEvent(value);
@@ -78,7 +80,7 @@ class _StockPageState extends State<StockPage> {
   getStockList() async {
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
-    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
+    userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation,FFlexNumber';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     userMap['FilterString'] = "FForbidStatus = 'A' and FDocumentStatus = 'C' and FUseOrgId.FNumber ='" + tissue + "'";//
@@ -485,7 +487,102 @@ class _StockPageState extends State<StockPage> {
       },
     );
   }
+  setClickData(List<dynamic> dataItem, int type) async{
+    setState(() {
+      warehouseName = dataItem[1];
+      warehouseNumber =dataItem[2];
+      this.keyWord = this.controller.text;
+      if (this.keyWord != '') {
+        this.getOrderList(this.keyWord, "", "");
+      }else{
+        this.getOrderList("", "", "");
+      }
+    });
+  }
 
+  Future<List<int>?> _showChoiceModalBottomSheet(
+      BuildContext context, List<dynamic> options, int type, List<dynamic> stockList) async {
+    List selected = [];
+    return showModalBottomSheet<List<int>?>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context1, setState) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),
+            ),
+            height: MediaQuery.of(context).size.height / 2.0,
+            child: Column(children: [
+              Row(
+                crossAxisAlignment:
+                CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: 6.0,
+                  ),
+                  Icon(
+                    Icons.search,
+                    color: Colors.grey,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 10.0,left: 10.0),
+                      alignment: Alignment.center,
+                      child: TextField(
+                        controller: this.searchController,
+                        decoration: new InputDecoration(
+                            contentPadding:
+                            EdgeInsets.only(
+                                bottom: 12.0),
+                            hintText: '输入关键字',
+                            border: InputBorder.none),
+                        onSubmitted: (value){
+                          options = [];
+                          options = stockList;
+                          setState(() {
+                            options = options.where((item) => item[1].contains(value)).toList();
+                            //options = options.where((item) => item.contains(value)).toList()..sort((a,b)=> double.parse(a.toString().replaceAll('kg', '')).compareTo(double.parse(b.toString().replaceAll('kg', ''))));
+                            print(options);
+                          });
+                        },
+                        // onChanged: onSearchTextChanged,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              Divider(height: 1.0),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      title: new Row(children: <Widget>[Text(options[index][1],
+                      )
+                      ], mainAxisAlignment: MainAxisAlignment.center,),
+                      onTap: () async{
+                        await this.setClickData(options[index], type);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                  itemCount: options.length,
+                ),
+              ),
+            ]),
+          );
+        });
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -584,8 +681,30 @@ class _StockPageState extends State<StockPage> {
                             child: Padding(
                               padding:
                                   const EdgeInsets.fromLTRB(5.0, 0, 5.0, 0),
-                              child: _item('仓库:', this.warehouseList,
-                                  this.warehouseName, 'warehouse'),
+                              child: Column(children: [
+                                Container(
+                                  color: Colors.white,
+                                  child: ListTile(
+
+                                      title: Text('仓库：${warehouseName!=null ? warehouseName: "暂无"}'),
+                                      trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            IconButton(
+                                              icon: new Icon(Icons.chevron_right),
+                                              onPressed: () {
+                                                this.controller.clear();
+                                                this.searchStockList = [];
+                                                this.searchStockList = this.warehouseListObj;
+                                                _showChoiceModalBottomSheet(context, this.searchStockList,0, this.warehouseListObj);
+                                              },
+                                            ),
+                                          ])),
+
+                                ),
+                                divider,
+                              ]),/*_item('仓库:', this.warehouseList,
+                                  this.warehouseName, 'warehouse'),*/
                             ),
                           ),
                         ],

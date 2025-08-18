@@ -265,7 +265,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     Map<String, dynamic> userMap = Map();
     if(this.keyWord != '' && this.organizationsNumber1 != null){
       userMap['FilterString'] =
-          "FMaterialId.FNumber='"+this.keyWord+"' and FBaseQty >0 and FStockOrgId.FNumber="+this.organizationsNumber1.toString();
+          "(FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FBaseQty>0 and FStockOrgId.FNumber='${this.organizationsNumber1}'";
     }else{
       if(this.keyWord == ""){
         ToastUtil.showInfo('请输入查询信息');
@@ -279,6 +279,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
     'FStockOrgId.FNumber,FStockId.FNumber';
+    userMap['Limit'] = '50';
     Map<String, dynamic> stockMap = Map();
     stockMap['data'] = userMap;
     String stockRes = await CurrencyEntity.polling(stockMap);

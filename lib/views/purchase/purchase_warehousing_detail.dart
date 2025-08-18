@@ -1676,8 +1676,83 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                 divider,
               ]),
             );
+          }if (j == 3 || j==5) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FNumber';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
           } else if (j == 5) {
             comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FNumber';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
+            /*comList.add(
               Column(children: [
                 Container(
                   color: Colors.white,
@@ -1711,7 +1786,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             if (this._textNumber2[i].text == null ||
                 this._textNumber2[i].text == '') {
               this._textNumber2[i].text = this.hobby[i][j]["value"]["label"];
-            }
+            }*/
           } else if (j == 4) {
             // comList.add(
             //   _item('仓库:', stockList, this.hobby[i][j]['value']['label'],
@@ -2187,17 +2262,17 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                               if (this.hobby[checkData][checkDataChild]
                                       ["title"] ==
                                   "实收数量") {
-                                if (double.parse(_FNumber) <=
+                                /*if (double.parse(_FNumber) <=
                                     this.hobby[checkData][9]["value"]
-                                        ['rateValue']) {
+                                        ['rateValue']) {*/
                                   this.hobby[checkData][checkDataChild]["value"]
                                       ["label"] = _FNumber;
                                   this.hobby[checkData][checkDataChild]['value']
                                       ["value"] = _FNumber;
                                   Navigator.pop(context);
-                                } else {
+                                /*} else {
                                   ToastUtil.showInfo('输入数量大于可用数量');
-                                }
+                                }*/
                               } else if (checkItem == 'position') {
                                 //录入仓位个数
                                 var positionList = _FNumber.split(",");
