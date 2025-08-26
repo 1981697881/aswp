@@ -62,6 +62,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
   var isError = false;
   var isSubmit = false;
   var isScanWork = false;
+  var isOpenLocation = false;
   var fBarCodeList;
   var checkData;
   var checkDataChild;
@@ -456,7 +457,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
                " and FLot.FNumber='" + barcodeData[0][17] + "'";
          }
        }
-        if (fIsOpenLocation) {
+        if (isOpenLocation) {
           userMap['FilterString'] += " and FStockLocId." +
               flexNumber +
               ".FNumber = '" +
@@ -465,17 +466,23 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
         }
       }
     }
+    if(flexNumber != null){
+      userMap['FieldKeys'] =
+          'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId.' +
+              flexNumber +
+              '.FNumber,FStockLocId.' +
+              flexNumber +
+              '.FNumber,FStockLocId.' +
+              flexNumber +
+              '.FNumber,FStockLocId.' +
+              flexNumber +
+              '.FNumber,FStockID.FIsOpenLocation,FAuxPropId,FProduceDate,FExpiryDate';
+    }else{
+      userMap['FieldKeys'] =
+          'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId,FStockLocId,FStockLocId,FStockLocId,FStockID.FIsOpenLocation,FAuxPropId,FProduceDate,FExpiryDate';
+    }
     userMap['FormId'] = 'STK_StockCountInput';
-    userMap['FieldKeys'] =
-        'FStockOrgId.FNumber,FMaterialId.FName,FMaterialId.FNumber,FMaterialId.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FStockId.FNumber,FAcctQty,FStockName,FLot.FNumber,FStockStatusId.FNumber,FKeeperTypeId,FKeeperId.FNumber,FOwnerId.FNumber,FBillEntry_FEntryID,FID,FStockLocId.' +
-            flexNumber +
-            '.FNumber,FStockLocId.' +
-            flexNumber +
-            '.FNumber,FStockLocId.' +
-            flexNumber +
-            '.FNumber,FStockLocId.' +
-            flexNumber +
-            '.FNumber,FStockID.FIsOpenLocation,FAuxPropId,FProduceDate,FExpiryDate';
+
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -1009,6 +1016,7 @@ class _SchemeInventoryDetailState extends State<SchemeInventoryDetail> {
               if (element == p) {
                 stockNumber = stockListObj[elementIndex][2];
                 flexNumber = stockListObj[elementIndex][4];
+                isOpenLocation = stockListObj[elementIndex][3];
               }
               elementIndex++;
             });

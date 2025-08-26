@@ -693,7 +693,7 @@ class _StockPageState extends State<StockPage> {
                                             IconButton(
                                               icon: new Icon(Icons.chevron_right),
                                               onPressed: () {
-                                                this.controller.clear();
+                                                this.searchController.clear();
                                                 this.searchStockList = [];
                                                 this.searchStockList = this.warehouseListObj;
                                                 _showChoiceModalBottomSheet(context, this.searchStockList,0, this.warehouseListObj);

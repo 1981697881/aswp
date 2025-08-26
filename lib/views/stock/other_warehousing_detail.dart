@@ -125,6 +125,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getStockList();
     //getOrganizationsList();
 
+
   }
   //获取部门
   getDepartmentList() async {
@@ -885,6 +886,43 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 Container(
                   color: Colors.white,
                   child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FNumber';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
+            /*comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
                       title: Text(this.hobby[i][j]["title"]),
                       trailing:
                       Row(
@@ -913,7 +951,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             );
             if(this._textNumber2[i].text == null || this._textNumber2[i].text == ''){
               this._textNumber2[i].text = this.hobby[i][j]["value"]["label"];
-            }
+            }*/
           } else if (j == 4) {
             // comList.add(
             //   _item('仓库:', stockList, this.hobby[i][j]['value']['label'],

@@ -47,6 +47,7 @@ class _RetrievalDetailState extends State<ReturnAllocationDetail> {
   String FName = '';
   String FNumber = '';
   String FDate = '';
+  String newBillNo='';
   var isSubmit = false;
   var show = false;
   var isScanWork = false;
@@ -2466,6 +2467,44 @@ class _RetrievalDetailState extends State<ReturnAllocationDetail> {
                 divider,
               ]),
             );
+          } else if (j == 5 && this.fBillNo == '') {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FNumber';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
           } else {
             comList.add(
               Column(children: [
@@ -2894,6 +2933,7 @@ class _RetrievalDetailState extends State<ReturnAllocationDetail> {
       print(res);
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         var returnData = res['Result']['NeedReturnData'];
+        newBillNo=returnData[0]['FBillNo'];
         Map<String, dynamic> submitMap = Map();
         submitMap = {
           "formid": "STK_TransferDirect",
@@ -3061,8 +3101,7 @@ class _RetrievalDetailState extends State<ReturnAllocationDetail> {
                   this.hobby = [];
                   this.orderDate = [];
                   this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
+                  _showSaveedDialog(newBillNo);
                 });
               } else {
                 //失败后反审
@@ -3092,7 +3131,27 @@ class _RetrievalDetailState extends State<ReturnAllocationDetail> {
       ToastUtil.showInfo('无提交数据');
     }
   }
-
+  /// 保存成功提示框
+  Future<void> _showSaveedDialog(String billNo) async {
+    String checkQtyResult="";
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("保存成功，生成单据号："+billNo,style: TextStyle(fontSize: 16, color: Colors.black)),
+            actions: <Widget>[
+              new ElevatedButton(
+                child: new Text('确定'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pop("refresh");
+                },
+              )
+            ],
+          );
+        });
+  }
   /// 确认提交提示对话框
   Future<void> _showSumbitDialog() async {
     return showDialog<void>(

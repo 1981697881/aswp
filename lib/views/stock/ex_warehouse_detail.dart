@@ -134,7 +134,6 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     getStockList();
     getDepartmentList();
     getStatusTypeList();
-    //_onEvent("31001;AQ50324305N1;2025-03-24;200;MO002936,1035209536;18");
 
   }
   void _setupListener(int index) {
@@ -2659,7 +2658,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       var tissue = sharedPreferences.getString('tissue');
       Model['FStockOrgId'] = {"FNumber": tissue};
       Model['FPickOrgId'] = {"FNumber": tissue};
-      if (this.departmentNumber  != null) {
+      if (this.departmentNumber != null) {
         Model['FDeptId'] = {"FNumber": this.departmentNumber};
       }
       /*if (this.customerNumber  != null) {
