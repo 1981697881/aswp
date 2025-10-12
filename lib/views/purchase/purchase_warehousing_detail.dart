@@ -108,7 +108,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   _PurchaseWarehousingDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
-      this.getOrderList();
+      this.getOrderPush();
       isScanWork = true;
     } else {
       isScanWork = false;
@@ -284,24 +284,93 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   // 查询数据集合
   List hobby = [];
   List fNumber = [];
-
-  getOrderList() async {
+  //下推
+  getOrderPush() async {
     Map<String, dynamic> userMap = Map();
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var tissue = sharedPreferences.getString('tissue');
-    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
-    print(fBillNo);
     userMap['FilterString'] = "FBillNo='$fBillNo' and FENTRYSTATUS = 'A'";
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber,FDetailEntity_FSeq,FMaterialId.FIsKFPeriod';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber,FDetailEntity_FSeq,FMaterialId.FIsKFPeriod';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
-    printData = {};
     orderDate = jsonDecode(order);
+    hobby = [];
+    if (orderDate.length > 0) {
+      //下推
+      Map<String, dynamic> pushMap = Map();
+      pushMap['Ids'] = orderDate[0][14];
+      pushMap['RuleId'] = "PUR_ReceiveBill-STK_InStock";
+      pushMap['IsEnableDefaultRule'] = "true";
+      pushMap['IsDraftWhenSaveFail'] = "true";
+      var entryId = [];
+      var hobbyIndex = 0;
+      this.hobby.forEach((element) {
+        if (element[3]['value']['value'] != '0') {
+          entryId.add(orderDate[hobbyIndex][4]);
+        }
+        hobbyIndex++;
+      });
+      pushMap['EntryIds'] = entryId;
+      pushMap['TargetFormId'] = "STK_InStock";
+      var datass = pushMap.toString();
+      var downData =
+      await SubmitEntity.pushDown({"formid": "PUR_ReceiveBill", "data": pushMap});
+      print(downData);
+      var res = jsonDecode(downData);
+      //判断成功
+      if (res['Result']['ResponseStatus']['IsSuccess']) {
+        //查询生产领料
+        var entitysNumber =
+        res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
+        Map<String, dynamic> OrderMap = Map();
+        OrderMap['FormId'] = 'STK_InStock';
+        OrderMap['FilterString'] =
+        "FID='$entitysNumber'";//and FLot.FNumber != ''
+        OrderMap['FieldKeys'] =
+        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FUnitId.FNumber,FUnitId.FName,FRealQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FBaseUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FStockDeptId.FNumber,FPurchaserId.FNumber,FNote,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FBaseJoinQty,FGiveAway,FPOOrderNo,FPOORDERENTRYID,FPayConditionId.FNumber,FInStockEntry_FSeq,FMaterialId.FIsKFPeriod,FLot.FNumber';
+        String order = await CurrencyEntity.polling({'data': OrderMap});
+        this.getOrderList(order);
+      } else {
+        setState(() {
+          if(res['Result']['ResponseStatus']['Errors'][0]['Message']=="分录实体“明细”是必填项"){
+            ToastUtil.errorDialog(context, "默认发料仓库异常");
+          }else{
+            ToastUtil.errorDialog(
+                context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          }
+        });
+      }
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+    } else {
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+      ToastUtil.showInfo('已入库');
+    }
+  }
+  getOrderList(data) async {
+    // Map<String, dynamic> userMap = Map();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
+    // print(fBillNo);
+    // userMap['FilterString'] = "FBillNo='$fBillNo' and FENTRYSTATUS = 'A'";
+    // userMap['FormId'] = 'PUR_ReceiveBill';
+    // userMap['OrderString'] = 'FMaterialId.FNumber ASC';
+    // userMap['FieldKeys'] =
+    //     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FStockUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FPurDeptId.FNumber,FPurchaserId.FNumber,FDescription,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FInStockJoinQty,FGiveAway,FOrderBillNo,FSrcEntryId,FPayConditionId.FNumber,FDetailEntity_FSeq,FMaterialId.FIsKFPeriod';
+    // Map<String, dynamic> dataMap = Map();
+    // dataMap['data'] = userMap;
+    // String order = await CurrencyEntity.polling(dataMap);
+    printData = {};
+    collarOrderDate = jsonDecode(data);
     FDate = formatDate(DateTime.now(), [
       yyyy,
       "-",
@@ -317,9 +386,9 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       dd,
     ]);
     hobby = [];
-    if (orderDate.length > 0) {
-      this.fOrgID = orderDate[0][16];
-      for (var value in orderDate) {
+    if (collarOrderDate.length > 0) {
+      this.fOrgID = collarOrderDate[0][16];
+      for (var value in collarOrderDate) {
         fNumber.add(value[5]);
         List arr = [];
         arr.add({
@@ -335,6 +404,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "FNote": value[23],
           "FID": value[14],
           "FEntryId": value[4],
+          "ParseEntryId": -1,
           "FGiveAway": value[29],
           "FOrderBillNo": value[30],
           "FSrcEntryId": value[31],
@@ -1944,7 +2014,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: <
                           Widget>[
                         Visibility(
-                          visible: false, //this.hobby[i][9]["value"]['value'] != double.parse(this.hobby[i][3]["value"]["value"])
+                          visible: false,/*this.hobby[i][9]["value"]['value'] != double.parse(this.hobby[i][3]["value"]["value"])*/
                           child: FlatButton(
                             color: Colors.blue,
                             textColor: Colors.white,
@@ -1978,7 +2048,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                           "FEntryTaxRate": value[19],
                                           "FNote": value[23],
                                           "FID": value[14],
-                                          "FEntryId": value[4],
+                                          "ParseEntryId": value[4],
+                                          "FEntryId": 0,
                                           "FGiveAway": value[29],
                                           "FOrderBillNo": value[30],
                                           "FSrcEntryId": value[31],
@@ -2840,12 +2911,16 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         ];
         orderMap['IsDeleteEntry'] = true;
         Map<String, dynamic> Model = Map();
-        Model['FID'] = 0;
+        Model['FID'] = this.hobby[0][0]['FID'];
         Model['F_UUAC_Combo_re5'] = "1";
-        Model['FBillTypeID'] = {"FNUMBER": "RKD01_SYS"};
-        Model['FBusinessType'] = "CG";
         Model['F_UUAC_CheckBox'] = _checked;
-        Model['FDate'] = FDate;
+        Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+        Model['F_MSD_PDA_CreateDate'] = FDate;
+        Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+        Model['F_MSD_PDA_APPROVEDATE'] = FDate;
+        /*Model['FDate'] = FDate;
+         Model['FBillTypeID'] = {"FNUMBER": "RKD01_SYS"};
+          Model['FBusinessType'] = "CG";
         //判断有源单 无源单
         if (this.isScanWork) {
           Model['FPurchaseOrgId'] = {"FNumber": this.fOrgID};
@@ -2876,7 +2951,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         }
         if (orderDate[0][22] != null) {
           Model['FPurchaserId'] = {"FNumber": orderDate[0][22]};
-        }
+        }*/
         var FEntity = [];
         var hobbyIndex = 0;
         for (var element in this.hobby) {
@@ -2884,20 +2959,52 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               element[3]['value']['value'] != '' &&
               element[4]['value']['value'] != '') {
             Map<String, dynamic> FEntityItem = Map();
-            FEntityItem['FMaterialId'] = {
-              "FNumber": element[0]['value']['value']
-            };
-            FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
-            FEntityItem['FRemainInStockUnitId'] = {
-              "FNumber": element[2]['value']['value']
-            };
-            FEntityItem['FBaseUnitID'] = {"FNumber": element[0]['FBaseUnitID']};
-            FEntityItem['FPriceUnitId'] = {
-              "FNumber": element[2]['value']['value']
-            };
-            FEntityItem['FSettleOrgId'] = {"FNumber": this.fOrgID};
+            if(element[0]['FEntryId'] == 0){
+              FEntityItem['FMaterialId'] = {
+                "FNumber": element[0]['value']['value']
+              };
+              FEntityItem['FUnitId'] = {"FNumber": element[2]['value']['value']};
+              FEntityItem['FRemainInStockUnitId'] = {
+                "FNumber": element[2]['value']['value']
+              };
+              FEntityItem['FBaseUnitID'] = {"FNumber": element[0]['FBaseUnitID']};
+              FEntityItem['FPriceUnitId'] = {
+                "FNumber": element[2]['value']['value']
+              };
+              FEntityItem['FSettleOrgId'] = {"FNumber": this.fOrgID};
+              FEntityItem['FOwnerId'] = {"FNumber": this.fOrgID};
+              FEntityItem['FWWInType'] = "QLI";
+              FEntityItem['FSRCBILLTYPEID'] = "PUR_ReceiveBill";
+              FEntityItem['FSRCBillNo'] = element[0]['FSRCBillNo'];
+              //FEntityItem['FPOQTY'] = orderDate[hobbyIndex][12];
+              FEntityItem['FPOORDERENTRYID'] = element[0]['FSrcEntryId'];
+              FEntityItem['FPOOrderNo'] = element[0]['FOrderBillNo'];
+
+              /*FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";*/
+              FEntityItem['FTaxPrice'] = element[0]['FTaxPrice'];
+              FEntityItem['FEntryTaxRate'] = element[0]['FEntryTaxRate'];
+              FEntityItem['FNote'] = element[0]['FNote'];
+              FEntityItem['FGiveAway'] = element[0]['FGiveAway'];
+              FEntityItem['FProduceDate'] = element[11]['value']['value'];
+              //FEntityItem['FExpiryDate'] = orderDate[hobbyIndex][27];
+              /*FEntityItem['FPrice'] = orderDate[hobbyIndex][20];*/
+              FEntityItem['FInStockEntry_Link'] = [
+                {
+                  "FInStockEntry_Link_FRuleId": "PUR_ReceiveBill-STK_InStock",
+                  "FInStockEntry_Link_FSTableName": "T_PUR_ReceiveEntry",
+                  "FInStockEntry_Link_FSBillId": element[0]['FID'],
+                  "FInStockEntry_Link_FSId": element[0]['ParseEntryId'],
+                  "FInStockEntry_Link_FBaseUnitQty": element[3]['value']['value'],
+                  "FInStockEntry_Link_FRemainInStockBaseQty": element[3]['value']
+                  ['value']
+                }
+              ];
+            }
+            FEntityItem['FEntryID'] = element[0]['FEntryId'];
             FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
-            FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
+            if(element[5]['value']['value'] != ''){
+              FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
+            }
             if (element[6]['value']['hide']) {
               Map<String, dynamic> stockMap = Map();
               stockMap['FormId'] = 'BD_STOCK';
@@ -2939,35 +3046,9 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               }
               fSerialSub.add(subObj);
             }
-            FEntityItem['FOwnerId'] = {"FNumber": this.fOrgID};
-            FEntityItem['FWWInType'] = "QLI";
-            FEntityItem['FSRCBILLTYPEID'] = "PUR_ReceiveBill";
-            FEntityItem['FSRCBillNo'] = element[0]['FSRCBillNo'];
-            //FEntityItem['FPOQTY'] = orderDate[hobbyIndex][12];
-            FEntityItem['FPOORDERENTRYID'] = element[0]['FSrcEntryId'];
-            FEntityItem['FPOOrderNo'] = element[0]['FOrderBillNo'];
             FEntityItem['FRealQty'] = element[3]['value']['value'];
             FEntityItem['FBaseJoinQty'] = element[3]['value']['value'];
             FEntityItem['FSerialSubEntity'] = fSerialSub;
-            /*FEntityItem['FOwnerTypeId'] = "BD_OwnerOrg";*/
-            FEntityItem['FTaxPrice'] = element[0]['FTaxPrice'];
-            FEntityItem['FEntryTaxRate'] = element[0]['FEntryTaxRate'];
-            FEntityItem['FNote'] = element[0]['FNote'];
-            FEntityItem['FGiveAway'] = element[0]['FGiveAway'];
-            FEntityItem['FProduceDate'] = element[11]['value']['value'];
-            //FEntityItem['FExpiryDate'] = orderDate[hobbyIndex][27];
-            /*FEntityItem['FPrice'] = orderDate[hobbyIndex][20];*/
-            FEntityItem['FInStockEntry_Link'] = [
-              {
-                "FInStockEntry_Link_FRuleId": "PUR_ReceiveBill-STK_InStock",
-                "FInStockEntry_Link_FSTableName": "T_PUR_ReceiveEntry",
-                "FInStockEntry_Link_FSBillId": element[0]['FID'],
-                "FInStockEntry_Link_FSId": element[0]['FEntryId'],
-                "FInStockEntry_Link_FBaseUnitQty": element[3]['value']['value'],
-                "FInStockEntry_Link_FRemainInStockBaseQty": element[3]['value']
-                    ['value']
-              }
-            ];
             FEntity.add(FEntityItem);
           }
           hobbyIndex++;
@@ -2978,16 +3059,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           ToastUtil.showInfo('请输入数量和仓库');
           return;
         }
-        Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
-        Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
-        Map<String, dynamic> FinanceEntity = Map();
-        FinanceEntity['FSettleOrgId'] = {"FNumber": this.fOrgID};
-        // FinanceEntity['FPayConditionId'] = {
-        //   "FNumber": this.hobby[0][0]['FPayConditionId']
-        // };
-        Model['FInStockFin'] = FinanceEntity;
+        // Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
+        // Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
+        // Map<String, dynamic> FinanceEntity = Map();
+        // FinanceEntity['FSettleOrgId'] = {"FNumber": this.fOrgID};
+        // Model['FInStockFin'] = FinanceEntity;
         Model['FInStockEntry'] = FEntity;
-        /*Model['FDescription'] = this._remarkContent.text;*/
         orderMap['Model'] = Model;
         dataMap['data'] = orderMap;
         print(jsonEncode(dataMap));
@@ -3020,24 +3097,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
             }
           };
-          var entryList = returnData[0]['FInStockEntry'];
-          print(entryList);
-          var subEntryList = [];
-          for(var entry in entryList){
-            subEntryList.add(entry['FEntryID']);
-          }
-          //修改批号
-          Map<String, dynamic> releaseDataMap = Map();
-          var releaseNumbers = [];
-          releaseDataMap['formid'] = 'STK_InStock';
-          releaseDataMap['opNumber'] = 'GenerateLotByCodeRule';
-          Map<String, dynamic> releaseEntityMap = Map();
-          releaseEntityMap['Id'] = returnData[0]['FBillNo'];;
-          releaseEntityMap['EntryIds'] = subEntryList;
-          releaseNumbers.add(releaseEntityMap);
-          releaseDataMap['data'] = {'PkEntryIds': releaseNumbers};
-          var releaseRes = await this.alterStatus(releaseDataMap);
-          if (releaseRes['Result']['ResponseStatus']['IsSuccess']) {
             if (_checked) {
               //提交
               HandlerOrder.orderHandler(context, submitMap, 1, "STK_InStock",
@@ -3254,14 +3313,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               });
               _showSaveedDialog(newBillNo);
             }
-          }else {
-            setState(() {
-              this.isSubmit = false;
-              ToastUtil.errorDialog(context,
-                  releaseRes['Result']['ResponseStatus']['Errors'][0]['Message']);
-            });
-          }
-
         } else {
           setState(() {
             this.isSubmit = false;
@@ -3321,7 +3372,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       number++;
                     }
                   }
-                  saveOrder(true);
+                  saveOrder(false);
                   /*if (number==0) {
                     saveOrder(false);
                   } else {
@@ -3345,7 +3396,44 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   void getScan(String scan) async {
     _onEvent(scan);
   }
+//删除
+  deleteOrder(Map<String, dynamic> map, title,{var type = 0}) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          if(type == 1){
+            setState(() {
+              EasyLoading.dismiss();
+            });
 
+          }else{
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(context, title);
+            });
+          }
+        } else {
+          if(type == 1){
+            setState(() {
+              EasyLoading.dismiss();
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+
+          }else{
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
+        }
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -3358,11 +3446,24 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           appBar: AppBar(
             title: Text("采购入库"),
             centerTitle: true,
-            leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context).pop("refresh");
-                }),
+              leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () async {
+                    if(this.fBillNo != null && this.hobby.length>0){
+                      Map<String, dynamic> deleteMap = Map();
+                      deleteMap = {
+                        "formid": 'STK_InStock',
+                        "data": {
+                          'Ids': collarOrderDate[0][14]
+                        }
+                      };
+                      EasyLoading.show(status: '删除下推单据...');
+                      await deleteOrder(deleteMap, '删除', type: 1);
+                      Navigator.of(context).pop("refresh");
+                    }else{
+                      Navigator.of(context).pop("refresh");
+                    }
+                  }),
           ),
           body: Column(
             children: <Widget>[

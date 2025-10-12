@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 import 'package:aswp/model/currency_entity.dart';
+import 'package:aswp/model/submit_entity.dart';
 import 'package:aswp/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -104,7 +105,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     userMap['Limit'] = '20';
     userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockJoinQty';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockJoinQty,FDetailEntity_FSeq';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -112,7 +113,15 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     orderDate = jsonDecode(order);
     hobby = [];
     if (orderDate.length > 0) {
-      orderDate.forEach((value) {
+      for (var value in orderDate) {
+        Map<String, dynamic> pickmtrlMap = Map();
+        pickmtrlMap['FilterString'] =
+        "FSRCBillNo ='${value[0]}' and FDocumentStatus in ('A','B')";
+        pickmtrlMap['FormId'] = 'STK_InStock';
+        pickmtrlMap['FieldKeys'] = 'FID,FDocumentStatus';
+        Map<String, dynamic> dataMap2 = Map();
+        dataMap2['data'] = pickmtrlMap;
+        String order2 = await CurrencyEntity.polling(dataMap2);
         List arr = [];
         arr.add({
           "title": "单据编号",
@@ -125,7 +134,6 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "name": "FPurchaseOrgId",
           "isHide": true,
           "value": {"label": value[9], "value": value[8]}
-
         });
         arr.add({
           "title": "单据日期",
@@ -137,7 +145,10 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
+          "value": {
+            "label": value[6] + "- (" + value[5] + ")",
+            "value": value[5]
+          }
         });
         arr.add({
           "title": "规格型号",
@@ -155,7 +166,10 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "title": "剩余数量",
           "name": "FQty",
           "isHide": false,
-          "value": {"label": (value[12] - value[15])>0?(value[12] - value[15]): 0, "value": (value[12] - value[15])>0?(value[12] - value[15]): 0}
+          "value": {
+            "label": (value[12] - value[15]) > 0 ? (value[12] - value[15]) : 0,
+            "value": (value[12] - value[15]) > 0 ? (value[12] - value[15]) : 0
+          }
         });
         arr.add({
           "title": "供应商",
@@ -163,8 +177,20 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "isHide": false,
           "value": {"label": value[2], "value": value[1]}
         });
+        var order2Date = jsonDecode(order2);
+        if (order2Date.length > 0) {
+          arr.add({
+            "title": "入库单状态",
+            "name": "STK_InStock",
+            "isHide": false,
+            "value": {
+              "label": order2Date[0][1] == "A" ? "创建" : "审核中",
+              "value": order2Date[0][0]
+            }
+          });
+        }
         hobby.add(arr);
-      });
+      }
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
@@ -232,54 +258,115 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
       _code = "扫描异常";
     });
   }
-
+//删除
+  deleteOrder(Map<String, dynamic> map, title, {var type}) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          if (type == 1) {
+            ToastUtil.showInfo('删除成功');
+            this.getOrderList();
+            EasyLoading.dismiss();
+          }
+        } else {
+          if (type == 1) {
+            EasyLoading.dismiss();
+            setState(() {
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
+        }
+      }
+    }
+  }
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return PurchaseWarehousingDetail(
-                              FBillNo: this.hobby[i][0]['value']
-                            // 路由参数
-                          );
-                        },
-                      ),
-                    ).then((data) {
-                      //延时500毫秒执行
-                      Future.delayed(
-                          const Duration(milliseconds: 500),
-                              () {
-                            setState(() {
-                              //延时更新状态
-                              this._initState();
-                            });
-                          });
-                    });
-                  },
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
-                        color: Colors.grey, rightpadding: 18),*/
-                  ]),
+          if (j == 8) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+
+                            new MaterialButton(
+                              color: Colors.red,
+                              textColor: Colors.white,
+                              child: new Text('删除'),
+                              onPressed: () {
+                                Map<String, dynamic> deleteMap = Map();
+                                deleteMap = {
+                                  "formid": this.hobby[i][j]["name"],
+                                  "data": {
+                                    'Ids': this.hobby[i][j]["value"]["value"]
+                                  }
+                                };
+                                EasyLoading.show(status: 'loading...');
+                                deleteOrder(deleteMap, '删除', type: 1);
+                              },
+                            )
+                          ])),
                 ),
-              ),
-              divider,
-            ]),
-          );
+                divider,
+              ]),
+            );
+          }else{
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return PurchaseWarehousingDetail(
+                                FBillNo: this.hobby[i][0]['value']
+                              // 路由参数
+                            );
+                          },
+                        ),
+                      ).then((data) {
+                        //延时500毫秒执行
+                        Future.delayed(
+                            const Duration(milliseconds: 500),
+                                () {
+                              setState(() {
+                                //延时更新状态
+                                this._initState();
+                              });
+                            });
+                      });
+                    },
+                    title: Text(this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString()),
+                    trailing:
+                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      /* MyText(orderDate[i][j],
+                        color: Colors.grey, rightpadding: 18),*/
+                    ]),
+                  ),
+                ),
+                divider,
+              ]),
+            );
+          }
+
         }
       }
       tempList.add(

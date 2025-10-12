@@ -1449,6 +1449,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       Model['FDate'] = FDate;
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var tissue = sharedPreferences.getString('tissue');
+      var menuData = sharedPreferences.getString('MenuPermissions');
+      var deptData = jsonDecode(menuData)[0];
       Model['FStockOrgId'] = {"FNumber": tissue};
       /*Model['F_ora_Assistant'] = {"FNumber": this.typeNumber};*/
       if (this.departmentNumber  != null) {
@@ -1456,6 +1458,10 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       }
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
       Model['FStockDirect'] = "GENERAL";
+      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CreateDate'] = FDate;
+      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVEDATE'] = FDate;
       if (this.supplierNumber  != null) {
         Model['FSUPPLIERID'] = {"FNumber": this.supplierNumber};
       }

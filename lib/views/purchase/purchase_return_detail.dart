@@ -2520,6 +2520,8 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     //获取登录信息
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
     if (this.hobby.length > 0) {
       setState(() {
         this.isSubmit = true;
@@ -2561,6 +2563,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       Model['FMRTYPE'] = "B";
       Model['FMRMODE'] = "A";
       Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
+      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CreateDate'] = FDate;
+      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVEDATE'] = FDate;
       //判断有源单 无源单
       if(this.isScanWork){
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};

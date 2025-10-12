@@ -2984,6 +2984,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
 
   //保存
   saveOrder() async {
+
     if (this.hobby.length > 0) {
       setState(() {
         this.isSubmit = true;
@@ -2997,13 +2998,18 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       Model['FID'] = 0;
       Model['FBillTypeID'] = {"FNUMBER": "ZJDB01_SYS"};
       Model['FDate'] = FDate;
+
       //获取登录信息
       SharedPreferences sharedPreferences =
       await SharedPreferences.getInstance();
       var menuData = sharedPreferences.getString('MenuPermissions');
       var deptData = jsonDecode(menuData)[0];
-        Model['FStockOutOrgId'] = {"FNumber": this.organizationsNumber1};
-        Model['FStockOrgId'] = {"FNumber": this.organizationsNumber2};
+      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CreateDate'] = FDate;
+      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVEDATE'] = FDate;
+      Model['FStockOutOrgId'] = {"FNumber": this.organizationsNumber1};
+      Model['FStockOrgId'] = {"FNumber": this.organizationsNumber2};
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
       if(organizationsNumber1 == organizationsNumber2){
         Model['FTransferBizType'] = "InnerOrgTransfer";

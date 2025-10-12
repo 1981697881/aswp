@@ -2529,11 +2529,13 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
   }
   //保存
   saveOrder() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
     if (this.hobby.length > 0) {
       setState(() {
         this.isSubmit = true;
       });
-
       Map<String, dynamic> dataMap = Map();
       dataMap['formid'] = 'PRD_ReturnMtrl';
       Map<String, dynamic> orderMap = Map();
@@ -2543,6 +2545,10 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
       Model['FID'] = 0;
       Model['FBillType'] = {"FNUMBER": "SCTLD01_SYS"};
       Model['FDate'] = FDate;
+      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CreateDate'] = FDate;
+      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVEDATE'] = FDate;
       //获取登录信息
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       var tissue = sharedPreferences.getString('tissue');
