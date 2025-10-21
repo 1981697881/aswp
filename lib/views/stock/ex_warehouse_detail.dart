@@ -2659,9 +2659,9 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       var tissue = sharedPreferences.getString('tissue');
       var menuData = sharedPreferences.getString('MenuPermissions');
       var deptData = jsonDecode(menuData)[0];
-      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CREATORID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_CreateDate'] = FDate;
-      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVERID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_APPROVEDATE'] = FDate;
       Model['FStockOrgId'] = {"FNumber": tissue};
       Model['FPickOrgId'] = {"FNumber": tissue};

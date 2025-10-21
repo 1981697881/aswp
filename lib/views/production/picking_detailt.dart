@@ -3065,9 +3065,9 @@ class _PickingDetailtState extends State<PickingDetailt> {
     Model['FID'] = orderDate[0][14];
     Model['F_UYEP_TEXT'] = "PDA-";
     Model['F_UUAC_Combo_ca9'] = "1";
-    Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+    Model['F_MSD_PDA_CREATORID'] = {"FStaffNumber": deptData[0]};
     Model['F_MSD_PDA_CreateDate'] = FDate;
-    Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+    Model['F_MSD_PDA_APPROVERID'] = {"FStaffNumber": deptData[0]};
     Model['F_MSD_PDA_APPROVEDATE'] = FDate;
     /* var orderData = [];
     var orderDataList = [];

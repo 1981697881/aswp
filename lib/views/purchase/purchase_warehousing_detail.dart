@@ -2914,9 +2914,9 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         Model['FID'] = this.hobby[0][0]['FID'];
         Model['F_UUAC_Combo_re5'] = "1";
         Model['F_UUAC_CheckBox'] = _checked;
-        Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+        Model['F_MSD_PDA_CREATORID'] = {"FStaffNumber": deptData[0]};
         Model['F_MSD_PDA_CreateDate'] = FDate;
-        Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+        Model['F_MSD_PDA_APPROVERID'] = {"FStaffNumber": deptData[0]};
         Model['F_MSD_PDA_APPROVEDATE'] = FDate;
         /*Model['FDate'] = FDate;
          Model['FBillTypeID'] = {"FNUMBER": "RKD01_SYS"};

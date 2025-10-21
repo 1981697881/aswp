@@ -118,7 +118,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
           .listen(_onEvent, onError: _onError);
     }
    /* getWorkShop();*/
-
+    // _onEvent("test2;;;100.0;N;1");
     /*getTypeList();*/
     getSupplierList();
     getDepartmentList();
@@ -1458,9 +1458,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       }
       Model['FOwnerTypeIdHead'] = "BD_OwnerOrg";
       Model['FStockDirect'] = "GENERAL";
-      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CREATORID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_CreateDate'] = FDate;
-      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVERID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_APPROVEDATE'] = FDate;
       if (this.supplierNumber  != null) {
         Model['FSUPPLIERID'] = {"FNumber": this.supplierNumber};

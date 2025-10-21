@@ -2563,9 +2563,9 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
       Model['FMRTYPE'] = "B";
       Model['FMRMODE'] = "A";
       Model['FOwnerIdHead'] = {"FNumber": this.fOrgID};
-      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CREATORID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_CreateDate'] = FDate;
-      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVERID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_APPROVEDATE'] = FDate;
       //判断有源单 无源单
       if(this.isScanWork){

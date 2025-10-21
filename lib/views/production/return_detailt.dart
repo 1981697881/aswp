@@ -2545,9 +2545,9 @@ class _ReturnDetailtState extends State<ReturnDetailt> {
       Model['FID'] = 0;
       Model['FBillType'] = {"FNUMBER": "SCTLD01_SYS"};
       Model['FDate'] = FDate;
-      Model['F_MSD_PDA_CREATORID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_CREATORID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_CreateDate'] = FDate;
-      Model['F_MSD_PDA_APPROVERID'] = {"FNumber": deptData[0]};
+      Model['F_MSD_PDA_APPROVERID'] = {"FStaffNumber": deptData[0]};
       Model['F_MSD_PDA_APPROVEDATE'] = FDate;
       //获取登录信息
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
