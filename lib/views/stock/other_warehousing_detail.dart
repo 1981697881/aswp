@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:date_format/date_format.dart';
 import 'package:aswp/model/currency_entity.dart';
 import 'package:aswp/model/submit_entity.dart';
@@ -43,6 +44,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   String FName = '';
   String FNumber = '';
   String newBillNo='';
+  String keyWord = '';
   var supplierName;
   var supplierNumber;
   var departmentName;
@@ -94,6 +96,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
+  final numberController = TextEditingController();
   List<TextEditingController> _textNumber2 = [];
   _OtherWarehousingDetailState(FBillNo) {
     if (FBillNo != null) {
@@ -1777,7 +1780,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     getScan(cameraScanResult); //将获取到的参数通过HTTP请求发送到服务器
     print(cameraScanResult); //在控制台打印
   }
-
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
+  }
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
     _onEvent(scan);
@@ -1802,6 +1807,83 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             children: <Widget>[
               Expanded(
                 child: ListView(children: <Widget>[
+                  Visibility(
+                    maintainSize: false,
+                    maintainState: false,
+                    maintainAnimation: false,
+                    visible: this.fBillNo == '' || this.fBillNo == null,
+                    child: Container(
+                      height: 52.0,
+                      child: new Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Row(children: [
+                          Card(
+                            child: new Container(
+                                width: hc_ScreenWidth() - 80,
+                                child: Row(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.center,
+                                  children: <Widget>[
+                                    SizedBox(
+                                      width: 6.0,
+                                    ),
+                                    Icon(
+                                      Icons.search,
+                                      color: Colors.grey,
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        child: TextField(
+                                          controller: this.numberController,
+                                          decoration: new InputDecoration(
+                                              contentPadding:
+                                              EdgeInsets.only(
+                                                  bottom: 12.0),
+                                              hintText: '物料编码',
+                                              border: InputBorder.none),
+                                          onSubmitted: (value) {
+                                            EasyLoading.show(status: 'loading...');
+                                            setState(() {
+                                              this.keyWord = value;
+                                              this.getMaterialList("",value, "", "","",false);
+                                              //this.getInventoryList();
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    new IconButton(
+                                      icon: new Icon(Icons.cancel),
+                                      color: Colors.grey,
+                                      iconSize: 18.0,
+                                      onPressed: () {
+                                        this.numberController.clear();
+                                      },
+                                    ),
+                                  ],
+                                )),
+                          ),
+                          new SizedBox(
+                            width: 60.0,
+                            height: 40.0,
+                            child: new RaisedButton(
+                              color: Colors.lightBlueAccent,
+                              child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                              onPressed: (){
+                                EasyLoading.show(status: 'loading...');
+                                setState(() {
+                                  this.keyWord = this.numberController.text;
+                                  this.getMaterialList("",this.numberController.text, "", "","",false);
+                                  //this.getInventoryList();
+                                });
+                              },
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
+                  ),
                  /* Column(
                     children: [
                       Container(

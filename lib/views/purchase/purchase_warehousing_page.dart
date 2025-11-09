@@ -102,7 +102,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     }
     this.isScan = false;
     userMap['FormId'] = 'PUR_ReceiveBill';
-    userMap['Limit'] = '20';
+    userMap['Limit'] = '10';
     userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
     'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockJoinQty,FDetailEntity_FSeq';
