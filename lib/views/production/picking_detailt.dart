@@ -91,8 +91,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
   List<dynamic> collarOrderDate = [];
   List<dynamic> materialDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription? _subscription;
@@ -1771,7 +1771,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
+                              keyboardType: checkItem == "FNumber"?TextInputType.number:TextInputType.text,
                               controller: this._textNumber,
                               decoration: InputDecoration(hintText: "输入"),
                               onChanged: (value) {
@@ -1865,7 +1865,6 @@ class _PickingDetailtState extends State<PickingDetailt> {
                                 ["label"] = _FNumber;
                                 this.hobby[checkData][checkDataChild]['value']
                                 ["value"] = _FNumber;
-                                Navigator.pop(context);
                               } else {
                                 ToastUtil.showInfo('输入数量大于可用数量');
                               }
@@ -2245,7 +2244,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
+                              icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                               tooltip: '点击扫描',
                               onPressed: () {
                                 this._textNumber.text =
@@ -2254,6 +2254,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                                 this.hobby[i][j]["value"]["label"];
                                 checkData = i;
                                 checkDataChild = j;
+                                checkItem = 'FNumber';
                                 scanDialog();
                                 if (this.hobby[i][j]["value"]["label"] != 0) {
                                   this._textNumber.value =
@@ -2280,7 +2281,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
                       trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                         IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
+                          icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                           tooltip: '点击扫描',
                           onPressed: () {
                             this._textNumber.text =
@@ -2415,7 +2417,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
                              mainAxisSize: MainAxisSize.min,
                              children: <Widget>[
                                IconButton(
-                                 icon: new Icon(Icons.filter_center_focus),
+                                 icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                  tooltip: '点击扫描',
                                  onPressed: () {
                                    this._textNumber.text = this
@@ -2489,7 +2492,8 @@ class _PickingDetailtState extends State<PickingDetailt> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
+                              icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                               tooltip: '点击扫描',
                               onPressed: () {
                                 this._textNumber.text = this
@@ -2537,7 +2541,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.chevron_right),
+                              icon: new Icon(Icons.chevron_right, color: Colors.blue),
                               onPressed: () {
                                 this.controller.clear();
                                 this.searchStockList = [];
@@ -2630,25 +2634,32 @@ class _PickingDetailtState extends State<PickingDetailt> {
             comList.add(
               Column(children: [
                 Container(
-                  color: Colors.white,
-                  child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            new FlatButton(
-                              color: Colors.red,
-                              textColor: Colors.white,
-                              child: new Text('删除'),
-                              onPressed: () {
-                                this.hobby.removeAt(i);
-                                setState(() {});
-                              },
-                            )
-                          ])),
+                color: Colors.white,
+                child: ListTile(
+                  title: Text(
+                    this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString(),
+                  ),
+                  trailing: Transform.translate(
+                    offset: Offset(-240, 0), // 向左移动10个单位
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        FlatButton(
+                          color: Colors.red,
+                          textColor: Colors.white,
+                          child: Text('删除'),
+                          onPressed: () {
+                            this.hobby.removeAt(i);
+                            setState(() {});
+                          },
+                        )
+                      ],
+                    ),
+                  ),
                 ),
+              ),
                 divider,
               ]),
             );
@@ -2676,7 +2687,7 @@ class _PickingDetailtState extends State<PickingDetailt> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),

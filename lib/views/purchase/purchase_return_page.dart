@@ -29,8 +29,8 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
   String endDate = '';
   var isScan = false;
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
@@ -222,9 +222,10 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
         ToastUtil.showInfo('条码不在条码清单中');
       }
     } else {
+      _code = event;
       keyWord = _code;
       this.controller.text = _code;
-      _code = event;
+
       await this.getOrderList();
       print("ChannelPage: $event");
     }
@@ -285,7 +286,7 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),

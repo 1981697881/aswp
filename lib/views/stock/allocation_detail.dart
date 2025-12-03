@@ -80,8 +80,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   List<dynamic> orderDate = [];
   List<dynamic> materialDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription? _subscription;
@@ -615,7 +615,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "title": "调入仓库",
           "name": "FStockId",
           "isHide": false,
-          "value": {"label": value[33], "value": value[33]}
+          "value": {"label": value[33], "value": value[17]}
         });
         var fIntloc = '';
         int count = stockListObjT.where((list) => list.length > 4 && list[4] != null).length;
@@ -1912,7 +1912,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () => data.length > 0
                 ? _onClickItem(data, selectData, hobby,
@@ -1935,7 +1936,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);
@@ -2373,7 +2375,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
+                              icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                               tooltip: '点击扫描',
                               onPressed: () {
                                 this._textNumber.text =
@@ -2382,6 +2385,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                                 this.hobby[i][j]["value"]["label"];
                                 checkData = i;
                                 checkDataChild = j;
+                                checkItem = 'FNumber';
                                 scanDialog();
                                 if (this.hobby[i][j]["value"]["label"] != 0) {
                                   this._textNumber.value =
@@ -2515,7 +2519,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: new Icon(Icons.filter_center_focus),
+                                icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                 tooltip: '点击扫描',
                                 onPressed: () {
                                   this._textNumber.text = this
@@ -2565,7 +2570,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: new Icon(Icons.filter_center_focus),
+                                icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                 tooltip: '点击扫描',
                                 onPressed: () {
                                   this._textNumber.text = this
@@ -2601,25 +2607,32 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             comList.add(
               Column(children: [
                 Container(
-                  color: Colors.white,
-                  child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            new MaterialButton(
-                              color: Colors.red,
-                              textColor: Colors.white,
-                              child: new Text('删除'),
-                              onPressed: () {
-                                this.hobby.removeAt(i);
-                                setState(() {});
-                              },
-                            ),
-                          ])),
+                color: Colors.white,
+                child: ListTile(
+                  title: Text(
+                    this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString(),
+                  ),
+                  trailing: Transform.translate(
+                    offset: Offset(-240, 0), // 向左移动10个单位
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        FlatButton(
+                          color: Colors.red,
+                          textColor: Colors.white,
+                          child: Text('删除'),
+                          onPressed: () {
+                            this.hobby.removeAt(i);
+                            setState(() {});
+                          },
+                        )
+                      ],
+                    ),
+                  ),
                 ),
+              ),
                 divider,
               ]),
             );
@@ -2665,7 +2678,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                      trailing:
                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                        IconButton(
-                         icon: new Icon(Icons.filter_center_focus),
+                         icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                          tooltip: '点击扫描',
                          onPressed: () {
                            this._textNumber.text =
@@ -2714,7 +2728,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -3111,8 +3125,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 "FBillEntry_Link_FSTableName": "T_STK_STKTRANSFERAPPENTRY",
                 "FBillEntry_Link_FSBillId": orderDate[hobbyIndex][15],
                 "FBillEntry_Link_FSId": orderDate[hobbyIndex][4],
-                "FBillEntry_Link_FSALBASEQTY": element[8]['value']['value'],
-                "FBillEntry_Link_FBaseQty": element[8]['value']['value']
+                "FBillEntry_Link_FSALBASEQTY": element[3]['value']['value'],
+                "FBillEntry_Link_FBaseQty": element[3]['value']['value']
               }
             ];
           }
@@ -3425,7 +3439,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     maintainAnimation: false,
                     visible: this.fBillNo == '' || this.fBillNo == null,
                     child: Container(
-                      height: 52.0,
+                      height: 46.0,
                       child: new Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: Row(children: [
@@ -3476,7 +3490,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           ),
                           new SizedBox(
                             width: 60.0,
-                            height: 40.0,
+                            height: 30.0,
                             child: new RaisedButton(
                               color: Colors.lightBlueAccent,
                               child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
@@ -3502,6 +3516,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         Container(
                           color: Colors.white,
                           child: ListTile(
+                  dense: true,
+                  visualDensity: VisualDensity(vertical: -4),
                             title: Text("单号：$FBillNo"),
                           ),
                         ),
@@ -3517,6 +3533,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
+                          dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: Text("调出组织：$organizationsName1"),
                         ),
                       ),
@@ -3535,6 +3553,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                         Container(
                           color: Colors.white,
                           child: ListTile(
+                  dense: true,
+                  visualDensity: VisualDensity(vertical: -4),
                             title: Text("调出仓库：${storehouseName==null?'':storehouseName}"),
                           ),
                         ),
@@ -3551,12 +3571,14 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
+                  dense: true,
+                  visualDensity: VisualDensity(vertical: -4),
                             title: Text('调出仓库：${storehouseName!=null ? storehouseName: "暂无"}'),
                             trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   IconButton(
-                                    icon: new Icon(Icons.chevron_right),
+                                    icon: new Icon(Icons.chevron_right, color: Colors.blue),
                                     onPressed: () {
                                       this.controller.clear();
                                       this.searchStockList = [];
@@ -3573,13 +3595,15 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     Container(
                       color: Colors.white,
                       child: ListTile(
+                  dense: true,
+                  visualDensity: VisualDensity(vertical: -4),
 
                       title: Text('调入仓库：${storehouseNameT!=null ? storehouseNameT: "暂无"}'),
                       trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.chevron_right),
+                              icon: new Icon(Icons.chevron_right, color: Colors.blue),
                               onPressed: () {
                                 this.controller.clear();
                                 this.searchStockListT = [];
@@ -3609,7 +3633,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           //               mainAxisSize: MainAxisSize.min,
           //               children: <Widget>[
           //                 IconButton(
-          //                   icon: new Icon(Icons.filter_center_focus),
+          //                   icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
           //                   tooltip: '点击扫描',
           //                   onPressed: () {
           //                     this._textNumber.text = this
@@ -3641,6 +3665,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
+                          dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: TextField(
                             //最多输入行数
                             maxLines: 1,
@@ -3648,6 +3674,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                               hintText: "备注",
                               //给文本框加边框
                               border: OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10), // 可选：调整内边距
                             ),
                             controller: this._remarkContent,
                             //改变回调

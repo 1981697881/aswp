@@ -14,8 +14,8 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   var authorInfo;
 
   @override

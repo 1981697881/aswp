@@ -67,8 +67,8 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
   List<dynamic> orderDate = [];
   List<dynamic> collarOrderDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
    StreamSubscription ?_subscription;
@@ -480,7 +480,8 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -500,7 +501,8 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);
@@ -619,14 +621,16 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
                       trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                         IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
+                          icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                           tooltip: '点击扫描',
                           onPressed: () {
                             this._textNumber.text =
@@ -656,25 +660,32 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
             comList.add(
               Column(children: [
                 Container(
-                  color: Colors.white,
-                  child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            new FlatButton(
-                              color: Colors.red,
-                              textColor: Colors.white,
-                              child: new Text('删除'),
-                              onPressed: () {
-                                this.hobby.removeAt(i);
-                                setState(() {});
-                              },
-                            )
-                          ])),
+                color: Colors.white,
+                child: ListTile(
+                  title: Text(
+                    this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString(),
+                  ),
+                  trailing: Transform.translate(
+                    offset: Offset(-240, 0), // 向左移动10个单位
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        FlatButton(
+                          color: Colors.red,
+                          textColor: Colors.white,
+                          child: Text('删除'),
+                          onPressed: () {
+                            this.hobby.removeAt(i);
+                            setState(() {});
+                          },
+                        )
+                      ],
+                    ),
+                  ),
                 ),
+              ),
                 divider,
               ]),
             );
@@ -683,7 +694,8 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
@@ -701,7 +713,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -744,7 +756,7 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
                           child: Column(children: <Widget>[
                             TextField(
                               style: TextStyle(color: Colors.black87),
-                              keyboardType: TextInputType.number,
+                              keyboardType: checkItem == "FNumber"?TextInputType.number:TextInputType.text,
                               controller: this._textNumber,
                               decoration: InputDecoration(hintText: "输入"),
                               onChanged: (value) {
@@ -1113,7 +1125,8 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           *//* title: TextWidget(FBillNoKey, '生产订单：'),*//*
                           title: Text("单号：$fBillNo"),
                         ),
@@ -1128,7 +1141,8 @@ class _OtherInventoryDetailState extends State<OtherInventoryDetail> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: TextField(
                             //最多输入行数
                             maxLines: 1,

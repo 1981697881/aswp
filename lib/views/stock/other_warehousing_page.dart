@@ -25,8 +25,8 @@ class _OtherWarehousingPageState extends State<OtherWarehousingPage> {
   String endDate = '';
   var isScan = false;
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
@@ -202,7 +202,8 @@ class _OtherWarehousingPageState extends State<OtherWarehousingPage> {
             Column(children: [
               Container(
                 color: Colors.white,
-                child: ListTile(
+                child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -242,7 +243,7 @@ class _OtherWarehousingPageState extends State<OtherWarehousingPage> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),

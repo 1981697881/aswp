@@ -124,7 +124,7 @@ class MenuPermissions {
     // });
     menu.add({
       "icon": Icons.loupe,
-      "text": "调拨出库(有源单)",
+      "text": "直接调拨(有源单)",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": AllocationPage(),
@@ -132,20 +132,20 @@ class MenuPermissions {
     });
     menu.add({
       "icon": Icons.loupe,
-      "text": "调拨出库(无源单)",
+      "text": "直接调拨(无源单)",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": AllocationDetail(),
       "source": '',
     });
-    menu.add({
-      "icon": Icons.loupe,
-      "text": "调拨入库",
-      "parentId": 3,
-      "color": Colors.pink.withOpacity(0.7),
-      "router": AllocationWarehouseDetail(),
-      "source": '',
-    });
+    // menu.add({
+    //   "icon": Icons.loupe,
+    //   "text": "调拨入库",
+    //   "parentId": 3,
+    //   "color": Colors.pink.withOpacity(0.7),
+    //   "router": AllocationWarehouseDetail(),
+    //   "source": '',
+    // });
     menu.add({
       "icon": Icons.loupe,
       "text": "方案盘点",

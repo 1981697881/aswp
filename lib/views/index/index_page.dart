@@ -58,7 +58,7 @@ class _IndexPageState extends State<IndexPage> {
   final divider = Divider(height: 1, indent: 20);
   ReceivePort _port = ReceivePort();
   late SharedPreferences sharedPreferences;
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
   static const scannerPlugin = const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription ?_subscription;
 

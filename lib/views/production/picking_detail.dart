@@ -79,8 +79,8 @@ class _PickingDetailState extends State<PickingDetail> {
   List<dynamic> orderDate = [];
   List<dynamic> collarOrderDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription ?_subscription;
@@ -252,6 +252,8 @@ class _PickingDetailState extends State<PickingDetail> {
         Container(
           color: Colors.white,
           child: ListTile(
+            dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () => _onClickItem(data, selectData, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -272,6 +274,8 @@ class _PickingDetailState extends State<PickingDetail> {
         Container(
           color: Colors.white,
           child: ListTile(
+            dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);
@@ -380,6 +384,7 @@ class _PickingDetailState extends State<PickingDetail> {
                                     this.hobby[i][j]["value"]["label"].toString();
                                 checkData = i;
                                 checkDataChild = j;
+                                checkItem = 'FNumber';
                                 scanDialog();
                                 if (this.hobby[i][j]["value"]["label"] != 0) {
                                   this._textNumber.value =
@@ -417,7 +422,7 @@ class _PickingDetailState extends State<PickingDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -460,7 +465,7 @@ class _PickingDetailState extends State<PickingDetail> {
                           child: Column(children: <Widget>[
                         TextField(
                           style: TextStyle(color: Colors.black87),
-                          keyboardType: TextInputType.number,
+                          keyboardType: checkItem == "FNumber"?TextInputType.number:TextInputType.text,
                           controller: this._textNumber,
                           decoration: InputDecoration(hintText: "输入数量"),
                           onChanged: (value) {

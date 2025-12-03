@@ -75,8 +75,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   List<dynamic> materialDate = [];
   Map<String, dynamic> printData = {};
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription? _subscription;
@@ -1841,7 +1841,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           IconButton(
-                            icon: new Icon(Icons.chevron_right),
+                            icon: new Icon(Icons.chevron_right, color: Colors.blue),
                             onPressed: () {
                               this.controller.clear();
                               this.bagList = [];
@@ -1882,7 +1882,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: new Icon(Icons.filter_center_focus),
+                                icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                 tooltip: '点击扫描',
                                 onPressed: () {
                                   this._textNumber.text = this
@@ -2100,7 +2101,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -3099,7 +3100,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 IconButton(
-                                  icon: new Icon(Icons.filter_center_focus),
+                                  icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                   tooltip: '点击扫描',
                                   onPressed: () {
                                     checkItem = 'FBillNo';
@@ -3159,7 +3161,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                               children: <Widget>[
                                 if (!isScanWork)
                                   IconButton(
-                                    icon: new Icon(Icons.filter_center_focus),
+                                    icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                     tooltip: '点击扫描',
                                     onPressed: () {
                                       checkItem = 'FPrdOrgId';
@@ -3190,7 +3193,8 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   IconButton(
-                                    icon: new Icon(Icons.filter_center_focus),
+                                    icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                     tooltip: '点击扫描',
                                     onPressed: () {
                                       this._textNumber.text = this

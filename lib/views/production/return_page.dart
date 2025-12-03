@@ -32,8 +32,8 @@ class _ReturnPageState extends State<ReturnPage> {
   String FNumber = '';
   String username = '';
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
 
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
@@ -376,7 +376,7 @@ class _ReturnPageState extends State<ReturnPage> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),

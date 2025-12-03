@@ -64,8 +64,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
   Map<String, dynamic> selectStockMap = Map();
   List<dynamic> orderDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription ?_subscription;
@@ -236,6 +236,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         Container(
           color: Colors.white,
           child: ListTile(
+            dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () => _onClickItem(data, selectData, hobby, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -255,7 +257,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);
@@ -345,7 +348,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                      visualDensity: VisualDensity(vertical: -4),
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
@@ -362,6 +366,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                                 this._FNumber =
                                     this.hobby[i][j]["value"]["label"];
                                 checkData = i;
+                                checkItem = 'FNumber';
                                 checkDataChild = j;
                                 scanDialog();
                                 if (this.hobby[i][j]["value"]["label"] != 0) {
@@ -387,7 +392,8 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                    visualDensity: VisualDensity(vertical: -4),
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
@@ -405,7 +411,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -448,7 +454,7 @@ class _ReplenishmentDetailState extends State<ReplenishmentDetail> {
                           child: Column(children: <Widget>[
                         TextField(
                           style: TextStyle(color: Colors.black87),
-                          keyboardType: TextInputType.number,
+                          keyboardType: checkItem == "FNumber"?TextInputType.number:TextInputType.text,
                           controller: this._textNumber,
                           decoration: InputDecoration(hintText: "输入数量"),
                           onChanged: (value) {

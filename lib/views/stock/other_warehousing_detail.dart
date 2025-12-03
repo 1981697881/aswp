@@ -86,8 +86,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   List<dynamic> materialDate = [];
   List<dynamic> collarOrderDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
    StreamSubscription ?_subscription;
@@ -686,7 +686,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -706,7 +707,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);
@@ -851,7 +853,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             Column(children: [
               Container(
                 color: Colors.white,
-                child: ListTile(
+                child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
@@ -859,7 +862,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           IconButton(
-                            icon: new Icon(Icons.filter_center_focus),
+                            icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                             tooltip: '点击扫描',
                             onPressed: () {
                               this._textNumber.text =
@@ -867,6 +871,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                               this._FNumber =
                               this.hobby[i][j]["value"]["label"];
                               checkData = i;
+                              checkItem = 'FNumber';
                               checkDataChild = j;
                               scanDialog();
                               if (this.hobby[i][j]["value"]["label"] != 0) {
@@ -888,14 +893,16 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
                       trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                         IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
+                          icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                           tooltip: '点击扫描',
                           onPressed: () {
                             this._textNumber.text =
@@ -925,7 +932,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                       title: Text(this.hobby[i][j]["title"]),
                       trailing:
                       Row(
@@ -964,7 +972,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
@@ -972,7 +981,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.chevron_right),
+                              icon: new Icon(Icons.chevron_right, color: Colors.blue),
                               onPressed: () {
                                 this.controller.clear();
                                 this.searchStockList = [];
@@ -989,25 +998,32 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             comList.add(
               Column(children: [
                 Container(
-                  color: Colors.white,
-                  child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            new FlatButton(
-                              color: Colors.red,
-                              textColor: Colors.white,
-                              child: new Text('删除'),
-                              onPressed: () {
-                                this.hobby.removeAt(i);
-                                setState(() {});
-                              },
-                            )
-                          ])),
+                color: Colors.white,
+                child: ListTile(
+                  title: Text(
+                    this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString(),
+                  ),
+                  trailing: Transform.translate(
+                    offset: Offset(-240, 0), // 向左移动10个单位
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        FlatButton(
+                          color: Colors.red,
+                          textColor: Colors.white,
+                          child: Text('删除'),
+                          onPressed: () {
+                            this.hobby.removeAt(i);
+                            setState(() {});
+                          },
+                        )
+                      ],
+                    ),
+                  ),
                 ),
+              ),
                 divider,
               ]),
             );
@@ -1021,14 +1037,16 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 child: Column(children: [
                   Container(
                     color: Colors.white,
-                    child: ListTile(
+                    child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                         title: Text(this.hobby[i][j]["title"] +
                             '：' +
                             this.hobby[i][j]["value"]["label"].toString()),
                         trailing:
                         Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                           IconButton(
-                            icon: new Icon(Icons.filter_center_focus),
+                            icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                             tooltip: '点击扫描',
                             onPressed: () {
                               this._textNumber.text =
@@ -1060,14 +1078,16 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
                       trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                         IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
+                          icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                           tooltip: '点击扫描',
                           onPressed: () {
                             this._textNumber.text =
@@ -1098,7 +1118,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(
+                  child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
@@ -1116,7 +1137,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -1813,7 +1834,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     maintainAnimation: false,
                     visible: this.fBillNo == '' || this.fBillNo == null,
                     child: Container(
-                      height: 52.0,
+                      height: 46.0,
                       child: new Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: Row(children: [
@@ -1866,7 +1887,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                           ),
                           new SizedBox(
                             width: 60.0,
-                            height: 40.0,
+                            height: 30.0,
                             child: new RaisedButton(
                               color: Colors.lightBlueAccent,
                               child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
@@ -1888,7 +1909,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           *//* title: TextWidget(FBillNoKey, '生产订单：'),*//*
                           title: Text("单号：$fBillNo"),
                         ),
@@ -1904,13 +1926,14 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                   Column(children: [
                     Container(
                       color: Colors.white,
-                      child: ListTile(
+                      child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: Text('供应商：${supplierName!=null ? supplierName: "暂无"}'),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 IconButton(
-                                  icon: new Icon(Icons.chevron_right),
+                                  icon: new Icon(Icons.chevron_right, color: Colors.blue),
                                   onPressed: () {
                                     this.controller.clear();
                                     this.searchSupplierList = [];
@@ -1930,7 +1953,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: TextField(
                             //最多输入行数
                             maxLines: 1,
@@ -1938,6 +1962,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                               hintText: "备注",
                               //给文本框加边框
                               border: OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10), // 可选：调整内边距
                             ),
                             controller: this._remarkContent,
                             //改变回调

@@ -29,8 +29,8 @@ class _RetrievalPageState extends State<AllocationPage> {
   String startDate = '';
   String endDate = '';
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
@@ -85,12 +85,12 @@ class _RetrievalPageState extends State<AllocationPage> {
     userMap['FilterString'] = "FQty>0 and FCLOSESTATUS='A' and FAPPORGID.FNumber = '" +tissue + "'";
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] =
+        userMap['FilterString'] +=
             " and FBillNo like '%"+keyWord+"%'";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] =
+        userMap['FilterString'] +=
             " and FBillNo like '%"+keyWord+"%'";
       }else{
         if (this._dateSelectText != "") {
@@ -219,9 +219,10 @@ class _RetrievalPageState extends State<AllocationPage> {
         ToastUtil.showInfo('条码不在条码清单中');
       }
     } else {
+      _code = event;
       keyWord = _code;
       this.controller.text = _code;
-      _code = event;
+
       await this.getOrderList();
       print("ChannelPage: $event");
     }
@@ -285,7 +286,7 @@ class _RetrievalPageState extends State<AllocationPage> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),

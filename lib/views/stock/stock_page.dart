@@ -29,8 +29,8 @@ class _StockPageState extends State<StockPage> {
   //搜索字段
   String keyWord = '';
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   var warehouseName;
   var warehouseNumber;
   static const scannerPlugin =
@@ -255,9 +255,10 @@ class _StockPageState extends State<StockPage> {
         }
       }
     } else {
+      _code = event;
       keyWord = _code;
       this.controller.text = _code;
-      _code = event;
+
       await this.getOrderList(_code, "", "");
       print("ChannelPage: $event");
     }
@@ -685,13 +686,12 @@ class _StockPageState extends State<StockPage> {
                                 Container(
                                   color: Colors.white,
                                   child: ListTile(
-
                                       title: Text('仓库：${warehouseName!=null ? warehouseName: "暂无"}'),
                                       trailing: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
                                             IconButton(
-                                              icon: new Icon(Icons.chevron_right),
+                                              icon: new Icon(Icons.chevron_right, color: Colors.blue),
                                               onPressed: () {
                                                 this.searchController.clear();
                                                 this.searchStockList = [];
@@ -700,7 +700,6 @@ class _StockPageState extends State<StockPage> {
                                               },
                                             ),
                                           ])),
-
                                 ),
                                 divider,
                               ]),/*_item('仓库:', this.warehouseList,

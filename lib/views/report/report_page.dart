@@ -67,8 +67,8 @@ class _ReportPageState extends State<ReportPage> {
   };
   List<dynamic> orderDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription? _subscription;
@@ -281,7 +281,8 @@ class _ReportPageState extends State<ReportPage> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () => _onClickItem(data, selectData, label: label),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -301,7 +302,8 @@ class _ReportPageState extends State<ReportPage> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);
@@ -436,14 +438,16 @@ class _ReportPageState extends State<ReportPage> {
             Column(children: [
               Container(
                 color: Colors.white,
-                child: ListTile(
+                child: ListTile(dense: true,
+                    visualDensity: VisualDensity(vertical: -4),
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
                         Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       IconButton(
-                        icon: new Icon(Icons.filter_center_focus),
+                        icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                         tooltip: '点击扫描',
                         onPressed: () {
                           this._textNumber.text =
@@ -474,14 +478,16 @@ class _ReportPageState extends State<ReportPage> {
             Column(children: [
               Container(
                 color: Colors.white,
-                child: ListTile(
+                child: ListTile(dense: true,
+                    visualDensity: VisualDensity(vertical: -4),
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
                         Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       IconButton(
-                        icon: new Icon(Icons.filter_center_focus),
+                        icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                         tooltip: '点击扫描',
                         onPressed: () {
                           checkItem = 'FStock';
@@ -501,7 +507,8 @@ class _ReportPageState extends State<ReportPage> {
             Column(children: [
               Container(
                 color: Colors.white,
-                child: ListTile(
+                child: ListTile(dense: true,
+                  visualDensity: VisualDensity(vertical: -4),
                   title: Text(this.hobby[i][j]["title"] +
                       '：' +
                       this.hobby[i][j]["value"]["label"].toString()),
@@ -518,7 +525,7 @@ class _ReportPageState extends State<ReportPage> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -562,7 +569,7 @@ class _ReportPageState extends State<ReportPage> {
                             child: Column(children: <Widget>[
                           TextField(
                             style: TextStyle(color: Colors.black87),
-                            keyboardType: TextInputType.number,
+                            keyboardType: checkItem == "FNumber"?TextInputType.number:TextInputType.text,
                             controller: this._textNumber,
                             decoration: InputDecoration(hintText: "输入或者扫描数量"),
                             onChanged: (value) {
@@ -1103,14 +1110,16 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           /* title: TextWidget(FBillNoKey, '生产订单：'),*/
                           title: Text("生产订单：$FBillNo"),
                           /*trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 IconButton(
-                                  icon: new Icon(Icons.filter_center_focus),
+                                  icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                   tooltip: '点击扫描',
                                   onPressed: () {
                                     checkItem = 'FBillNo';
@@ -1128,7 +1137,8 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: Text("来源单号：$FSaleOrderNo"),
                           /*title: TextWidget(FSaleOrderNoKey, '来源单号：'),*/
                           trailing: Row(
@@ -1146,7 +1156,8 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: Text('客户名称：'),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -1166,7 +1177,8 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: PartRefreshWidget(FPrdOrgIdKey, () {
                             //2、使用 创建一个widget
                             return Text('生产车间：$FName');
@@ -1176,7 +1188,8 @@ class _ReportPageState extends State<ReportPage> {
                               children: <Widget>[
                                 if (!isScanWork)
                                   IconButton(
-                                    icon: new Icon(Icons.filter_center_focus),
+                                    icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                     tooltip: '点击扫描',
                                     onPressed: () {
                                       checkItem = 'FPrdOrgId';
@@ -1194,7 +1207,8 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: TextField(
                             //最多输入行数
                             maxLines: 1,
@@ -1202,6 +1216,8 @@ class _ReportPageState extends State<ReportPage> {
                               hintText: "备注",
                               //给文本框加边框
                               border: OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10), // 可选：调整内边距
                             ),
                             controller: this._remarkContent,
                             //改变回调
@@ -1224,7 +1240,8 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: Text('生产详细信息：'),
                         ),
                       ),

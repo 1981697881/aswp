@@ -90,11 +90,11 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   List<dynamic> materialDate = [];
   List<dynamic> collarOrderDate = [];
   final divider = Divider(height: 1, indent: 20);
-  final rightIcon = Icon(Icons.keyboard_arrow_right);
-  final scanIcon = Icon(Icons.filter_center_focus);
+  final rightIcon = Icon(Icons.keyboard_arrow_right, color: Colors.blue);
+  final scanIcon = Icon(Icons.filter_center_focus, color: Colors.blue);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription? _subscription;
+  StreamSubscription? _subscription; 
   var _code;
   var _FNumber;
   var fBillNo;
@@ -1284,7 +1284,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateClickItem(model, hobby);
@@ -1314,7 +1315,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(
+          child: ListTile(dense: true,
+            visualDensity: VisualDensity(vertical: -4),
             title: Text(title),
             onTap: () {
               _onDateChildClickItem(model, hobby);
@@ -1724,7 +1726,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
+                              icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                               tooltip: '点击扫描',
                               onPressed: () {
                                 this._textNumber.text =
@@ -1733,6 +1736,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                 this.hobby[i][j]["value"]["label"];
                                 checkData = i;
                                 checkDataChild = j;
+                                checkItem = 'FNumber';
                                 scanDialog();
                                 if (this.hobby[i][j]["value"]["label"] != 0) {
                                   this._textNumber.value =
@@ -1759,7 +1763,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                         IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
+                          icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                           tooltip: '点击扫描',
                           onPressed: () {
                             this._textNumber.text =
@@ -1797,7 +1802,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                       trailing:
                       Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                         IconButton(
-                          icon: new Icon(Icons.filter_center_focus),
+                          icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                           tooltip: '点击扫描',
                           onPressed: () {
                             this._textNumber.text =
@@ -1876,7 +1882,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
-                              icon: new Icon(Icons.chevron_right),
+                              icon: new Icon(Icons.chevron_right, color: Colors.blue),
                               onPressed: () {
                                 this.controller.clear();
                                 this.searchStockList = [];
@@ -1906,7 +1912,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             //               mainAxisSize: MainAxisSize.min,
             //               children: <Widget>[
             //                 IconButton(
-            //                   icon: new Icon(Icons.chevron_right),
+            //                   icon: new Icon(Icons.chevron_right, color: Colors.blue),
             //                   onPressed: () {
             //                     this.controller.clear();
             //                     this.bagList = [];
@@ -1965,7 +1971,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               IconButton(
-                                icon: new Icon(Icons.filter_center_focus),
+                                icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                              iconSize: 30,
                                 tooltip: '点击扫描',
                                 onPressed: () {
                                   this._textNumber.text = this
@@ -2011,7 +2018,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                           color: Colors.red, // 改变文本颜色为蓝色
                         ),
                       ),
-                      trailing: Row(mainAxisSize: MainAxisSize.min, children: <
+                      trailing: Transform.translate(
+                          offset: Offset(-120, 0), child: Row(mainAxisSize: MainAxisSize.min, children: <
                           Widget>[
                         Visibility(
                           visible: false,/*this.hobby[i][9]["value"]['value'] != double.parse(this.hobby[i][3]["value"]["value"])*/
@@ -2023,10 +2031,10 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                               setState(() async {
                                 if (this.hobby[i][3]["value"]["value"] != "0") {
                                   if (double.parse(
-                                          this.hobby[i][3]["value"]["value"]) <
+                                      this.hobby[i][3]["value"]["value"]) <
                                       this.hobby[i][9]["value"]['rateValue']) {
                                     var orderDataItem =
-                                        List.from(this.orderDate);
+                                    List.from(this.orderDate);
                                     this.orderDate.insert(i, orderDataItem[i]);
                                     this.fNumber = [];
                                     var childItemNumber = 0;
@@ -2102,9 +2110,9 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                                 ? ""
                                                 : this.storehouseName,
                                             "value":
-                                                this.storehouseNumber == null
-                                                    ? ""
-                                                    : this.storehouseNumber,
+                                            this.storehouseNumber == null
+                                                ? ""
+                                                : this.storehouseNumber,
                                           }
                                         });
                                         arr.add({
@@ -2119,15 +2127,15 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                           "isHide": false,
                                           "value": {
                                             "label":
-                                                this.storingLocationName == null
-                                                    ? ""
-                                                    : this.storingLocationName,
+                                            this.storingLocationName == null
+                                                ? ""
+                                                : this.storingLocationName,
                                             "value":
-                                                this.storingLocationNumber ==
-                                                        null
-                                                    ? ""
-                                                    : this
-                                                        .storingLocationNumber,
+                                            this.storingLocationNumber ==
+                                                null
+                                                ? ""
+                                                : this
+                                                .storingLocationNumber,
                                             "hide": showPosition
                                           }
                                         });
@@ -2155,17 +2163,17 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                           "isHide": false,
                                           "value": {
                                             "label": this.hobby[i][9]["value"]
-                                                    ['rateValue'] -
+                                            ['rateValue'] -
                                                 double.parse(this.hobby[i][3]
-                                                    ["value"]["value"]),
+                                                ["value"]["value"]),
                                             "value": this.hobby[i][9]["value"]
-                                                    ['rateValue'] -
+                                            ['rateValue'] -
                                                 double.parse(this.hobby[i][3]
-                                                    ["value"]["value"]),
+                                                ["value"]["value"]),
                                             "rateValue": this.hobby[i][9]
-                                                    ["value"]['rateValue'] -
+                                            ["value"]['rateValue'] -
                                                 double.parse(this.hobby[i][3]
-                                                    ["value"]["value"])
+                                                ["value"]["value"])
                                           } /*+value[12]*0.1*/
                                         });
                                         arr.add({
@@ -2185,13 +2193,13 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                         });
                                         this.hobby[i][9]["value"]['label'] =
                                             double.parse(this.hobby[i][3]
-                                                ["value"]["value"]);
+                                            ["value"]["value"]);
                                         this.hobby[i][9]["value"]['value'] =
                                             double.parse(this.hobby[i][3]
-                                                ["value"]["value"]);
+                                            ["value"]["value"]);
                                         this.hobby[i][9]["value"]['rateValue'] =
                                             double.parse(this.hobby[i][3]
-                                                ["value"]["value"]);
+                                            ["value"]["value"]);
                                         hobby.insert(i, arr);
                                         break;
                                       }
@@ -2220,7 +2228,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                             setState(() {});
                           },
                         )
-                      ])),
+                      ]))),
                 ),
                 divider,
               ]),
@@ -2248,7 +2256,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         }
       }
       tempList.add(
-        SizedBox(height: 10,
+        SizedBox(height: 5,
           child: Container(
             color: Colors.grey, // 设置颜色
           ),
@@ -3485,7 +3493,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: Text("是否保密:"),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -3522,8 +3531,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         'department'),
                   ),
                   /*_item('部门', ['生产部'], '生产部'),*/
-                  // _item('入库仓库', this.stockList, this.storehouseName,
-                  //     'storehouse'),
+                  _item('入库仓库', this.stockList, this.storehouseName,
+                      'storehouse'),
                   Visibility(
                     maintainSize: false,
                     maintainState: false,
@@ -3539,7 +3548,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   IconButton(
-                                    icon: new Icon(Icons.filter_center_focus),
+                                    icon: new Icon(Icons.filter_center_focus, color: Colors.blue),
+                                    iconSize: 30,
                                     tooltip: '点击扫描',
                                     onPressed: () {
                                       this._textNumber.text =
@@ -3568,7 +3578,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                     children: [
                       Container(
                         color: Colors.white,
-                        child: ListTile(
+                        child: ListTile(dense: true,
+                          visualDensity: VisualDensity(vertical: -4),
                           title: TextField(
                             //最多输入行数
                             maxLines: 1,
@@ -3576,6 +3587,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                               hintText: "备注",
                               //给文本框加边框
                               border: OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 10), // 可选：调整内边距
                             ),
                             controller: this._remarkContent,
                             //改变回调
