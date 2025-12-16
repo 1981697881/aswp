@@ -686,8 +686,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+          child: ListTile(
             title: Text(title),
             onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -707,8 +706,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+          child: ListTile(
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);
@@ -853,8 +851,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
             Column(children: [
               Container(
                 color: Colors.white,
-                child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+                child: ListTile(
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
@@ -893,8 +890,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+                  child: ListTile(
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
@@ -972,8 +968,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+                  child: ListTile(
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
@@ -1037,8 +1032,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                 child: Column(children: [
                   Container(
                     color: Colors.white,
-                    child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+                    child: ListTile(
                         title: Text(this.hobby[i][j]["title"] +
                             '：' +
                             this.hobby[i][j]["value"]["label"].toString()),
@@ -1078,8 +1072,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+                  child: ListTile(
                       title: Text(this.hobby[i][j]["title"] +
                           '：' +
                           this.hobby[i][j]["value"]["label"].toString()),
@@ -1118,8 +1111,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
               Column(children: [
                 Container(
                   color: Colors.white,
-                  child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+                  child: ListTile(
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
@@ -1926,8 +1918,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                   Column(children: [
                     Container(
                       color: Colors.white,
-                      child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+                      child: ListTile(
                           title: Text('供应商：${supplierName!=null ? supplierName: "暂无"}'),
                           trailing: Row(
                               mainAxisSize: MainAxisSize.min,

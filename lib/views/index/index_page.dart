@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:aswp/views/purchase/purchase_warehousing_page.dart';
+import 'package:aswp/views/stock/allocation_page.dart';
+import 'package:aswp/views/stock/stock_page.dart';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/services.dart';
@@ -85,11 +88,11 @@ class _IndexPageState extends State<IndexPage> {
     afterFirstLayout(context);
     this.getWorkShop();
     this.getStockList();
+
   }
   @override
   void dispose() {
     super.dispose();
-
     /// 取消监听
     if (_subscription != null) {
       _subscription!.cancel();
@@ -371,7 +374,38 @@ class _IndexPageState extends State<IndexPage> {
                   ],
                 )));
       });
+  // 常用功能菜单
+  Widget buildCommonFunctions() {
+    var commonFunctions = <Map<String, dynamic>>[
+      {
+        "icon": Icons.inventory,
+        "text": "采购收货",
+        "id": 10,
+        "color": Colors.orange.withOpacity(0.7),
+        "router": PurchaseWarehousingPage()
+      },
+      {
+        "icon": Icons.compare_arrows,
+        "text": "直接调拨",
+        "id": 11,
+        "color": Colors.green.withOpacity(0.7),
+        "router": AllocationPage()
+      },
+      {
+        "icon": Icons.search,
+        "text": "库存查询",
+        "id": 12,
+        "color": Colors.purple.withOpacity(0.7),
+        "router": StockPage(),
+      },
+    ];
 
+    return Wrap(
+      spacing: 24,
+      runSpacing: 20,
+      children: Boxs(commonFunctions),
+    );
+  }
   // tabs 容器
   Widget buildAppBarTabs() {
     var deptData = sharedPreferences.getString('menuList');
@@ -569,8 +603,7 @@ class _IndexPageState extends State<IndexPage> {
   }
   @override
   Widget build(BuildContext context) {
-    return FlutterEasyLoading(
-      child: Scaffold(
+    return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
           title: new Text('${this.organizationsName}'),
@@ -609,59 +642,92 @@ class _IndexPageState extends State<IndexPage> {
           ),
         ),
         body: Container(
-          width: double.infinity,
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 2.0),
-                child: Container(
-                    height: 52.0,
-                    child: new Card(
-                      child: new Container(
-                        child: new Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.max,
-                          children: <Widget>[
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                  width: 50,
-                                  height: 50,
-                                  child: Center(
-                                    child: Text(
-                                      "用户：$username",
-                                    ),
-                                  )),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                  width: 50,
-                                  height: 50,
-                                  child: Center(
-                                    child: Text(
-                                      "车间：$FName",
-                                    ),
-                                  )),
-                            ),
-                          ],
-                        ),
+        width: double.infinity,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 2.0),
+              child: Container(
+                  height: 52.0,
+                  child: new Card(
+                    child: new Container(
+                      child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                                width: 50,
+                                height: 50,
+                                child: Center(
+                                  child: Text(
+                                    "用户：$username",
+                                  ),
+                                )),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                                width: 50,
+                                height: 50,
+                                child: Center(
+                                  child: Text(
+                                    "车间：$FName",
+                                  ),
+                                )),
+                          ),
+                        ],
                       ),
-                    )),
+                    ),
+                  )),
+            ),
+            // 常用功能区域
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(
+                horizontal: NavigationToolbar.kMiddleSpacing,
+                vertical: 10.0,
               ),
-              Container(
-                width: double.infinity,
-                color: Colors.white,
-                margin: EdgeInsets.only(bottom: 10.0),
-                padding: EdgeInsets.symmetric(
-                  // 同appBar的titleSpacing一致
-                  horizontal: NavigationToolbar.kMiddleSpacing,
-                  vertical: 20.0,
-                ),
-                child: buildAppBarTabs(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+                    child: Text(
+                      "常用功能",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  buildCommonFunctions(),
+                ],
               ),
-            ],
-          ),
+            ),
+            // 原有主菜单区域
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              margin: EdgeInsets.only(bottom: 10.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: NavigationToolbar.kMiddleSpacing,
+                vertical: 20.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+                    child: Text(
+                      "全部功能",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  buildAppBarTabs(),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

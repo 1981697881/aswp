@@ -82,7 +82,7 @@ class _RetrievalPageState extends State<AllocationPage> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] = "FQty>0 and FCLOSESTATUS='A' and FAPPORGID.FNumber = '" +tissue + "'";
+    userMap['FilterString'] = "FQty-FNOTransOutReBaseQty>0 and FCLOSESTATUS='A' and FAPPORGID.FNumber = '" +tissue + "'";
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] +=
@@ -105,7 +105,7 @@ class _RetrievalPageState extends State<AllocationPage> {
     userMap['FormId'] = 'STK_TRANSFERAPPLY';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FName,FStockInId.FName,FStockOrgInId.FNumber,FStockOrgInId.FName';
+    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FName,FStockInId.FName,FStockOrgInId.FNumber,FStockOrgInId.FName,FNOTransOutReBaseQty,F_MSD_FmnemonicCode';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -156,7 +156,7 @@ class _RetrievalPageState extends State<AllocationPage> {
           "title": "申请数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {"label": value[12]-value[20], "value": value[12]-value[20]}
         });
         arr.add({
           "title": "调出仓库",
@@ -175,6 +175,12 @@ class _RetrievalPageState extends State<AllocationPage> {
           "name": "",
           "isHide": true,
           "value": {"label": value[19], "value": value[18]}
+        });
+        arr.add({
+          "title": "助记码",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[21], "value": value[21]}
         });
         hobby.add(arr);
       });

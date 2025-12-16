@@ -1623,8 +1623,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+          child: ListTile(
             title: Text(title),
             onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -1644,8 +1643,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
       children: [
         Container(
           color: Colors.white,
-          child: ListTile(dense: true,
-                          visualDensity: VisualDensity(vertical: -4),
+          child: ListTile(
             title: Text(title),
             onTap: () {
               _onDateClickItem(model);

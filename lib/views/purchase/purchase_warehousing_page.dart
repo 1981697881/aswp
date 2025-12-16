@@ -105,7 +105,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     userMap['Limit'] = '10';
     userMap['OrderString'] = 'FDate DESC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockJoinQty,FDetailEntity_FSeq';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockJoinQty,FDetailEntity_FSeq,F_MSD_FmnemonicCode';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -176,6 +176,12 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "name": "FSupplierID",
           "isHide": false,
           "value": {"label": value[2], "value": value[1]}
+        });
+        arr.add({
+          "title": "助记码",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[17], "value": value[17]}
         });
         var order2Date = jsonDecode(order2);
         if (order2Date.length > 0) {
@@ -290,7 +296,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 8) {
+          if (j == 9) {
             comList.add(
               Column(children: [
                 Container(

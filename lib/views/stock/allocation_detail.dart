@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:aswp/utils/temp_data_manager.dart';
 import 'package:date_format/date_format.dart';
 import 'package:decimal/decimal.dart';
 import 'package:aswp/model/currency_entity.dart';
@@ -38,6 +39,8 @@ class AllocationDetail extends StatefulWidget {
 }
 
 class _RetrievalDetailState extends State<AllocationDetail> {
+  // 使用单据暂存管理器
+  final TempDataManager _tempDataManager = TempDataManager();
   var _remarkContent = new TextEditingController();
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
   GlobalKey<TextWidgetState> textKey = GlobalKey();
@@ -135,9 +138,116 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    // 检查缓存（延迟执行，确保context可用）
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      checkTempData();
+    });
     /*getWorkShop();*/
 
     EasyLoading.dismiss();
+  }
+  // 检查缓存方法
+  void checkTempData() async {
+    if (fBillNo != null && fBillNo.isNotEmpty) {
+      final tempData = await _tempDataManager.getAllocationOrder(fBillNo);
+      if (tempData != null && mounted) {
+        // 提示用户是否提取缓存
+        final load = await TempDataManager.showLoadTempDataDialog(
+          context,
+          title: "发现暂存数据",
+          content: "是否加载上次的暂存数据？",
+        );
+
+        if (load == true) {
+          loadTempData(tempData);
+        }
+      }
+    }
+  }
+  // 修改 loadTempData 方法，只恢复实际存在的字段
+  void loadTempData(Map<String, dynamic> tempData) async {
+    try {
+      final data = jsonDecode(tempData['data']);
+
+      // 清空当前数据
+      setState(() {
+        hobby = [];
+        orderDate = [];
+        materialDate = [];
+        _textNumber3.clear();
+        focusNodes.clear();
+      });
+
+      // 恢复基础数据 - 只恢复实际存在的字段
+      if (data['baseData'] != null) {
+        final base = data['baseData'];
+        setState(() {
+          FDate = base['FDate'] ?? FDate;
+          selectData = Map<DateMode, String>.from(base['selectData'] ?? selectData);
+          storehouseName = base['storehouseName'] ?? '';
+          storehouseNumber = base['storehouseNumber'] ?? '';
+          showPosition = base['showPosition'] ?? false;
+          storingLocationName = base['storingLocationName'] ?? '';
+          storingLocationNumber = base['storingLocationNumber'] ?? '';
+          _remarkContent.text = base['remark'] ?? '';
+          fOrgID = base['fOrgID'] ?? fOrgID;
+          organizationsName1 = base['organizationsName1'] ?? '';
+          organizationsNumber1 = base['organizationsNumber1'] ?? '';
+          organizationsName2 = base['organizationsName2'] ?? '';
+          organizationsNumber2 = base['organizationsNumber2'] ?? '';
+          storehouseNameT = base['storehouseNameT'] ?? '';
+          storehouseNumberT = base['storehouseNumberT'] ?? '';
+          showPositionT = base['showPositionT'] ?? false;
+          keyWord = base['keyWord'] ?? '';
+          isScanWork = base['isScanWork'] ?? false;
+          fBarCodeList = base['fBarCodeList'] ?? fBarCodeList;
+        });
+      }
+
+      // 恢复行项目数据
+      if (data['hobby'] != null) {
+        final List<dynamic> savedHobby = data['hobby'];
+
+        // 重新初始化控制器和焦点节点
+        for (int i = 0; i < savedHobby.length; i++) {
+          _textNumber3.add(TextEditingController());
+          focusNodes.add(FocusNode());
+          _setupListener(i);
+        }
+
+        setState(() {
+          hobby = savedHobby;
+        });
+
+        // 恢复控制器文本
+        for (int i = 0; i < hobby.length; i++) {
+          if (hobby[i].length > 5 && hobby[i][5] != null) {
+            _textNumber3[i].text = hobby[i][5]['value']['label']?.toString() ?? '';
+          }
+        }
+      }
+
+      // 恢复其他数据
+      if (data['orderDate'] != null) {
+        orderDate = data['orderDate'];
+      }
+      if (data['materialDate'] != null) {
+        materialDate = data['materialDate'];
+      }
+
+      // 恢复仓库列表
+      if (organizationsNumber1 != null && organizationsNumber1.isNotEmpty) {
+        await getStockList();
+      }
+      if (organizationsNumber2 != null && organizationsNumber2.isNotEmpty) {
+        await getStockListT();
+      }
+
+      ToastUtil.showInfo('缓存数据加载成功');
+    } catch (e) {
+      print('加载缓存数据失败: $e');
+      ToastUtil.showInfo('加载缓存数据失败');
+    }
   }
   void _setupListener(int index) {
     focusNodes[index].addListener(() {
@@ -239,7 +349,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       }
     });
   }
+  //获取缓存
+  getOrderCache() async {
 
+  }
   @override
   void dispose() {
     this._textNumber.dispose();
@@ -484,11 +597,11 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds'));
-    userMap['FilterString'] = "FBillNo='$fBillNo' FQty>0";
+    userMap['FilterString'] = "FBillNo='$fBillNo' and FQty-FNOTransOutReBaseQty>0";
     userMap['FormId'] = 'STK_TRANSFERAPPLY';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FNumber,FStockInId.FNumber,FBillTypeID.FNUMBER,FEntity_FSeq,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod,FMaterialId.FIsBatchManage,FLot.FNumber,FProduceDate,FExpiryDate,FStockID.FIsOpenLocation,FStockInId.FIsOpenLocation,FStockOrgId.FNumber,FStockOrgId.FName,FStockOrgInId.FNumber,FStockOrgInId.FName,FStockId.FName,FStockInId.FName';
+    'FBillNo,FAPPORGID.FNumber,FAPPORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FOwnerTypeInIdHead,FOwnerTypeIdHead,FUNITID.FNumber,FUNITID.FName,FQty,FAPPROVEDATE,FNote,FID,FStockId.FNumber,FStockInId.FNumber,FBillTypeID.FNUMBER,FEntity_FSeq,FMaterialId.FIsKFPeriod,FMaterialId.FExpPeriod,FMaterialId.FIsBatchManage,FLot.FNumber,FProduceDate,FExpiryDate,FStockID.FIsOpenLocation,FStockInId.FIsOpenLocation,FStockOrgId.FNumber,FStockOrgId.FName,FStockOrgInId.FNumber,FStockOrgInId.FName,FStockId.FName,FStockInId.FName,FNOTransOutReBaseQty,F_MSD_FmnemonicCode';
     if(fStockIds.length>0){
       for(var flex in fStockIds){
         userMap['FieldKeys'] += ",FStockLocId."+flex[4]+".FNumber";
@@ -572,7 +685,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "title": "调拨数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": "", "value": "0"}
+          "value": {"label": (value[12]-value[34]).toString(), "value": (value[12]-value[34]).toString()}
         });
         arr.add({
           "title": "申请数量",
@@ -580,8 +693,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           "isHide": false,
           /*value[12]*/
           "value": {
-            "label": value[12],
-            "value": value[12]
+            "label": value[12]-value[34],
+            "value": value[12]-value[34]
           }
         });
         arr.add({
@@ -599,8 +712,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         var floc = '';
         if(fStockIds.length>0){
           for(var i = 0; i< fStockIds.length;i++){
-            if(value[34+i] != null && value[34+i] != ''){
-              floc = value[34+i];
+            if(value[36+i] != null && value[36+i] != ''){
+              floc = value[36+i];
               break;
             }
           }
@@ -621,9 +734,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         int count = stockListObjT.where((list) => list.length > 4 && list[4] != null).length;
         if(count>0){
           for(var i = 0; i< count;i++){
-            print(34+i+fStockIds.length);
-              if(value[34+i+fStockIds.length] != null && value[34+i+fStockIds.length] != ''){
-                fIntloc = value[34+i+fStockIds.length];
+            print(36+i+fStockIds.length);
+              if(value[36+i+fStockIds.length] != null && value[36+i+fStockIds.length] != ''){
+                fIntloc = value[36+i+fStockIds.length];
                 break;
               }
           }
@@ -724,6 +837,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             });
           }
         }
+        arr.add({
+          "title": "助记码",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[35], "value": value[35]}
+        });
         hobby.add(arr);
       };
       setState(() {
@@ -2624,8 +2743,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                           textColor: Colors.white,
                           child: Text('删除'),
                           onPressed: () {
-                            this.hobby.removeAt(i);
-                            setState(() {});
+
+                            setState(() {
+                              this.hobby.removeAt(i);
+                            });
                           },
                         )
                       ],
@@ -3064,6 +3185,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           FEntityItem['FSrcStockId'] = {
             "FNumber": element[6]['value']['value']
           };
+          FEntityItem['FLot'] = {
+            "FNumber": element[5]['value']['value']
+          };
+          FEntityItem['FDestLot'] = {
+            "FNumber": element[5]['value']['value']
+          };
           if (element[7]['value']['hide']) {
             Map<String, dynamic> stockMap = Map();
             stockMap['FormId'] = 'BD_STOCK';
@@ -3317,6 +3444,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   this.hobby = [];
                   this.orderDate = [];
                   this.FBillNo = '';
+                  // 删除缓存数据
+                  deleteTempData();
                   _showSaveedDialog(newBillNo);
                 });
               } else {
@@ -3409,6 +3538,107 @@ class _RetrievalDetailState extends State<AllocationDetail> {
 
   double hc_ScreenWidth() {
     return window.physicalSize.width / window.devicePixelRatio;
+  }
+  // 修改 saveTempData 方法，只保留现有代码中实际存在的字段
+  saveTempData() async {
+    try {
+      // 验证数据
+      if (fBillNo == null || fBillNo.isEmpty) {
+        ToastUtil.showInfo('请先选择单据');
+        return;
+      }
+
+      // 准备需要保存的数据 - 只保存实际存在的字段
+      Map<String, dynamic> tempData = {
+        'baseData': {
+          'FDate': FDate,
+          'selectData': selectData, // 选择日期数据
+          'storehouseName': storehouseName,
+          'storehouseNumber': storehouseNumber,
+          'showPosition': showPosition,
+          'storingLocationName': storingLocationName,
+          'storingLocationNumber': storingLocationNumber,
+          'remark': _remarkContent.text,
+          'fOrgID': fOrgID,
+          'organizationsName1': organizationsName1,
+          'organizationsNumber1': organizationsNumber1,
+          'organizationsName2': organizationsName2,
+          'organizationsNumber2': organizationsNumber2,
+          'storehouseNameT': storehouseNameT,
+          'storehouseNumberT': storehouseNumberT,
+          'showPositionT': showPositionT,
+          'keyWord': keyWord,
+          'isScanWork': isScanWork,
+          'fBarCodeList': fBarCodeList,
+        },
+        'hobby': _serializeHobby(hobby), // 序列化 hobby 数据
+        'orderDate': orderDate,
+        'materialDate': materialDate,
+        // 移除不存在的字段：_checked, supplierName, supplierNumber, departmentName,
+        // departmentNumber, collarOrderDate, printData
+      };
+
+      await _tempDataManager.saveAllocationOrder(
+        billNo: fBillNo,
+        data: tempData,
+      );
+
+      ToastUtil.showInfo('暂存成功');
+    } catch (e) {
+      print('暂存失败: $e');
+      ToastUtil.showInfo('暂存失败');
+    }
+  }
+
+  // 简化 _serializeHobby 方法，只处理实际存在的字段
+  List<dynamic> _serializeHobby(List<dynamic> hobbyList) {
+    List<dynamic> serialized = [];
+
+    for (var item in hobbyList) {
+      List<dynamic> serializedItem = [];
+
+      for (var field in item) {
+        // 序列化每个字段，确保都是基本类型
+        Map<String, dynamic> serializedField = {
+          'title': field['title'],
+          'name': field['name'],
+          'isHide': field['isHide'] ?? false,
+          // 序列化 value 对象
+          'value': {
+            'label': field['value']['label']?.toString() ?? '',
+            'value': field['value']['value']?.toString() ?? '',
+            'fid': field['value']['fid']?.toString() ?? '',
+            'barcode': List<String>.from(field['value']['barcode'] ?? []),
+            'kingDeeCode': List<String>.from(field['value']['kingDeeCode'] ?? []),
+            'scanCode': List<String>.from(field['value']['scanCode'] ?? []),
+            'surplus': field['value']['surplus']?.toString() ?? '',
+            'codeList': List<String>.from(field['value']['codeList'] ?? []),
+            'remainder': field['value']['remainder']?.toString() ?? '',
+            'representativeQuantity': field['value']['representativeQuantity']?.toString() ?? '',
+            'hide': field['value']['hide'] ?? false,
+            'dimension': field['value']['dimension']?.toString() ?? '',
+            'fLotList': field['value']['fLotList'] ?? [],
+          },
+          // 只保留实际存在的字段
+          'FID': field['FID']?.toString() ?? '',
+          'FEntryId': field['FEntryId']?.toString() ?? '',
+        };
+
+        serializedItem.add(serializedField);
+      }
+
+      serialized.add(serializedItem);
+    }
+
+    return serialized;
+  }
+  // 删除暂存数据
+  deleteTempData() async {
+    try {
+      await _tempDataManager.deleteAllocationOrder(fBillNo);
+    } catch (e) {
+      print('删除暂存数据失败: $e');
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -3510,15 +3740,15 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     maintainSize: false,
                     maintainState: false,
                     maintainAnimation: false,
-                    visible: this.fBillNo == '' || this.fBillNo == null,
+                    visible: this.fBillNo != '' && this.fBillNo != null,
                     child: Column(
                       children: [
                         Container(
                           color: Colors.white,
                           child: ListTile(
-                  dense: true,
-                  visualDensity: VisualDensity(vertical: -4),
-                            title: Text("单号：$FBillNo"),
+                            dense: true,
+                            visualDensity: VisualDensity(vertical: -4),
+                            title: Text("单号：$fBillNo"),
                           ),
                         ),
                         divider,
@@ -3571,8 +3801,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                       Container(
                         color: Colors.white,
                         child: ListTile(
-                  dense: true,
-                  visualDensity: VisualDensity(vertical: -4),
+                            dense: this.fBillNo?.isNotEmpty == true ? true : false, // 或者 null
+                            visualDensity: this.fBillNo?.isNotEmpty == true
+                                ? VisualDensity(vertical: -4)
+                                : null,
                             title: Text('调出仓库：${storehouseName!=null ? storehouseName: "暂无"}'),
                             trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -3595,9 +3827,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                     Container(
                       color: Colors.white,
                       child: ListTile(
-                  dense: true,
-                  visualDensity: VisualDensity(vertical: -4),
-
+                          dense: this.fBillNo?.isNotEmpty == true ? true : false, // 或者 null
+                          visualDensity: this.fBillNo?.isNotEmpty == true
+                              ? VisualDensity(vertical: -4)
+                              : null,
                       title: Text('调入仓库：${storehouseNameT!=null ? storehouseNameT: "暂无"}'),
                       trailing: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -3704,6 +3937,17 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                 padding: const EdgeInsets.only(top: 0),
                 child: Row(
                   children: <Widget>[
+                    Expanded(
+                      child: RaisedButton(
+                        padding: EdgeInsets.all(15.0),
+                        child: Text("暂存"),
+                        color: Colors.orange,
+                        textColor: Colors.white,
+                        onPressed: () async {
+                          await saveTempData();
+                        },
+                      ),
+                    ),
                     Expanded(
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),

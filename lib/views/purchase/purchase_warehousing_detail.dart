@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aswp/utils/temp_data_manager.dart';
 import 'package:date_format/date_format.dart';
 import 'package:aswp/model/currency_entity.dart';
 import 'package:aswp/model/submit_entity.dart';
@@ -37,6 +38,8 @@ class PurchaseWarehousingDetail extends StatefulWidget {
 }
 
 class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
+  // 使用单据暂存管理器
+  final TempDataManager _tempDataManager = TempDataManager();
   var _remarkContent = new TextEditingController();
   GlobalKey<TextWidgetState> textKey = GlobalKey();
 
@@ -132,11 +135,102 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    // 检查缓存（延迟执行，确保context可用）
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      checkTempData();
+    });
     /*getWorkShop();*/
     //getBagList();
     EasyLoading.dismiss();
   }
+  // 检查缓存方法
+  void checkTempData() async {
+    if (fBillNo != null && fBillNo.isNotEmpty) {
+      final tempData = await _tempDataManager.getPurchaseWarehousing(fBillNo);
+      if (tempData != null && mounted) {
+        // 提示用户是否提取缓存
+        final load = await TempDataManager.showLoadTempDataDialog(
+          context,
+          title: "发现暂存数据",
+          content: "是否加载上次的暂存数据？",
+        );
 
+        if (load == true) {
+          loadTempData(tempData);
+        }
+      }
+    }
+  }
+  // 加载缓存数据
+  void loadTempData(Map<String, dynamic> tempData) async {
+    try {
+      final data = jsonDecode(tempData['data']);
+
+      // 清空当前数据
+      setState(() {
+        hobby = [];
+        orderDate = [];
+        collarOrderDate = [];
+        materialDate = [];
+        _textNumber2.clear();
+        _textNumber3.clear();
+        focusNodes.clear();
+      });
+
+      // 恢复基础数据
+      if (data['baseData'] != null) {
+        final base = data['baseData'];
+        setState(() {
+          FDate = base['FDate'] ?? FDate;
+          selectData[DateMode.YMD] = base['FDate'] ?? selectData[DateMode.YMD];
+          _checked = base['_checked'] ?? _checked;
+          supplierName = base['supplierName'];
+          supplierNumber = base['supplierNumber'];
+          departmentName = base['departmentName'];
+          departmentNumber = base['departmentNumber'];
+          storehouseName = base['storehouseName'];
+          storehouseNumber = base['storehouseNumber'];
+          showPosition = base['showPosition'] ?? false;
+          storingLocationName = base['storingLocationName'];
+          storingLocationNumber = base['storingLocationNumber'];
+          _remarkContent.text = base['remark'] ?? '';
+          fOrgID = base['fOrgID'];
+        });
+      }
+
+      // 恢复行项目数据
+      if (data['hobby'] != null) {
+        final List<dynamic> savedHobby = data['hobby'];
+
+        // 重新初始化控制器和焦点节点
+        for (int i = 0; i < savedHobby.length; i++) {
+          _textNumber2.add(TextEditingController());
+          _textNumber3.add(TextEditingController());
+          focusNodes.add(FocusNode());
+          _setupListener(i);
+        }
+
+        setState(() {
+          hobby = savedHobby;
+        });
+
+        // 恢复控制器文本
+        for (int i = 0; i < hobby.length; i++) {
+          if (hobby[i].length > 3 && hobby[i][3] != null) {
+            _textNumber2[i].text = hobby[i][3]['value']['label']?.toString() ?? '';
+          }
+          if (hobby[i].length > 5 && hobby[i][5] != null) {
+            _textNumber3[i].text = hobby[i][5]['value']['label']?.toString() ?? '';
+          }
+        }
+      }
+
+      ToastUtil.showInfo('缓存数据加载成功');
+    } catch (e) {
+      print('加载缓存数据失败: $e');
+      ToastUtil.showInfo('加载缓存数据失败');
+    }
+  }
   void _setupListener(int index) {
     focusNodes[index].addListener(() {
       if (!focusNodes[index].hasFocus) {
@@ -259,9 +353,14 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       }
     });
   }
+  //获取缓存
+  getOrderCache() async {
 
+  }
   @override
   void dispose() {
+    // textKey = null;
+    // globalTKey = null;
     this._textNumber.dispose();
     // 释放所有 Controller 和 FocusNode
     for (var controller in _textNumber2) {
@@ -330,7 +429,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         OrderMap['FilterString'] =
         "FID='$entitysNumber'";//and FLot.FNumber != ''
         OrderMap['FieldKeys'] =
-        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FUnitId.FNumber,FUnitId.FName,FRealQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FBaseUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FStockDeptId.FNumber,FPurchaserId.FNumber,FNote,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FBaseJoinQty,FGiveAway,FPOOrderNo,FPOORDERENTRYID,FPayConditionId.FNumber,FInStockEntry_FSeq,FMaterialId.FIsKFPeriod,FLot.FNumber';
+        'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FUnitId.FNumber,FUnitId.FName,FRealQty,FSrcBillNo,FID,FMaterialId.FIsBatchManage,FStockOrgId.FNumber,FBaseUnitID.FNumber,FTaxPrice,FEntryTaxRate,FPrice,FStockDeptId.FNumber,FPurchaserId.FNumber,FNote,FBillTypeID.FNUMBER,FAuxPropId,FProduceDate,FExpiryDate,FBaseJoinQty,FGiveAway,FPOOrderNo,FPOORDERENTRYID,FPayConditionId.FNumber,FInStockEntry_FSeq,FMaterialId.FIsKFPeriod,FLot.FNumber,F_MSD_FmnemonicCode';
         String order = await CurrencyEntity.polling({'data': OrderMap});
         this.getOrderList(order);
       } else {
@@ -558,6 +657,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             });
           }
         }
+        arr.add({
+          "title": "助记码",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[36], "value": value[36]}
+        });
         hobby.add(arr);
       };
       setState(() {
@@ -3208,6 +3313,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         this.FBillNo = '';
                         this.FSaleOrderNo = '';
                       });
+                      // 删除暂存数据
+                      await deleteTempData();
                       _showSaveedDialog(newBillNo);
                     } else {
                       //失败后反审
@@ -3442,6 +3549,59 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
       }
     }
   }
+  // 暂存数据
+  saveTempData() async {
+    try {
+      // 验证数据
+      if (fBillNo == null || fBillNo.isEmpty) {
+        ToastUtil.showInfo('请先选择单据');
+        return;
+      }
+
+      // 准备需要保存的数据
+      Map<String, dynamic> tempData = {
+        'baseData': {
+          'FDate': FDate,
+          '_checked': _checked,
+          'supplierName': supplierName,
+          'supplierNumber': supplierNumber,
+          'departmentName': departmentName,
+          'departmentNumber': departmentNumber,
+          'storehouseName': storehouseName,
+          'storehouseNumber': storehouseNumber,
+          'showPosition': showPosition,
+          'storingLocationName': storingLocationName,
+          'storingLocationNumber': storingLocationNumber,
+          'remark': _remarkContent.text,
+          'fOrgID': fOrgID,
+        },
+        'hobby': hobby,
+        'orderDate': orderDate,
+        'collarOrderDate': collarOrderDate,
+        'materialDate': materialDate,
+        'printData': printData,
+      };
+
+      await _tempDataManager.savePurchaseWarehousing(
+        billNo: fBillNo,
+        data: tempData,
+      );
+
+      ToastUtil.showInfo('暂存成功');
+    } catch (e) {
+      print('暂存失败: $e');
+      ToastUtil.showInfo('暂存失败');
+    }
+  }
+
+// 删除暂存数据
+  deleteTempData() async {
+    try {
+      await _tempDataManager.deletePurchaseWarehousing(fBillNo);
+    } catch (e) {
+      print('删除暂存数据失败: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -3617,6 +3777,17 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                 padding: const EdgeInsets.only(top: 0),
                 child: Row(
                   children: <Widget>[
+                    Expanded(
+                      child: RaisedButton(
+                        padding: EdgeInsets.all(15.0),
+                        child: Text("暂存"),
+                        color: Colors.orange,
+                        textColor: Colors.white,
+                        onPressed: () async {
+                          await saveTempData();
+                        },
+                      ),
+                    ),
                     Expanded(
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),

@@ -128,7 +128,7 @@ class _StockPageState extends State<StockPage> {
     userMap['Limit'] = '50';
     userMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
     userMap['FieldKeys'] =
-        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FMaterialId.FName,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage';
+        'FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockId.FName,FBaseQty,FLot.FNumber,FAuxPropId,FMaterialId.FName,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,F_MSD_FmnemonicCode';
     if(fStockIds.length>0){
       for(var flex in fStockIds){
         userMap['FieldKeys'] += ",FStockLocId."+flex[4]+".FNumber";
@@ -202,6 +202,12 @@ class _StockPageState extends State<StockPage> {
           "isHide": !value[9],
           "name": "FBatchNo",
           "value": {"label": value[5], "value": value[5]}
+        });
+        arr.add({
+          "title": "助记码",
+          "name": "",
+          "isHide": false,
+          "value": {"label": value[35], "value": value[35]}
         });
         hobby.add(arr);
       }
