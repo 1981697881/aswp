@@ -105,7 +105,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         this.organizationsNumber2 = FStockOrgInId['value'];
         this.getStockListT();
       }else{
-        this.getOrderList();
+
       }
       isScanWork = true;
     } else {
@@ -160,14 +160,18 @@ class _RetrievalDetailState extends State<AllocationDetail> {
 
         if (load == true) {
           loadTempData(tempData);
+        }else{
+          deleteTempData();
         }
+      }else{
+        this.getOrderList();
       }
     }
   }
   // 修改 loadTempData 方法，只恢复实际存在的字段
   void loadTempData(Map<String, dynamic> tempData) async {
     try {
-      final data = jsonDecode(tempData['data']);
+      final data = tempData['data'] as Map<String, dynamic>;
 
       // 清空当前数据
       setState(() {
@@ -177,13 +181,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         _textNumber3.clear();
         focusNodes.clear();
       });
-
+      orderDate = data['orderDate'] as List<dynamic>;
       // 恢复基础数据 - 只恢复实际存在的字段
       if (data['baseData'] != null) {
-        final base = data['baseData'];
+        final base = data['baseData'] as Map<String, dynamic>;
         setState(() {
           FDate = base['FDate'] ?? FDate;
-          selectData = Map<DateMode, String>.from(base['selectData'] ?? selectData);
+          selectData[DateMode.YMD] = base['FDate'] ?? selectData[DateMode.YMD];
           storehouseName = base['storehouseName'] ?? '';
           storehouseNumber = base['storehouseNumber'] ?? '';
           showPosition = base['showPosition'] ?? false;
@@ -200,13 +204,12 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           showPositionT = base['showPositionT'] ?? false;
           keyWord = base['keyWord'] ?? '';
           isScanWork = base['isScanWork'] ?? false;
-          fBarCodeList = base['fBarCodeList'] ?? fBarCodeList;
         });
       }
 
       // 恢复行项目数据
       if (data['hobby'] != null) {
-        final List<dynamic> savedHobby = data['hobby'];
+        final savedHobby = data['hobby'] as List<dynamic>;
 
         // 重新初始化控制器和焦点节点
         for (int i = 0; i < savedHobby.length; i++) {
@@ -227,13 +230,6 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         }
       }
 
-      // 恢复其他数据
-      if (data['orderDate'] != null) {
-        orderDate = data['orderDate'];
-      }
-      if (data['materialDate'] != null) {
-        materialDate = data['materialDate'];
-      }
 
       // 恢复仓库列表
       if (organizationsNumber1 != null && organizationsNumber1.isNotEmpty) {
@@ -302,9 +298,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     stockListObjT.forEach((element) {
       stockListT.add(element[1]);
     });
-    if(this.fBillNo != null && this.fBillNo != ''){
-      this.getOrderList();
-    }
+    // if(this.fBillNo != null && this.fBillNo != ''){
+    //   this.getOrderList();
+    // }
   }
   //获取组织
   getOrganizationsList() async {
@@ -3539,6 +3535,48 @@ class _RetrievalDetailState extends State<AllocationDetail> {
   double hc_ScreenWidth() {
     return window.physicalSize.width / window.devicePixelRatio;
   }
+  // 添加一个调试方法来检查数据
+  void _debugCheckData(Map<String, dynamic> data) {
+    try {
+      // 尝试序列化数据来检查问题
+      String jsonString = jsonEncode(data);
+      print('数据可以成功序列化，长度: ${jsonString.length}');
+    } catch (e) {
+      print('序列化错误: $e');
+
+      // 递归检查数据结构
+      void _checkObject(dynamic obj, String path) {
+        if (obj == null) {
+          print('$path: null');
+          return;
+        }
+
+        if (obj is Map) {
+          obj.forEach((key, value) {
+            try {
+              jsonEncode(key); // 检查键是否可以序列化
+              _checkObject(value, '$path.$key');
+            } catch (e) {
+              print('$path: 键 $key 无法序列化，类型: ${key.runtimeType}');
+            }
+          });
+        } else if (obj is List) {
+          for (int i = 0; i < obj.length; i++) {
+            _checkObject(obj[i], '$path[$i]');
+          }
+        } else {
+          try {
+            jsonEncode(obj); // 检查值是否可以序列化
+          } catch (e) {
+            print('$path: 值无法序列化，值: $obj，类型: ${obj.runtimeType}');
+          }
+        }
+      }
+
+      _checkObject(data, 'data');
+    }
+  }
+
   // 修改 saveTempData 方法，只保留现有代码中实际存在的字段
   saveTempData() async {
     try {
@@ -3552,7 +3590,6 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       Map<String, dynamic> tempData = {
         'baseData': {
           'FDate': FDate,
-          'selectData': selectData, // 选择日期数据
           'storehouseName': storehouseName,
           'storehouseNumber': storehouseNumber,
           'showPosition': showPosition,
@@ -3571,11 +3608,9 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           'isScanWork': isScanWork,
           'fBarCodeList': fBarCodeList,
         },
-        'hobby': _serializeHobby(hobby), // 序列化 hobby 数据
+        'hobby': hobby, // 序列化 hobby 数据
         'orderDate': orderDate,
         'materialDate': materialDate,
-        // 移除不存在的字段：_checked, supplierName, supplierNumber, departmentName,
-        // departmentNumber, collarOrderDate, printData
       };
 
       await _tempDataManager.saveAllocationOrder(

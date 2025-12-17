@@ -41,11 +41,12 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
-    DateTime newDate = DateTime.now();
     //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     //EasyLoading.dismiss();
-    this.getOrderList();
+    // 延迟到下一帧执行，确保 EasyLoading 已初始化
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      this.getOrderList();
+    });
     /// 开启监听
      if (_subscription == null) {
       _subscription = scannerPlugin
@@ -81,10 +82,10 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] = "FActReceiveQty-FInStockJoinQty>0 and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FPurOrgId.FNumber = '" +tissue + "'";
+    userMap['FilterString'] = "FActReceiveQty>0 and FENTRYSTATUS = 'A' and FDocumentStatus = 'C' and FPurOrgId.FNumber = '" +tissue + "'";
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] +=/*and FActlandQty>0*/
+        userMap['FilterString'] +=/*FActReceiveQty-FInStockJoinQty>0 and*/
         " and (FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%' or FSrcBillNo like '%"+keyWord+"%' or FSupplierId.FName like '%"+keyWord+"%')";
       }
     }else{

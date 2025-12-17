@@ -111,7 +111,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
   _PurchaseWarehousingDetailState(FBillNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
-      this.getOrderPush();
+
       isScanWork = true;
     } else {
       isScanWork = false;
@@ -157,14 +157,19 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
 
         if (load == true) {
           loadTempData(tempData);
+        }else{
+          deleteTempData();
+          this.getOrderPush();
         }
+      }else{
+        this.getOrderPush();
       }
     }
   }
   // 加载缓存数据
   void loadTempData(Map<String, dynamic> tempData) async {
     try {
-      final data = jsonDecode(tempData['data']);
+      final data = tempData['data'] as Map<String, dynamic>;
 
       // 清空当前数据
       setState(() {
@@ -176,10 +181,12 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
         _textNumber3.clear();
         focusNodes.clear();
       });
-
+      orderDate = data['orderDate'] as List<dynamic>;
+      collarOrderDate = data['collarOrderDate'] as List<dynamic>;
       // 恢复基础数据
       if (data['baseData'] != null) {
-        final base = data['baseData'];
+        final base = data['baseData'] as Map<String, dynamic>;
+
         setState(() {
           FDate = base['FDate'] ?? FDate;
           selectData[DateMode.YMD] = base['FDate'] ?? selectData[DateMode.YMD];
@@ -200,7 +207,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
 
       // 恢复行项目数据
       if (data['hobby'] != null) {
-        final List<dynamic> savedHobby = data['hobby'];
+        final savedHobby = data['hobby'] as List<dynamic>;
 
         // 重新初始化控制器和焦点节点
         for (int i = 0; i < savedHobby.length; i++) {
@@ -3306,6 +3313,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         ToastUtil.errorDialog(context, errorMsg);
                         this.isSubmit = false;
                       }
+                      // 删除暂存数据
+                      await deleteTempData();
                       setState(() {
                         this.hobby = [];
                         this.orderDate = [];
@@ -3313,8 +3322,6 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
                         this.FBillNo = '';
                         this.FSaleOrderNo = '';
                       });
-                      // 删除暂存数据
-                      await deleteTempData();
                       _showSaveedDialog(newBillNo);
                     } else {
                       //失败后反审
@@ -3617,7 +3624,8 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
               leading: IconButton(
                   icon: Icon(Icons.arrow_back),
                   onPressed: () async {
-                    if(this.fBillNo != null && this.hobby.length>0){
+                    final tempData = await _tempDataManager.getPurchaseWarehousing(fBillNo);
+                    if(this.fBillNo != null && this.hobby.length>0 && tempData == null ){
                       Map<String, dynamic> deleteMap = Map();
                       deleteMap = {
                         "formid": 'STK_InStock',

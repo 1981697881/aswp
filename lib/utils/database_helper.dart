@@ -77,6 +77,48 @@ class DatabaseHelper {
       );
     }
   }
+  // 使用自定义的 JSON 编码/解码方法
+  static Map<String, dynamic> _decodeJson(String jsonString) {
+    try {
+      final decoded = jsonDecode(jsonString);
+      return _ensureMapIsMutable(decoded);
+    } catch (e) {
+      print('JSON 解码失败: $e');
+      return {};
+    }
+  }
+
+  static Map<String, dynamic> _ensureMapIsMutable(dynamic data) {
+    if (data is Map) {
+      final result = <String, dynamic>{};
+      data.forEach((key, value) {
+        final String stringKey = key.toString();
+        if (value is Map) {
+          result[stringKey] = _ensureMapIsMutable(value);
+        } else if (value is List) {
+          result[stringKey] = _ensureListIsMutable(value);
+        } else {
+          result[stringKey] = value;
+        }
+      });
+      return result;
+    }
+    return {};
+  }
+
+  static List<dynamic> _ensureListIsMutable(List<dynamic> list) {
+    final result = <dynamic>[];
+    for (var item in list) {
+      if (item is Map) {
+        result.add(_ensureMapIsMutable(item));
+      } else if (item is List) {
+        result.add(_ensureListIsMutable(item));
+      } else {
+        result.add(item);
+      }
+    }
+    return result;
+  }
 
   // 获取暂存数据
   Future<Map<String, dynamic>?> getTempData({
@@ -91,9 +133,10 @@ class DatabaseHelper {
     );
 
     if (maps.isNotEmpty) {
-      final record = maps.first;
+      final record = Map<String, dynamic>.from(maps.first);
       try {
-        record['data'] = jsonDecode(record['data']);
+        final dataString = record['data'] as String;
+        record['data'] = _decodeJson(dataString);
       } catch (e) {
         print('解析缓存数据失败: $e');
         return null;

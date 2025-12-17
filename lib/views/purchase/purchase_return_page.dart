@@ -46,7 +46,9 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     DateTime newDate = DateTime.now();
     //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     //EasyLoading.dismiss();
-    this.getOrderList();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      this.getOrderList();
+    });
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin

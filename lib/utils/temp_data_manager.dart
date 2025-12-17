@@ -91,7 +91,7 @@ class TempDataManager {
           content: Text(content),
           actions: <Widget>[
             TextButton(
-              child: Text('取消'),
+              child: Text('删除'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
